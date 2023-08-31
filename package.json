@@ -1,5 +1,5 @@
 {
-  "name": "piechserenade",
+  "name": "piechharmonix",
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.js",
@@ -10,7 +10,7 @@
     "build": "tsc"
   },
   "keywords": [],
-  "author": "",
+  "author": "David Kanovský",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.5.7",
@@ -23,6 +23,8 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "discord.js": "^14.13.0",
+    "dotenv": "^16.3.1",
+    "lavalink-client": "^1.1.10"
   }
 }
