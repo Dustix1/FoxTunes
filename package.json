@@ -25,6 +25,7 @@
   "dependencies": {
     "discord.js": "^14.13.0",
     "dotenv": "^16.3.1",
+    "glob": "^10.3.4",
     "lavalink-client": "^1.1.10"
   }
 }

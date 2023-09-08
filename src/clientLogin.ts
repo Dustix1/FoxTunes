@@ -15,8 +15,6 @@ client.login(Keys.clientToken)
 .catch((err) => {
     console.error('error logging in: ', err);
     process.exit(1);
-}).finally(() => {
-    console.log('logged in');
-});
+})
 
 export default client;
