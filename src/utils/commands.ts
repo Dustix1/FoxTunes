@@ -11,7 +11,6 @@ export let commandsSlash = new Map();
 
     for (const file of commandFiles) {
         const filePath = 'file://' + path.join(process.cwd(), file);
-        console.log(filePath);
         import(filePath).then((module) => {
             if (module.command.slash) {
                 commandsSlash.set(module.command.data.name, module.command);
