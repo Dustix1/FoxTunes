@@ -1,32 +1,33 @@
-import { LavalinkManager } from 'lavalink-client';
+import { Manager } from 'magmastream';
 import client from './clientLogin.js';
 import Keys from './keys.js';
+import chalk from 'chalk';
+import { spinnerLavalinkLogin } from './utils/spinners.js';
 
-client.lavalink = new LavalinkManager({
-    nodes: [
-        {
-            authorization: Keys.lavalinkPassword,
-            host: 'localhost',
-            port: 2333,
-            id: 'mainnode',
-        }
-    ],
-    sendToShard: (id, packet) =>
-        client.guilds.cache.get(id)?.shard?.send(packet),
-    client: {
-        id: Keys.clientID,
-        username: 'PiechHarmonix',
-    },
-    autoSkip: true,
-    playerOptions: {
-        onEmptyQueue: {
-            destroyAfterMs: 60000,
-        }
-    },
-    queueOptions: {
-        maxPreviousTracks: 25,
+const nodes = [
+    {
+        host: 'localhost',
+        identifier: 'main',
+        password: Keys.lavalinkPassword,
+        port: 2333
     }
+];
+
+client.manager = new Manager({
+    nodes,
+    send: (id, payload) => {
+        const guild = client.guilds.cache.get(id);
+        if (guild) guild.shard.send(payload);
+    },
 });
 
-client.on("raw", d => client.lavalink.sendRawData(d));
-client.on("ready", async () => await client.lavalink.init({ ...client.user! }));
+client.manager.on('nodeConnect', () => {
+    spinnerLavalinkLogin.succeed(chalk.green(`Lavalink connection established!`));
+});
+
+client.manager.on('nodeError', (node: any, error: any) => {
+    spinnerLavalinkLogin.fail(chalk.red.bold(`Lavalink connection failed! --> ${error.message}`));
+    process.exit(1);
+});
+
+client.on('raw', (d) => client.manager.updateVoiceState(d));

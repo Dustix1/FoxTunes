@@ -1,5 +1,7 @@
 import { Client, GatewayIntentBits } from 'discord.js';
 import Keys from './keys.js';
+import { spinnerDiscordLogin } from './utils/spinners.js';
+import chalk from 'chalk';
 
 const client = new Client({
     intents: [
@@ -9,11 +11,11 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.MessageContent,
     ],
-}) as Client & { lavalink: any };
+}) as Client & { manager: any };
 
 client.login(Keys.clientToken)
 .catch((err) => {
-    console.error('error logging in: ', err);
+    spinnerDiscordLogin.fail(chalk.red.bold(`Discord login failed! --> ${err.message}`));
     process.exit(1);
 })
 

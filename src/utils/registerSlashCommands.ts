@@ -13,6 +13,5 @@ commandsSlash.forEach(command => {
 });
 
 client.guilds.cache.forEach(guild => {
-    console.log(`Refreshing commands for guild ${guild.name} [${guild.id}] (${i + 1}/${client.guilds.cache.size})`);
     rest.put(Routes.applicationGuildCommands(Keys.clientID, guild.id), { body: commands })
 })

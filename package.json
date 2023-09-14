@@ -23,9 +23,12 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
+    "chalk": "^5.3.0",
+    "cli-spinners": "^2.9.1",
     "discord.js": "^14.13.0",
     "dotenv": "^16.3.1",
     "glob": "^10.3.4",
-    "lavalink-client": "^1.1.10"
+    "magmastream": "^2.2.3",
+    "ora": "^7.0.1"
   }
 }
