@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from "discord.js";
 
 export const command = {
     slash: true,
+    usage: '\`\`/ping\nPossible Arguments: pong\`\`',
     data: new SlashCommandBuilder()
         .setName('ping')
         .setDescription('Replies with Pong!')

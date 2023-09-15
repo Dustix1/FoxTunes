@@ -13,9 +13,9 @@ export let commandsSlash = new Map();
         const filePath = 'file://' + path.join(process.cwd(), file);
         import(filePath).then((module) => {
             if (module.command.slash) {
-                commandsSlash.set(module.command.data.name, module.command);
+                commandsSlash.set(module.command.data.name.toLowerCase(), module.command);
             } else {
-                commandsMessage.set(module.command.name, module.command);
+                commandsMessage.set(module.command.name.toLowerCase(), module.command);
             }
         })
     }
