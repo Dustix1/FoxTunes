@@ -1,6 +1,10 @@
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { commandsMessage, commandsSlash } from "../../utils/commands.js";
 
+function capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 export const command = {
     slash: true,
     usage: '\`\`/ping\nAvailable Arguments: command_name\`\`',
@@ -34,13 +38,14 @@ export const command = {
 
             return interaction.reply({ embeds: [helpEmbed] });
         }
+        
         let command = interaction.options.getString('command').toLowerCase(); 
-        if(!commandsMessage.has(command)) return;
+        if(!commandsMessage.has(command)) return interaction.reply({ content: 'Command not found!', ephemeral: true });;
 
         let helpEmbed = new EmbedBuilder()
             .setColor('#9614d0')
             .setAuthor({ name: '[PH BOT NAME]', iconURL: 'https://i.ibb.co/mNzxfp4/Piech-Universal.jpg' })
-            .setTitle(commandsMessage.get(command).name)
+            .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
             .setDescription(commandsMessage.get(command).description)
             .addFields(
                 { name: 'Command Usage:', value: commandsMessage.get(command).usage, inline: true },
