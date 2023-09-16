@@ -29,7 +29,7 @@ export const command = {
 
             let helpEmbed = new EmbedBuilder()
                 .setColor('#9614d0')
-                .setAuthor({ name: '[PH BOT NAME]', iconURL: 'https://i.ibb.co/mNzxfp4/Piech-Universal.jpg' })
+                .setAuthor({ name: 'FoxTunes', iconURL: 'https://i.ibb.co/mNzxfp4/Piech-Universal.jpg' })
                 .setTitle('Commands')
                 .addFields( 
                     { name: 'Message Commands:', value: commandsM },
@@ -44,7 +44,7 @@ export const command = {
 
         let helpEmbed = new EmbedBuilder()
             .setColor('#9614d0')
-            .setAuthor({ name: '[PH BOT NAME]', iconURL: 'https://i.ibb.co/mNzxfp4/Piech-Universal.jpg' })
+            .setAuthor({ name: 'FoxTunes', iconURL: 'https://i.ibb.co/mNzxfp4/Piech-Universal.jpg' })
             .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
             .setDescription(commandsMessage.get(command).description)
             .addFields(
