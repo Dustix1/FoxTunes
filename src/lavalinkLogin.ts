@@ -9,7 +9,7 @@ const nodes = [
         host: 'localhost',
         identifier: 'main',
         password: Keys.lavalinkPassword,
-        port: 2333
+        port: 2334
     }
 ];
 

@@ -1,13 +1,18 @@
-import { EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { commandsMessage, commandsSlash } from "../../utils/commands.js";
 
 export const command = {
-    slash: false,
-    name: 'help',
-    usage: '\`\`!help\nAvailable Arguments: command_name\`\`',
-    description: 'List all commands or info about a specific command.',
-    async execute(message: any, args: any) {
-        if(!args[0]) {
+    slash: true,
+    usage: '\`\`/ping\nAvailable Arguments: command_name\`\`',
+    data: new SlashCommandBuilder()
+        .setName('help')
+        .setDescription('List all commands or info about a specific command.')
+        .addStringOption(option =>
+            option.setName('command')
+            .setDescription('command name')
+        ),
+    async execute(interaction: any) {
+        if(!interaction.options.getString('command')) {
             let commandsM = '';
             let commandsS = '';
             commandsMessage.forEach(command => {
@@ -27,9 +32,9 @@ export const command = {
                     { name: 'Slash Commands:', value: commandsS }
                 )
 
-            return message.channel.send({ embeds: [helpEmbed] });
+            return interaction.reply({ embeds: [helpEmbed] });
         }
-        let command = args[0].toLowerCase(); 
+        let command = interaction.options.getString('command').toLowerCase(); 
         if(!commandsMessage.has(command)) return;
 
         let helpEmbed = new EmbedBuilder()
@@ -42,7 +47,6 @@ export const command = {
                 { name: 'Slash Command Usage:', value: commandsSlash.get(command).usage, inline: true }
             )
 
-        message.channel.send({ embeds: [helpEmbed] });
-            
+        interaction.reply({ embeds: [helpEmbed] });
     }
 }
