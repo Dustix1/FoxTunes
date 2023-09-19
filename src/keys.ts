@@ -5,6 +5,7 @@ export const Keys = {
     clientID: getEnvVar('CLIENT_ID'),
     lavalinkPassword: getEnvVar('LAVALINK_PASSWORD'),
     mode: getEnvVar('MODE'),
+    mainColor: '#ff7700',
 } as const;
 
 export default Keys;

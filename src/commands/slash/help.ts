@@ -1,5 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { commandsMessage, commandsSlash } from "../../utils/commands.js";
+import { Keys } from "../../keys.js";
+import client from "../../clientLogin.js";
 
 function capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -28,8 +30,8 @@ export const command = {
             });
 
             let helpEmbed = new EmbedBuilder()
-                .setColor('#9614d0')
-                .setAuthor({ name: 'FoxTunes', iconURL: 'https://i.ibb.co/mNzxfp4/Piech-Universal.jpg' })
+                .setColor(Keys.mainColor)
+                .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
                 .setTitle('Commands')
                 .addFields( 
                     { name: 'Message Commands:', value: commandsM },
@@ -43,7 +45,7 @@ export const command = {
         if(!commandsMessage.has(command)) return interaction.reply({ content: 'Command not found!', ephemeral: true });;
 
         let helpEmbed = new EmbedBuilder()
-            .setColor('#9614d0')
+            .setColor(Keys.mainColor)
             .setAuthor({ name: 'FoxTunes', iconURL: 'https://i.ibb.co/mNzxfp4/Piech-Universal.jpg' })
             .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
             .setDescription(commandsMessage.get(command).description)
