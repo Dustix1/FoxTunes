@@ -1,6 +1,8 @@
 import { Events } from 'discord.js';
 import { commandsMessage } from '../utils/commands.js';
 import chalk from 'chalk';
+import logMessage from '../utils/logMessage.js';
+import { Keys } from '../keys.js';
 
 export const event = {
     name: Events.MessageCreate,
@@ -14,7 +16,8 @@ export const event = {
         if (!commandsMessage.has(command)) return;
         
         try {
-            console.log(chalk.blue.bold('\n[PH BOT NAME]') + ' >> ' + chalk.cyan.bold(`${message.author.username}`) + chalk.gray(` used `) + chalk.cyan.bold(`${message}`) + chalk.gray(` on `) + chalk.cyan.bold(`${message.guild.name} `) + chalk.cyan.bold(`(${message.guild.id})`));
+            logMessage(chalk.hex(Keys.secondaryColor).bold(`${message.author.username}`) + ` used ` + chalk.hex(Keys.secondaryColor).bold(`${message}`) + ` on ` + chalk.hex(Keys.secondaryColor).bold(`${message.guild.name} `) + chalk.hex(Keys.secondaryColor).bold(`(${message.guild.id})`));
+
             commandsMessage.get(command).execute(message, args);
         } catch (error) {
             console.error(error);

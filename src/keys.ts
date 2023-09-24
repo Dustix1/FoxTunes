@@ -6,6 +6,7 @@ export const Keys = {
     lavalinkPassword: getEnvVar('LAVALINK_PASSWORD'),
     mode: getEnvVar('MODE'),
     mainColor: '#ff7700',
+    secondaryColor: '#ffaa00',
 } as const;
 
 export default Keys;

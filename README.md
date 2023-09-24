@@ -28,6 +28,6 @@ Dále si uživatelé můžou vytvořit a upravovat své vlastní playlisty, kter
 
 ## Poděkování <a name = "thanks"></a>
 - Lukáš Kanovský - Design loga
-- Erik Graf - ahoj
+- Erik Graf - Spolupráce
 
 ## Zdroje <a name = "sources"></a>

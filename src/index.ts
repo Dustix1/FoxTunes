@@ -1,10 +1,10 @@
 import chalk from 'chalk';
+import { Keys } from './keys.js';
 
-console.log(chalk.blueBright('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'));
-console.log(chalk.cyan('    ► Initiating startup sequence... ◄    '));
-console.log(chalk.blueBright('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'));
+console.log(chalk.hex(Keys.secondaryColor)('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'));
+console.log(chalk.hex(Keys.mainColor).bold('    ► Initiating startup sequence... ◄    '));
+console.log(chalk.hex(Keys.secondaryColor)('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'));
 
 import('./utils/spinners.js');
 import('./utils/events.js');
 import('./clientLogin.js');
-
