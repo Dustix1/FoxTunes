@@ -16,10 +16,10 @@ export const event = {
         try {
             logMessage(chalk.hex(Keys.secondaryColor).bold(`${interaction.user.username}`) + ` used ` + chalk.hex(Keys.secondaryColor).bold(`${interaction}`) + ` on ` + chalk.hex(Keys.secondaryColor).bold(`${interaction.guild?.name} `) + chalk.hex(Keys.secondaryColor).bold(`(${interaction.guild?.id})`));
 
-            commandsSlash.get(command).execute(interaction, interaction.options);
+            await commandsSlash.get(command).execute(interaction, interaction.options);
         } catch (error) {
             console.error(error);
-            await interaction.reply('there was an error trying to execute that command!');
+            await interaction.reply({ content: 'there was an error trying to execute that command!', ephemeral: true });
         }
     }
 }

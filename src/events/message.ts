@@ -18,7 +18,7 @@ export const event = {
         try {
             logMessage(chalk.hex(Keys.secondaryColor).bold(`${message.author.username}`) + ` used ` + chalk.hex(Keys.secondaryColor).bold(`${message}`) + ` on ` + chalk.hex(Keys.secondaryColor).bold(`${message.guild.name} `) + chalk.hex(Keys.secondaryColor).bold(`(${message.guild.id})`));
 
-            commandsMessage.get(command).execute(message, args);
+            await commandsMessage.get(command).execute(message, args);
         } catch (error) {
             console.error(error);
             await message.reply('there was an error trying to execute that command!');

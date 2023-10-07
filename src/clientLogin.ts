@@ -2,6 +2,7 @@ import { Client, GatewayIntentBits } from 'discord.js';
 import Keys from './keys.js';
 import { spinnerDiscordLogin } from './utils/spinners.js';
 import chalk from 'chalk';
+import { Manager } from 'magmastream';
 
 const client = new Client({
     intents: [
@@ -11,7 +12,7 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.MessageContent,
     ],
-}) as Client & { manager: any };
+}) as Client & { manager: Manager };
 
 client.login(Keys.clientToken)
 .catch((err) => {
