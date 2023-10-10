@@ -1,6 +1,7 @@
 import { Player } from "magmastream";
 import client from "../../clientLogin.js"
 import { Message } from "discord.js";
+import { CommandMessage } from "../../structures/command.js";
 
 const createPlayer = (message: Message) => {
     player = client.manager.create({
@@ -14,22 +15,22 @@ const createPlayer = (message: Message) => {
 
 let player: Player;
 
-export const command = {
+export const command: CommandMessage = {
     slash: false,
     name: 'play',
     usage: '\`\`!play\nAvailable Arguments: song_name/song_url\`\`',
     description: 'Plays a song.',
-    async execute(message: any, args: any) {
+    async execute(message: Message, args: any) {
         const query = args[0];
 
-        if (!query) return message.reply({ content: 'please provide a song name or url!', ephemeral: true });
-        if (!message.member.voice.channel) return message.reply({ content: 'you must be in a voice channel to use this command!', ephemeral: true });
+        if (!query) return message.reply({ content: 'please provide a song name or url!'});
+        if (!message.member?.voice.channel) return message.reply({ content: 'you must be in a voice channel to use this command!'});
 
         const botCurrentVoiceChannelId =
             message.guild?.members.me?.voice.channelId;
 
         if (botCurrentVoiceChannelId && message.member.voice.channelId && message.member.voice.channelId !== botCurrentVoiceChannelId) {
-            return await message.reply({ content: `You must be connnected to the same voice channel as me to use this command. <#${botCurrentVoiceChannelId}>`, ephemeral: true });
+            return await message.reply({ content: `You must be connnected to the same voice channel as me to use this command. <#${botCurrentVoiceChannelId}>`});
         }
 
         if (!(player)) createPlayer(message);

@@ -1,11 +1,12 @@
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, Message } from "discord.js";
+import { CommandMessage } from "../../structures/command.js";
 
-export const command = {
+export const command : CommandMessage = {
     slash: false,
     name: 'overseer',
     usage: '\`\`!overseer\nNo available Arguments.\`\`',
     description: 'Overseer advertisement.',
-    async execute(message: any, args: any) {
+    async execute(message: Message, args: any) {
         const overseerEmbed = new EmbedBuilder()
             .setColor('#ff0000')
             .setTitle('The Overseer')

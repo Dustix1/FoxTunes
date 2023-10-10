@@ -1,12 +1,13 @@
-import { SlashCommandBuilder, EmbedBuilder } from "discord.js"
+import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction } from "discord.js"
+import { CommandSlash } from "../../structures/command.js"
 
-export const command = {
+export const command: CommandSlash = {
     slash: true,
     usage: '\`\`/overseer\nNo available Arguments.\`\`',
     data: new SlashCommandBuilder()
         .setName('overseer')
         .setDescription('Overseer advertisement.'),
-    async execute(interaction: any) {
+    async execute(interaction: ChatInputCommandInteraction) {
         const overseerEmbed = new EmbedBuilder()
             .setColor('#ff0000')
             .setTitle('The Overseer')

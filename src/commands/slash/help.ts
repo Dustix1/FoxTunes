@@ -1,13 +1,14 @@
-import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, EmbedBuilder, Interaction, ChatInputCommandInteraction } from "discord.js";
 import { commandsMessage, commandsSlash } from "../../utils/commands.js";
 import { Keys } from "../../keys.js";
 import client from "../../clientLogin.js";
+import { CommandSlash } from "../../structures/command.js";
 
 function capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export const command = {
+export const command: CommandSlash = {
     slash: true,
     usage: '\`\`/ping\nAvailable Arguments: command_name\`\`',
     data: new SlashCommandBuilder()
@@ -17,16 +18,20 @@ export const command = {
             option.setName('command')
             .setDescription('command name')
         ),
-    async execute(interaction: any) {
+    async execute(interaction: ChatInputCommandInteraction) {
         if(!interaction.options.getString('command')) {
             let commandsM = '';
             let commandsS = '';
             commandsMessage.forEach(command => {
-                commandsM += `\`!${command.name}\` - ${command.description}\n`;
+                if(!command.hidden) {
+                    commandsM += `\`!${command.name}\` - ${command.description}\n`;
+                }
             });
 
             commandsSlash.forEach(command => {
-                commandsS += `\`/${command.data.name}\` - ${command.data.description}\n`;
+                if (!command.hidden) {
+                    commandsS += `\`/${command.data.name}\` - ${command.data.description}\n`;
+                }
             });
 
             let helpEmbed = new EmbedBuilder()
@@ -41,12 +46,12 @@ export const command = {
             return interaction.reply({ embeds: [helpEmbed] });
         }
         
-        let command = interaction.options.getString('command').toLowerCase(); 
-        if(!commandsMessage.has(command)) return interaction.reply({ content: 'Command not found!', ephemeral: true });;
+        let command = interaction.options.getString('command')?.toLowerCase(); 
+        if(!commandsMessage.has(command)) return interaction.reply({ content: 'Command not found!', ephemeral: true });
 
         let helpEmbed = new EmbedBuilder()
             .setColor(Keys.mainColor)
-            .setAuthor({ name: 'FoxTunes', iconURL: 'https://i.ibb.co/mNzxfp4/Piech-Universal.jpg' })
+            .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
             .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
             .setDescription(commandsMessage.get(command).description)
             .addFields(
