@@ -1,19 +1,6 @@
-import { Player } from "magmastream";
-import client from "../../clientLogin.js"
 import { Message } from "discord.js";
 import { CommandMessage } from "../../structures/command.js";
-
-const createPlayer = (message: Message) => {
-    player = client.manager.create({
-        guild: message.guild!.id,
-        voiceChannel: message.member!.voice.channel!.id,
-        textChannel: message.channel.id,
-        selfDeafen: true,
-        volume: 20,
-    });
-}
-
-let player: Player;
+import { createPlayer, player } from "../../structures/player.js";
 
 export const command: CommandMessage = {
     slash: false,
@@ -26,8 +13,7 @@ export const command: CommandMessage = {
         if (!query) return message.reply({ content: 'please provide a song name or url!'});
         if (!message.member?.voice.channel) return message.reply({ content: 'you must be in a voice channel to use this command!'});
 
-        const botCurrentVoiceChannelId =
-            message.guild?.members.me?.voice.channelId;
+        const botCurrentVoiceChannelId = message.guild?.members.me?.voice.channelId;
 
         if (botCurrentVoiceChannelId && message.member.voice.channelId && message.member.voice.channelId !== botCurrentVoiceChannelId) {
             return await message.reply({ content: `You must be connnected to the same voice channel as me to use this command. <#${botCurrentVoiceChannelId}>`});
@@ -35,11 +21,9 @@ export const command: CommandMessage = {
 
         if (!(player)) createPlayer(message);
 
-        
-
-        if (player.state !== 'CONNECTED') await player.connect();
-
         const res = await player.search(query, message.author);
+
+        console.log(res.loadType);
 
         switch (res.loadType) {
             case "empty":
@@ -59,16 +43,18 @@ export const command: CommandMessage = {
             case "track":
                 player.queue.add(res.tracks[0]);
 
+                if (player.state !== 'CONNECTED') await player.connect();
+
                 if (!player.playing && !player.paused && !player.queue.length) {
                     await player.play();
                 }
 
-                return await message.reply({
-                    content: `Added [${res.tracks[0].title}](${res.tracks[0].uri}) to the queue.`,
-                });
+                return (await message.reply({content: `Added [${res.tracks[0].title}](${res.tracks[0].uri}) to the queue.`,})).suppressEmbeds();
 
             case "playlist":
                 if (!res.playlist?.tracks) return;
+
+                if (player.state !== 'CONNECTED') await player.connect();
 
                 player.queue.add(res.playlist.tracks);
 
@@ -80,19 +66,17 @@ export const command: CommandMessage = {
                     await player.play();
                 }
 
-                return await message.reply({
-                    content: `Added [${res.playlist.name}](${query}) playlist to the queue.`,
-                });
+                return (await message.reply({content: `Added [${res.playlist.name}](${query}) playlist to the queue.`,})).suppressEmbeds();
 
             case "search":
+                if (player.state !== 'CONNECTED') await player.connect();
+                
                 player.queue.add(res.tracks[0]);
                 if (!player.playing && !player.paused && !player.queue.length) {
                     await player.play();
                 }
 
-                return await message.reply({
-                    content: `Added [${res.tracks[0].title}](${res.tracks[0].uri}) to the queue.`,
-                });
+                return (await message.reply({ content: `Added [${res.tracks[0].title}](${res.tracks[0].uri}) to the queue.`, })).suppressEmbeds();
             }
 
         }
