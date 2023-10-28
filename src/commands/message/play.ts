@@ -1,6 +1,8 @@
 import { Message } from "discord.js";
 import { CommandMessage } from "../../structures/command.js";
 import { createPlayer, player } from "../../structures/player.js";
+import client from "../../clientLogin.js";
+import logMessage from "../../utils/logMessage.js";
 
 export const command: CommandMessage = {
     slash: false,
@@ -16,14 +18,14 @@ export const command: CommandMessage = {
         const botCurrentVoiceChannelId = message.guild?.members.me?.voice.channelId;
 
         if (botCurrentVoiceChannelId && message.member.voice.channelId && message.member.voice.channelId !== botCurrentVoiceChannelId) {
-            return await message.reply({ content: `You must be connnected to the same voice channel as me to use this command. <#${botCurrentVoiceChannelId}>`});
+            return await message.reply({ content: `You must be connnected to the same voice channel as me to use this command. I'm in <#${botCurrentVoiceChannelId}>`});
         }
 
-        if (!(player)) createPlayer(message);
+        if (!(client.manager.players.get(message.guild!.id))) createPlayer(message);
 
         const res = await player.search(query, message.author);
 
-        console.log(res.loadType);
+        logMessage(res.loadType);
 
         switch (res.loadType) {
             case "empty":

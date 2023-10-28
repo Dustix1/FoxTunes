@@ -44,7 +44,18 @@ export const command: CommandMessage = {
         let command = args[0].toLowerCase(); 
         if(!commandsMessage.has(command)) return message.reply({ content: 'Command not found!'});
 
-        let helpEmbed = new EmbedBuilder()
+        let helpEmbed;
+        if (!commandsSlash.get(command)) {
+            helpEmbed = new EmbedBuilder()
+            .setColor(Keys.mainColor)
+            .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
+            .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
+            .setDescription(commandsMessage.get(command).description)
+            .addFields(
+                { name: 'Command Usage:', value: '*PREFIX COMMAND ONLY*\n' + commandsMessage.get(command).usage, inline: true }
+            )
+        } else {
+            helpEmbed = new EmbedBuilder()
             .setColor(Keys.mainColor)
             .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
             .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
@@ -53,6 +64,7 @@ export const command: CommandMessage = {
                 { name: 'Command Usage:', value: commandsMessage.get(command).usage, inline: true },
                 { name: 'Slash Command Usage:', value: commandsSlash.get(command).usage, inline: true }
             )
+        }
 
         message.channel.send({ embeds: [helpEmbed] });
             

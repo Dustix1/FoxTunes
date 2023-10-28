@@ -8,7 +8,7 @@ export const event = {
     name: Events.MessageCreate,
     async execute(message: any) {
         if (message.author.bot) return;
-        if (!message.content.startsWith('!')) return;
+        if (!message.content.startsWith(Keys.prefix)) return;
 
         const args = message.content.slice(1).trim().split(/ +/);
         const command = args.shift().toLowerCase();

@@ -7,6 +7,7 @@ export const Keys = {
     mode: getEnvVar('MODE'),
     mainColor: '#ff7700',
     secondaryColor: '#ffaa00',
+    prefix: getEnvVar('PREFIX'),
 } as const;
 
 export default Keys;

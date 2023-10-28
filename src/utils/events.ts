@@ -1,20 +1,24 @@
-import fs from 'node:fs';
+import { glob } from 'glob';
 import path from 'node:path';
 import Keys from '../keys.js';
 
 import client from '../clientLogin.js';
 
-const eventsPath = path.join(process.cwd(),  Keys.mode === 'development' ? './src/events' : './dist/events');
-const eventFiles = fs.readdirSync(eventsPath).filter((file: any) =>  Keys.mode === 'development' ? file.endsWith('.ts') : file.endsWith('.js'));
+(async () => {
+	let eventFiles;
+	Keys.mode === 'development' ? eventFiles = await glob('src/events/**/*.ts') : eventFiles = await glob('dist/events/**/*.js');
 
-for (const file of eventFiles) {
-    const filePath = 'file://' + path.join(eventsPath, file);
-    import(filePath).then((module) => {
-        let event = module.event;
-	    if (event.once) {
-		    client.once(event.name, (...args) => event.execute(...args));
-	    } else {
-		    client.on(event.name, (...args) => event.execute(...args));
-	    }
-    })
-}
+	for (const file of eventFiles) {
+		const filePath = 'file://' + path.join(process.cwd(), file);
+		import(filePath).then((module) => {
+			let event = module.event;
+			if (event.once) {
+				client.once(event.name, (...args) => event.execute(...args));
+			} else if (event.manager) {
+				client.manager.on(event.name, (...args) => event.execute(...args));
+			} else {
+				client.on(event.name, (...args) => event.execute(...args));
+			}
+		})
+	}
+})();
