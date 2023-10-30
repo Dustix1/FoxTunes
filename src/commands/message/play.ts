@@ -10,7 +10,7 @@ export const command: CommandMessage = {
     usage: '\`\`!play\nAvailable Arguments: song_name/song_url\`\`',
     description: 'Plays a song.',
     async execute(message: Message, args: any) {
-        const query = args[0];
+        const query = message.content.slice(6);
 
         if (!query) return message.reply({ content: 'please provide a song name or url!'});
         if (!message.member?.voice.channel) return message.reply({ content: 'you must be in a voice channel to use this command!'});
@@ -32,14 +32,14 @@ export const command: CommandMessage = {
                 if (!player.queue.current) player.destroy();
 
                 return await message.reply({
-                    content: `Load failed when searching for \`${query}\``,
+                    content: `Nothing found when searching for \`${query}\``,
                 });
 
             case "error":
                 if (!player.queue.current) player.destroy();
 
                 return await message.reply({
-                    content: `No matches when searching for \`${query}\``,
+                    content: `Load failed when searching for \`${query}\``,
                 });
 
             case "track":
@@ -51,7 +51,7 @@ export const command: CommandMessage = {
                     await player.play();
                 }
 
-                return (await message.reply({content: `Added [${res.tracks[0].title}](${res.tracks[0].uri}) to the queue.`,})).suppressEmbeds();
+                if (player.queue.length != 0) return (await message.reply({content: `Added [${res.tracks[0].title}](${res.tracks[0].uri}) to the queue.`,})).suppressEmbeds();
 
             case "playlist":
                 if (!res.playlist?.tracks) return;
@@ -68,7 +68,7 @@ export const command: CommandMessage = {
                     await player.play();
                 }
 
-                return (await message.reply({content: `Added [${res.playlist.name}](${query}) playlist to the queue.`,})).suppressEmbeds();
+                if (player.queue.length != 0) return (await message.reply({content: `Added [${res.playlist.name}](${query}) playlist to the queue.`,})).suppressEmbeds();
 
             case "search":
                 if (player.state !== 'CONNECTED') await player.connect();
@@ -78,7 +78,7 @@ export const command: CommandMessage = {
                     await player.play();
                 }
 
-                return (await message.reply({ content: `Added [${res.tracks[0].title}](${res.tracks[0].uri}) to the queue.`, })).suppressEmbeds();
+                if (player.queue.length != 0) return (await message.reply({ content: `Added [${res.tracks[0].title}](${res.tracks[0].uri}) to the queue.`, })).suppressEmbeds();
             }
 
         }

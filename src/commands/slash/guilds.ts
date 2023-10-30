@@ -19,7 +19,7 @@ export const command: CommandSlash = {
         let guildsEmbed = new EmbedBuilder()
             .setColor(Keys.mainColor)
             .setTitle('Guilds')
-            .setDescription(guilds);
+            .addFields({ name: 'Guilds:', value: guilds });
 
         interaction.reply({ embeds: [guildsEmbed] });
     }

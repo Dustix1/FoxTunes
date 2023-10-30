@@ -8,7 +8,7 @@ export const event = {
     async execute(player: Player, track: Track) {
         const channel = await (await client.guilds.fetch(player.guild))!.channels.fetch(player.textChannel!) as TextChannel;
         if (channel) {
-            (await channel.send(`Now playing: [**${track.title}**](${track.uri})`)).suppressEmbeds();
+            return (await channel.send(`Now playing: [**${track.title}**](${track.uri})`)).suppressEmbeds();
         }
     }
 }
