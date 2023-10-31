@@ -10,6 +10,6 @@ export const event = {
                 player.disconnect();
                 return player.destroy();
             }
-        }, 30000);
+        }, 10000);
     }
 }

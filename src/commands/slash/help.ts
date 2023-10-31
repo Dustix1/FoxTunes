@@ -10,7 +10,7 @@ function capitalizeFirstLetter(string: string) {
 
 export const command: CommandSlash = {
     slash: true,
-    usage: '\`\`/ping\nAvailable Arguments: command_name\`\`',
+    usage: '\`\`/help\nAvailable Arguments: command_name\`\`',
     data: new SlashCommandBuilder()
         .setName('help')
         .setDescription('List all commands or info about a specific command.')
