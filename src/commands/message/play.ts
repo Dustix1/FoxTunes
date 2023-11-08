@@ -12,20 +12,20 @@ export const command: CommandMessage = {
     async execute(message: Message, args: any) {
         const query = message.content.slice(6);
 
-        if (!query) return message.reply({ content: 'please provide a song name or url!'});
-        if (!message.member?.voice.channel) return message.reply({ content: 'you must be in a voice channel to use this command!'});
+        if (!query) return message.reply({ content: 'please provide a song name or url!' });
+        if (!message.member?.voice.channel) return message.reply({ content: 'you must be in a voice channel to use this command!' });
 
         const botCurrentVoiceChannelId = message.guild?.members.me?.voice.channelId;
 
         if (botCurrentVoiceChannelId && message.member.voice.channelId && message.member.voice.channelId !== botCurrentVoiceChannelId) {
-            return await message.reply({ content: `You must be connnected to the same voice channel as me to use this command. I'm in <#${botCurrentVoiceChannelId}>`});
+            return await message.reply({ content: `You must be connnected to the same voice channel as me to use this command. I'm in <#${botCurrentVoiceChannelId}>` });
         }
 
         if (!(client.manager.players.get(message.guild!.id))) createPlayer(message);
 
         const res = await player.search(query, message.author);
 
-        logMessage(res.loadType);
+        logMessage(res.loadType, true);
 
         switch (res.loadType) {
             case "empty":
@@ -51,7 +51,13 @@ export const command: CommandMessage = {
                     await player.play();
                 }
 
-                if (player.queue.length != 0) return (await message.reply({content: `Added [${res.tracks[0].title}](${res.tracks[0].uri}) to the queue.`,})).suppressEmbeds();
+                if (player.queue.length != 0) {
+                    message.reply({ content: `Added [${res.tracks[0].title.replace(/[^\x20-\x7E]/g, '')}](${res.tracks[0].uri}) to the queue.`, }).then((msg) => {
+                        setTimeout(() => {
+                            return msg.suppressEmbeds();
+                        }, 2000);
+                    });
+                }
 
             case "playlist":
                 if (!res.playlist?.tracks) return;
@@ -68,18 +74,30 @@ export const command: CommandMessage = {
                     await player.play();
                 }
 
-                if (player.queue.length != 0) return (await message.reply({content: `Added [${res.playlist.name}](${query}) playlist to the queue.`,})).suppressEmbeds();
+                if (player.queue.length != 0) {
+                    message.reply({ content: `Added [${res.playlist.name.replace(/[^\x20-\x7E]/g, '')}](${query}) playlist to the queue.`, }).then((msg) => {
+                        setTimeout(() => {
+                            return msg.suppressEmbeds();
+                        }, 2000);
+                    });
+                }
 
             case "search":
                 if (player.state !== 'CONNECTED') await player.connect();
-                
+
                 player.queue.add(res.tracks[0]);
                 if (!player.playing && !player.paused && !player.queue.length) {
                     await player.play();
                 }
 
-                if (player.queue.length != 0) return (await message.reply({ content: `Added [${res.tracks[0].title}](${res.tracks[0].uri}) to the queue.`, })).suppressEmbeds();
-            }
-
+                if (player.queue.length != 0) {
+                    message.reply({ content: `Added [${res.tracks[0].title.replace(/[^\x20-\x7E]/g, '')}](${res.tracks[0].uri}) to the queue.`, }).then((msg) => {
+                        setTimeout(() => {
+                            return msg.suppressEmbeds();
+                        }, 2000);
+                    });
+                }
         }
+
     }
+}

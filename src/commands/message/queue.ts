@@ -23,7 +23,7 @@ async function addEmbendFields(player: Player, embed: EmbedBuilder, page: number
     fields.push({ name: 'Now Playing', value: `[${player!.queue.current?.title.replace(/[^\x20-\x7E]/g, '')}](${player!.queue.current!.uri})\nDuration: ${millisecondsToTime(player!.queue.current?.duration!)}`, inline: false });
 
     player?.queue.slice(page == 1 ? 0 : (page * songsPerPage) - songsPerPage, page == 1 ? songsPerPage : ((page * songsPerPage) - songsPerPage) + songsPerPage).forEach((track, index) => {
-        fields.push({ name: `${page == 1 ? (index + 1) : (((page * songsPerPage) - songsPerPage) + index) + 1 }. [${track.title.replace(/[^\x20-\x7E]/g, '')}](${track.uri})`, value: `Duration: ${millisecondsToTime(track.duration!)} `, inline: false });
+        fields.push({ name: `${page == 1 ? (index + 1) : (((page * songsPerPage) - songsPerPage) + index) + 1 }. ${track.title.replace(/[^\x20-\x7E]/g, '')}`, value: `Duration: ${millisecondsToTime(track.duration!)} [link](${track.uri})`, inline: false });
     });
     embed.setFooter({ text: `Page ${page} of ${Math.ceil(player!.queue.size == 0 ? 1 : player!.queue.size / songsPerPage)}` });
     embed.addFields(fields!);
