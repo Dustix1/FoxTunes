@@ -5,7 +5,7 @@ import client from "../../clientLogin.js";
 export const command: CommandMessage = {
     slash: false,
     name: 'skip',
-    usage: '\`\`!skip\nAvailable arguments: number_of_songs_to_skip\`\`',
+    usage: '\`\`!skip\nAvailable arguments: number_of_songs_to_skip/all\`\`',
     description: 'Skips a song.',
     async execute(message: Message, args: any) {
         let player = client.manager.players.get(message.guild!.id);
@@ -18,7 +18,8 @@ export const command: CommandMessage = {
             player.stop();
             message.reply({ content: 'Skipping song...' });
         } else {
-            let skipNumber = parseInt(args[0]);
+            let skipNumber;
+            args[0].toLocaleLowerCase() === 'all' ? skipNumber = player.queue.length + 1 : skipNumber = parseInt(args[0]!);
             if (isNaN(skipNumber)) return message.reply('Please provide a number.');
             skipNumber = Math.abs(skipNumber);
 

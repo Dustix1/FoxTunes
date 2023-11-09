@@ -1,8 +1,8 @@
-import { ButtonBuilder, ButtonStyle, EmbedBuilder, Message } from "discord.js";
-import { CommandMessage } from "../../structures/command.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, ButtonBuilder, ButtonStyle, EmbedBuilder, GuildMember, Message } from "discord.js";
+import { CommandSlash } from "../../structures/command.js";
+import { Player } from "magmastream";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
-import { Player } from "magmastream";
 
 const songsPerPage = 4;
 let page: number;
@@ -29,13 +29,13 @@ async function addEmbendFields(player: Player, embed: EmbedBuilder, page: number
     embed.addFields(fields!);
 }
 
-async function waitForButton(myMessage: Promise<Message>, message: Message, player: Player, queueEmbed: EmbedBuilder, previousButton: ButtonBuilder, nextButton: ButtonBuilder) {
+async function waitForButton(myMessage: Message, player: Player, queueEmbed: EmbedBuilder, previousButton: ButtonBuilder, nextButton: ButtonBuilder) {
     try {
         let buttonInt = (await myMessage).awaitMessageComponent({ time: 90000 });
         (await buttonInt).customId == 'next' ? page++ : page--;
         await addEmbendFields(player, queueEmbed, page, previousButton, nextButton).then (async () => {
             (await buttonInt).update({ embeds: [queueEmbed], components: [{ type: 1, components: [previousButton, nextButton] }] });
-            waitForButton(myMessage, message, player, queueEmbed, previousButton, nextButton);
+            waitForButton(myMessage, player, queueEmbed, previousButton, nextButton);
         });
     } catch (err) {
         nextButton.setDisabled(true);
@@ -45,17 +45,18 @@ async function waitForButton(myMessage: Promise<Message>, message: Message, play
     }
 }
 
-export const command: CommandMessage = {
-    slash: false,
-    name: 'queue',
-    usage: '\`\`!queue\nNo available Arguments.\`\`',
-    description: 'Lists the queue.',
-    async execute(message: Message, args: any) {
-        let player = client.manager.players.get(message.guild!.id);
-        if (!player) return message.reply({ content: 'there is nothing playing in this guild!' });
-        if (!message.member?.voice.channel) return message.reply({ content: 'you must be in a voice channel to use this command!' });
-        if (message.member?.voice.channel != message.guild?.members.me?.voice.channel) return message.reply({ content: 'you must be in the same voice channel as me to use this command!' });
-        if (!player.queue.current) return message.reply({ content: 'there is nothing playing in this guild!' });
+export const command: CommandSlash = {
+    slash: true,
+    usage: '\`\`/queue\nNo available Arguments.\`\`',
+    data: new SlashCommandBuilder()
+        .setName('queue')
+        .setDescription('Lists the queue.'),
+    async execute(interaction: ChatInputCommandInteraction) {
+        let player = client.manager.players.get(interaction.guild!.id);
+        if (!player) return interaction.reply({ content: 'there is nothing playing in this guild!' });
+        if (!(interaction.member! as GuildMember).voice.channel) return interaction.reply({ content: 'you must be in a voice channel to use this command!' });
+        if ((interaction.member! as GuildMember).voice.channel != interaction.guild?.members.me?.voice.channel) return interaction.reply({ content: 'you must be in the same voice channel as me to use this command!' });
+        if (!player.queue.current) return interaction.reply({ content: 'there is nothing playing in this guild!' });
 
         let previousButton = new ButtonBuilder()
             .setCustomId('previous')
@@ -74,7 +75,10 @@ export const command: CommandMessage = {
 
         page = 1;
         addEmbendFields(player, queueEmbed, page, previousButton, nextButton);
-        let myMessage = message.channel.send({ embeds: [queueEmbed], components: [{ type: 1, components: [previousButton, nextButton] }] });
-        waitForButton(myMessage, message, player, queueEmbed, previousButton, nextButton);
+        interaction.reply({ embeds: [queueEmbed], components: [{ type: 1, components: [previousButton, nextButton] }] }).then((msg) => {
+            msg.fetch().then((myMessage) => {
+                waitForButton(myMessage, player!, queueEmbed, previousButton, nextButton);
+            });
+        });
     }
 }

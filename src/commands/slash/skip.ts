@@ -1,10 +1,11 @@
 import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from "discord.js";
 import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
+import { skip } from "node:test";
 
 export const command: CommandSlash = {
     slash: true,
-    usage: '\`\`/skip\nAvailable arguments: number_of_songs_to_skip\`\`',
+    usage: '\`\`/skip\nAvailable arguments: number_of_songs_to_skip/all\`\`',
     data: new SlashCommandBuilder()
         .setName('skip')
         .setDescription('Skips a song or multiple songs.')
@@ -23,7 +24,8 @@ export const command: CommandSlash = {
             player.stop();
             interaction.reply({ content: 'Skipping song...' });
         } else {
-            let skipNumber = parseInt(interaction.options.getString('skipnumber')!);
+            let skipNumber;
+            interaction.options.getString('skipnumber')?.toLocaleLowerCase() === 'all' ? skipNumber = player.queue.length + 1 : skipNumber = parseInt(interaction.options.getString('skipnumber')!);
             if (isNaN(skipNumber)) return interaction.reply({ content: 'Please provide a number.', ephemeral: true });
             skipNumber = Math.abs(skipNumber);
 

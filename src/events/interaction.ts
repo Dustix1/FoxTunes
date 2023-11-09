@@ -19,7 +19,7 @@ export const event = {
             await commandsSlash.get(command).execute(interaction, interaction.options);
         } catch (error) {
             console.error(error);
-            await interaction.reply({ content: 'there was an error trying to execute that command!', ephemeral: true });
+            await interaction.channel?.send({ content: 'there was an error trying to execute that command!'});
         }
     }
 }
