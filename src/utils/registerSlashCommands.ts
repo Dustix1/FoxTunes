@@ -2,14 +2,11 @@ import { REST, Routes } from 'discord.js';
 import { commandsSlash } from './commands.js';
 import Keys from '../keys.js';
 import client from '../clientLogin.js';
-import logMessage from './logMessage.js';
 
 const rest = new REST().setToken(Keys.clientToken);
 
 let i = 0;
 const commands: any[] = [];
-
-registerCommands();
 
 export default function registerCommands() {
     commandsSlash.forEach(command => {

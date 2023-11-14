@@ -1,5 +1,6 @@
 import { Events, ActivityType } from 'discord.js';
 import { spinnerDiscordLogin, spinnerLavalinkLogin } from '../utils/spinners.js';
+import registerCommands from '../utils/registerSlashCommands.js';
 import client from '../clientLogin.js';
 import chalk from 'chalk';
 
@@ -10,7 +11,7 @@ export const event = {
 
         (async () => {
             await import('../utils/commands.js');
-            await import('../utils/registerSlashCommands.js');
+            await registerCommands();
             await spinnerDiscordLogin.succeed(chalk.green(`Discord login successful!`));
         })();
 
