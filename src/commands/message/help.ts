@@ -1,4 +1,4 @@
-import { EmbedBuilder, Message } from "discord.js";
+import { Colors, EmbedBuilder, Message } from "discord.js";
 import { commandsMessage, commandsSlash } from "../../utils/commands.js";
 import { Keys } from "../../keys.js";
 import client from "../../clientLogin.js";
@@ -16,16 +16,9 @@ export const command: CommandMessage = {
     async execute(message: Message, args: any) {
         if(!args[0]) {
             let commandsM = '';
-            let commandsS = '';
             commandsMessage.forEach(command => {
                 if (!command.hidden) {
-                    commandsM += `\`!${command.name}\` - ${command.description}\n`;
-                }
-            });
-
-            commandsSlash.forEach(command => {
-                if (!command.hidden) {
-                    commandsS += `\`/${command.data.name}\` - ${command.data.description}\n`;
+                    commandsM += `\`${command.name}\` - ${command.description}\n`;
                 }
             });
 
@@ -33,16 +26,18 @@ export const command: CommandMessage = {
                 .setColor(Keys.mainColor)
                 .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
                 .setTitle('Commands')
-                .addFields( 
-                    { name: 'Message Commands:', value: commandsM },
-                    { name: 'Slash Commands:', value: commandsS }
-                )
+                .setDescription(commandsM)
 
             return message.channel.send({ embeds: [helpEmbed] });
         }
         
         let command = args[0].toLowerCase(); 
-        if(!commandsMessage.has(command)) return message.reply({ content: 'Command not found!'});
+        if(!commandsMessage.has(command)) {
+            let embed = new EmbedBuilder()
+            .setColor(Colors.Red)
+            .setDescription('Command not found!\nUse `!help` or `/help` to list all commands.');
+            return message.reply({ embeds: [embed] });
+        }
 
         let helpEmbed;
         if (!commandsSlash.get(command)) {

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder, Interaction, ChatInputCommandInteraction } from "discord.js";
+import { SlashCommandBuilder, EmbedBuilder, Interaction, ChatInputCommandInteraction, Colors } from "discord.js";
 import { commandsMessage, commandsSlash } from "../../utils/commands.js";
 import { Keys } from "../../keys.js";
 import client from "../../clientLogin.js";
@@ -21,16 +21,9 @@ export const command: CommandSlash = {
     async execute(interaction: ChatInputCommandInteraction) {
         if (!interaction.options.getString('command')) {
             let commandsM = '';
-            let commandsS = '';
             commandsMessage.forEach(command => {
                 if (!command.hidden) {
-                    commandsM += `\`!${command.name}\` - ${command.description}\n`;
-                }
-            });
-
-            commandsSlash.forEach(command => {
-                if (!command.hidden) {
-                    commandsS += `\`/${command.data.name}\` - ${command.data.description}\n`;
+                    commandsM += `\`${command.name}\` - ${command.description}\n`;
                 }
             });
 
@@ -38,17 +31,19 @@ export const command: CommandSlash = {
                 .setColor(Keys.mainColor)
                 .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
                 .setTitle('Commands')
-                .addFields(
-                    { name: 'Message Commands:', value: commandsM },
-                    { name: 'Slash Commands:', value: commandsS }
-                )
+                .setDescription(commandsM)
 
             return interaction.reply({ embeds: [helpEmbed] });
         }
 
 
         let command = interaction.options.getString('command')?.toLowerCase();
-        if (!commandsMessage.has(command)) return interaction.reply({ content: 'Command not found!', ephemeral: true });
+        if (!commandsMessage.has(command)) {
+            let embed = new EmbedBuilder()
+            .setColor(Colors.Red)
+            .setDescription('Command not found!\nUse `!help` or `/help` to list all commands.');
+            return interaction.reply({ embeds: [embed], ephemeral: true });
+        }
 
         let helpEmbed;
         if (!commandsSlash.get(command)) {
