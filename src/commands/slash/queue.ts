@@ -1,18 +1,12 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, ButtonBuilder, ButtonStyle, EmbedBuilder, GuildMember, Message } from "discord.js";
 import { CommandSlash } from "../../structures/command.js";
 import { Player } from "magmastream";
+import millisecondsToTime from "../../utils/msToTime.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 
 const songsPerPage = 4;
 let page: number;
-
-function millisecondsToTime(milliseconds: number): string {
-    const totalSeconds = Math.floor(milliseconds / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
 
 async function addEmbendFields(player: Player, embed: EmbedBuilder, page: number, previousButton: ButtonBuilder, nextButton: ButtonBuilder) {
     page == 1 ? previousButton.setDisabled(true) : previousButton.setDisabled(false);
@@ -20,10 +14,10 @@ async function addEmbendFields(player: Player, embed: EmbedBuilder, page: number
 
     embed.setFields([]);
     let fields: { name: string, value: string, inline: boolean }[] = [];
-    fields.push({ name: 'Now Playing', value: `[${player!.queue.current?.title.replace(/[^\x20-\x7E]/g, '')}](${player!.queue.current!.uri})\nDuration: ${millisecondsToTime(player!.queue.current?.duration!)}`, inline: false });
+    fields.push({ name: 'Now Playing', value: `[${player!.queue.current?.title.replace(/[\p{Emoji}]/gu, '')}](${player!.queue.current!.uri})\nDuration: ${millisecondsToTime(player!.queue.current?.duration!)}`, inline: false });
 
     player?.queue.slice(page == 1 ? 0 : (page * songsPerPage) - songsPerPage, page == 1 ? songsPerPage : ((page * songsPerPage) - songsPerPage) + songsPerPage).forEach((track, index) => {
-        fields.push({ name: `${page == 1 ? (index + 1) : (((page * songsPerPage) - songsPerPage) + index) + 1 }. ${track.title.replace(/[^\x20-\x7E]/g, '')}`, value: `[LINK](${track.uri})\nDuration: ${millisecondsToTime(track.duration!)}`, inline: false });
+        fields.push({ name: `${page == 1 ? (index + 1) : (((page * songsPerPage) - songsPerPage) + index) + 1 }. ${track.title.replace(/[\p{Emoji}]/gu, '')}`, value: `[LINK](${track.uri})\nDuration: ${millisecondsToTime(track.duration!)}`, inline: false });
     });
     embed.setFooter({ text: `Page ${page} of ${Math.ceil(player!.queue.size == 0 ? 1 : player!.queue.size / songsPerPage)}` });
     embed.addFields(fields!);

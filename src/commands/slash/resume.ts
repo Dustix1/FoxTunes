@@ -4,10 +4,10 @@ import client from "../../clientLogin.js";
 
 export const command: CommandSlash = {
     slash: true,
-    usage: '\`\`/unpause\nNo available Arguments.\`\`',
+    usage: '\`\`/resume\nNo available Arguments.\`\`',
     data: new SlashCommandBuilder()
-        .setName('unpause')
-        .setDescription('Unpauses the currently playing song.'),
+        .setName('resume')
+        .setDescription('resumes the currently playing song.'),
     async execute(interaction: ChatInputCommandInteraction) {
         let player = client.manager.players.get(interaction.guild!.id);
         if (!player) return interaction.reply({ content: 'there is nothing playing in this guild!' });
@@ -18,6 +18,6 @@ export const command: CommandSlash = {
         if (player.playing) return interaction.reply({ content: 'The song is already playing!' });
 
         player.pause(false);
-        interaction.reply({ content: 'Unpausing song... :pause_button:' });
+        interaction.reply({ content: 'Resuming song... :pause_button:' });
     }
 }

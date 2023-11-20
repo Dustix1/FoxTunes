@@ -8,7 +8,7 @@ export const event = {
     async execute(player: Player, track: Track) {
         const channel = await (await client.guilds.fetch(player.guild))!.channels.fetch(player.textChannel!) as TextChannel;
         if (channel) {
-            channel.send(`Now playing: [**${track.title.replace(/[^\x20-\x7E]/g, '')}**](${track.uri})`).then((msg) => {
+            channel.send(`Now playing: [**${track.title.replace(/[\p{Emoji}]/gu, '')}**](${track.uri})`).then((msg) => {
                 setTimeout(() => {
                     return msg.suppressEmbeds();
                 }, 2000);

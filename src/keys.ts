@@ -8,6 +8,7 @@ export const Keys = {
     mainColor: '#ff7700',
     secondaryColor: '#ffaa00',
     prefix: getEnvVar('PREFIX'),
+    ownerID: getEnvVar('OWNER_ID'),
 } as const;
 
 export default Keys;

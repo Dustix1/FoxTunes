@@ -10,6 +10,7 @@ export const command: CommandMessage = {
     description: 'List all available guilds.',
     hidden: true,
     async execute(message: Message, args: any) {
+        if (message.author.id !== Keys.ownerID) return;
         let guilds = '';
         client.guilds.cache.forEach(guild => {
             guilds += `${guild.name} - ${guild.id}\n`;

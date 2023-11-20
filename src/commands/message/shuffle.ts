@@ -4,9 +4,9 @@ import client from "../../clientLogin.js";
 
 export const command: CommandMessage = {
     slash: false,
-    name: 'unpause',
-    usage: '\`\`!unpause\nNo available arguments\`\`',
-    description: 'Unpauses the currently playing song.',
+    name: 'shuffle',
+    usage: '\`\`!shuffle\nNo available arguments\`\`',
+    description: 'shuffles the queue.',
     async execute(message: Message, args: any) {
         let player = client.manager.players.get(message.guild!.id);
         if (!player) return message.reply({ content: 'there is nothing playing in this guild!'});
@@ -14,9 +14,7 @@ export const command: CommandMessage = {
         if (message.member?.voice.channel != message.guild?.members.me?.voice.channel) return message.reply({ content: 'you must be in the same voice channel as me to use this command!'});
         if (!player.queue.current) return message.reply({ content: 'there is nothing playing in this guild!'});
 
-        if(player.playing) return message.reply({ content: 'The song is already playing!' });
-
-        player.pause(false);
-        message.reply({ content: 'Unpausing song... :arrow_forward:' });
+        player.queue.shuffle();
+        message.reply({ content: 'Shuffling queue... :twisted_rightwards_arrows:' });
     }
 }

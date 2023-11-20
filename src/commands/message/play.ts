@@ -1,8 +1,10 @@
-import { Message } from "discord.js";
+import { Colors, EmbedBuilder, Message } from "discord.js";
 import { CommandMessage } from "../../structures/command.js";
 import { createPlayer, player } from "../../structures/player.js";
 import client from "../../clientLogin.js";
 import logMessage from "../../utils/logMessage.js";
+import Keys from "../../keys.js";
+import millisecondsToTime from "../../utils/msToTime.js";
 
 export const command: CommandMessage = {
     slash: false,
@@ -11,14 +13,27 @@ export const command: CommandMessage = {
     description: 'Plays a song.',
     async execute(message: Message, args: any) {
         const query = message.content.slice(6);
+        let embed = new EmbedBuilder()
+            .setColor(Keys.mainColor)
 
-        if (!query) return message.reply({ content: 'please provide a song name or url!' });
-        if (!message.member?.voice.channel) return message.reply({ content: 'you must be in a voice channel to use this command!' });
+        if (!message.member?.voice.channel) {
+            embed.setColor(Colors.Red);
+            embed.setDescription("You must be in a voice channel to use this command!");
+            return message.reply({ embeds: [embed] });
+        }
+
+        if (!query) {
+            embed.setDescription("You need to provide a song name or url!");
+            return message.reply({ embeds: [embed] });
+        }
+
 
         const botCurrentVoiceChannelId = message.guild?.members.me?.voice.channelId;
 
         if (botCurrentVoiceChannelId && message.member.voice.channelId && message.member.voice.channelId !== botCurrentVoiceChannelId) {
-            return await message.reply({ content: `You must be connnected to the same voice channel as me to use this command. I'm in <#${botCurrentVoiceChannelId}>` });
+            embed.setColor(Colors.Red);
+            embed.setDescription(`You must be connnected to the same voice channel as me to use this command. I'm in <#${botCurrentVoiceChannelId}>`);
+            return await message.reply({ embeds: [embed] });
         }
 
         if (!(client.manager.players.get(message.guild!.id))) createPlayer(message);
@@ -31,33 +46,31 @@ export const command: CommandMessage = {
             case "empty":
                 if (!player.queue.current) player.destroy();
 
-                return await message.reply({
-                    content: `Nothing found when searching for \`${query}\``,
-                });
+                embed.setColor(Colors.Red);
+                embed.setDescription(`Nothing found when searching for \`${query}\``);
+                await message.reply({ embeds: [embed] });
+                break;
 
             case "error":
                 if (!player.queue.current) player.destroy();
 
-                return await message.reply({
-                    content: `Load failed when searching for \`${query}\``,
-                });
+                embed.setColor(Colors.Red);
+                embed.setDescription(`Load failed when searching for \`${query}\``);
+                await message.reply({ embeds: [embed] });
+                break;
 
             case "track":
                 player.queue.add(res.tracks[0]);
 
                 if (player.state !== 'CONNECTED') await player.connect();
 
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${millisecondsToTime(res.tracks[0].duration)}\``);
+                message.reply({ embeds: [embed] });
+
                 if (!player.playing && !player.paused && !player.queue.length) {
                     await player.play();
                 }
-
-                if (player.queue.length != 0) {
-                    message.reply({ content: `Added [${res.tracks[0].title.replace(/[^\x20-\x7E]/g, '')}](${res.tracks[0].uri}) to the queue.`, }).then((msg) => {
-                        setTimeout(() => {
-                            return msg.suppressEmbeds();
-                        }, 2000);
-                    });
-                }
+                break;
 
             case "playlist":
                 if (!res.playlist?.tracks) return;
@@ -66,37 +79,26 @@ export const command: CommandMessage = {
 
                 player.queue.add(res.playlist.tracks);
 
-                if (
-                    !player.playing &&
-                    !player.paused &&
-                    player.queue.size === res.playlist.tracks.length
-                ) {
+                embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue.`);
+                message.reply({ embeds: [embed] });
+
+                if (!player.playing && !player.paused && player.queue.size === res.playlist.tracks.length) {
                     await player.play();
                 }
-
-                if (player.queue.length != 0) {
-                    message.reply({ content: `Added [${res.playlist.name.replace(/[^\x20-\x7E]/g, '')}](${query}) playlist to the queue.`, }).then((msg) => {
-                        setTimeout(() => {
-                            return msg.suppressEmbeds();
-                        }, 2000);
-                    });
-                }
+                break;
 
             case "search":
                 if (player.state !== 'CONNECTED') await player.connect();
 
                 player.queue.add(res.tracks[0]);
+
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${millisecondsToTime(res.tracks[0].duration)}\``);
+                message.reply({ embeds: [embed] });
+                
                 if (!player.playing && !player.paused && !player.queue.length) {
                     await player.play();
                 }
-
-                if (player.queue.length != 0) {
-                    message.reply({ content: `Added [${res.tracks[0].title.replace(/[^\x20-\x7E]/g, '')}](${res.tracks[0].uri}) to the queue.`, }).then((msg) => {
-                        setTimeout(() => {
-                            return msg.suppressEmbeds();
-                        }, 2000);
-                    });
-                }
+                break;
         }
 
     }

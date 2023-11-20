@@ -1,8 +1,10 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, GuildMember } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, GuildMember, Colors, EmbedBuilder } from "discord.js";
 import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
 import { createPlayer, player } from "../../structures/player.js";
 import logMessage from "../../utils/logMessage.js";
+import Keys from "../../keys.js";
+import millisecondsToTime from "../../utils/msToTime.js";
 
 export const command: CommandSlash = {
     slash: true,
@@ -14,12 +16,21 @@ export const command: CommandSlash = {
     async execute(interaction: ChatInputCommandInteraction) {
         const query = interaction.options.getString('song')!;
         let member = interaction.member as GuildMember;
-        if (!member.voice.channel) return interaction.reply({ content: 'you must be in a voice channel to use this command!', ephemeral: true });
+        let embed = new EmbedBuilder()
+            .setColor(Keys.mainColor)
+
+        if (!member.voice.channel) {
+            embed.setColor(Colors.Red);
+            embed.setDescription("You must be in a voice channel to use this command!");
+            return interaction.reply({ embeds: [embed], ephemeral: true });
+        }
 
         const botCurrentVoiceChannelId = interaction.guild?.members.me?.voice.channelId;
 
         if (botCurrentVoiceChannelId && member.voice.channelId && member.voice.channelId !== botCurrentVoiceChannelId) {
-            return await interaction.reply({ content: `You must be connnected to the same voice channel as me to use this command. I'm in <#${botCurrentVoiceChannelId}>`, ephemeral: true });
+            embed.setColor(Colors.Red);
+            embed.setDescription(`You must be connnected to the same voice channel as me to use this command. I'm in <#${botCurrentVoiceChannelId}>`);
+            return interaction.reply({ embeds: [embed], ephemeral: true });
         }
 
         if (!(client.manager.players.get(interaction.guild!.id))) createPlayer(interaction);
@@ -32,33 +43,31 @@ export const command: CommandSlash = {
             case "empty":
                 if (!player.queue.current) player.destroy();
 
-                return await interaction.reply({ content: `Nothing found when searching for \`${query}\``, ephemeral: true });
+                embed.setColor(Colors.Red);
+                embed.setDescription(`Nothing found when searching for \`${query}\``);
+                await interaction.reply({ embeds: [embed] });
+                break;
 
             case "error":
                 if (!player.queue.current) player.destroy();
 
-                return await interaction.reply({ content: `Load failed when searching for \`${query}\``, ephemeral: true });
+                embed.setColor(Colors.Red);
+                embed.setDescription(`Load failed when searching for \`${query}\``);
+                await interaction.reply({ embeds: [embed] });
+                break;
 
             case "track":
                 player.queue.add(res.tracks[0]);
 
                 if (player.state !== 'CONNECTED') await player.connect();
 
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${millisecondsToTime(res.tracks[0].duration)}\``);
+                interaction.reply({ embeds: [embed] });
+
                 if (!player.playing && !player.paused && !player.queue.length) {
                     await player.play();
                 }
-
-                if (player.queue.length != 0) {
-                    interaction.reply({ content: `Added [${res.tracks[0].title.replace(/[^\x20-\x7E]/g, '')}](${res.tracks[0].uri}) to the queue.`, }).then((msg) => {
-                        setTimeout(() => {
-                            return msg.fetch().then((myMessage) => {
-                                myMessage.suppressEmbeds();
-                            });
-                        }, 2000);
-                    });
-                } else {
-                    interaction.reply({ content: `Searching...` });
-                }
+                break;
 
             case "playlist":
                 if (!res.playlist?.tracks) return;
@@ -67,45 +76,26 @@ export const command: CommandSlash = {
 
                 player.queue.add(res.playlist.tracks);
 
-                if (
-                    !player.playing &&
-                    !player.paused &&
-                    player.queue.size === res.playlist.tracks.length
-                ) {
+                embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue.`);
+                interaction.reply({ embeds: [embed] });
+
+                if (!player.playing && !player.paused && player.queue.size === res.playlist.tracks.length) {
                     await player.play();
                 }
-
-                if (player.queue.length != 0) {
-                    interaction.reply({ content: `Added [${res.playlist.name.replace(/[^\x20-\x7E]/g, '')}](${query}) playlist to the queue.`, }).then((msg) => {
-                        setTimeout(() => {
-                            return msg.fetch().then((myMessage) => {
-                                myMessage.suppressEmbeds();
-                            });
-                        }, 2000);
-                    });
-                } else {
-                    interaction.reply({ content: `Searching...` });
-                }
+                break;
 
             case "search":
                 if (player.state !== 'CONNECTED') await player.connect();
 
                 player.queue.add(res.tracks[0]);
+
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${millisecondsToTime(res.tracks[0].duration)}\``);
+                interaction.reply({ embeds: [embed] });
+                
                 if (!player.playing && !player.paused && !player.queue.length) {
                     await player.play();
                 }
-
-                if (player.queue.length != 0) {
-                    interaction.reply({ content: `Added [${res.tracks[0].title.replace(/[^\x20-\x7E]/g, '')}](${res.tracks[0].uri}) to the queue.`, }).then((msg) => {
-                        setTimeout(() => {
-                            return msg.fetch().then((myMessage) => {
-                                myMessage.suppressEmbeds();
-                            });
-                        }, 2000);
-                    });
-                } else {
-                    interaction.reply({ content: `Searching...` });
-                }
+                break;
         }
     }
 }
