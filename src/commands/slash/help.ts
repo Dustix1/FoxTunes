@@ -16,14 +16,14 @@ export const command: CommandSlash = {
         .setDescription('List all commands or info about a specific command.')
         .addStringOption(option =>
             option.setName('command')
-            .setDescription('command name')
+                .setDescription('command name')
         ),
     async execute(interaction: ChatInputCommandInteraction) {
-        if(!interaction.options.getString('command')) {
+        if (!interaction.options.getString('command')) {
             let commandsM = '';
             let commandsS = '';
             commandsMessage.forEach(command => {
-                if(!command.hidden) {
+                if (!command.hidden) {
                     commandsM += `\`!${command.name}\` - ${command.description}\n`;
                 }
             });
@@ -38,7 +38,7 @@ export const command: CommandSlash = {
                 .setColor(Keys.mainColor)
                 .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
                 .setTitle('Commands')
-                .addFields( 
+                .addFields(
                     { name: 'Message Commands:', value: commandsM },
                     { name: 'Slash Commands:', value: commandsS }
                 )
@@ -46,30 +46,30 @@ export const command: CommandSlash = {
             return interaction.reply({ embeds: [helpEmbed] });
         }
 
-        
-        let command = interaction.options.getString('command')?.toLowerCase(); 
-        if(!commandsMessage.has(command)) return interaction.reply({ content: 'Command not found!', ephemeral: true });
+
+        let command = interaction.options.getString('command')?.toLowerCase();
+        if (!commandsMessage.has(command)) return interaction.reply({ content: 'Command not found!', ephemeral: true });
 
         let helpEmbed;
         if (!commandsSlash.get(command)) {
             helpEmbed = new EmbedBuilder()
-            .setColor(Keys.mainColor)
-            .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
-            .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
-            .setDescription(commandsMessage.get(command).description)
-            .addFields(
-                { name: 'Command Usage:', value: '*PREFIX COMMAND ONLY*\n' + commandsMessage.get(command).usage, inline: true }
-            )
+                .setColor(Keys.mainColor)
+                .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
+                .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
+                .setDescription(commandsMessage.get(command).description)
+                .addFields(
+                    { name: 'Command Usage:', value: '*PREFIX COMMAND ONLY*\n' + commandsMessage.get(command).usage, inline: true }
+                )
         } else {
             helpEmbed = new EmbedBuilder()
-            .setColor(Keys.mainColor)
-            .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
-            .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
-            .setDescription(commandsMessage.get(command).description)
-            .addFields(
-                { name: 'Command Usage:', value: commandsMessage.get(command).usage, inline: true },
-                { name: 'Slash Command Usage:', value: commandsSlash.get(command).usage, inline: true }
-            )
+                .setColor(Keys.mainColor)
+                .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
+                .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
+                .setDescription(commandsMessage.get(command).description)
+                .addFields(
+                    { name: 'Command Usage:', value: commandsMessage.get(command).usage, inline: true },
+                    { name: 'Slash Command Usage:', value: commandsSlash.get(command).usage, inline: true }
+                )
         }
 
         interaction.reply({ embeds: [helpEmbed] });

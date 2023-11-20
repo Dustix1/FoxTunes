@@ -23,6 +23,7 @@ export const command: CommandMessage = {
         }
 
         if (!query) {
+            embed.setColor(Colors.Blurple);
             embed.setDescription("You need to provide a song name or url!");
             return message.reply({ embeds: [embed] });
         }
@@ -94,7 +95,7 @@ export const command: CommandMessage = {
 
                 embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${millisecondsToTime(res.tracks[0].duration)}\``);
                 message.reply({ embeds: [embed] });
-                
+
                 if (!player.playing && !player.paused && !player.queue.length) {
                     await player.play();
                 }

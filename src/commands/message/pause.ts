@@ -1,6 +1,8 @@
-import { Message } from "discord.js";
+import { Colors, EmbedBuilder, Message } from "discord.js";
 import { CommandMessage } from "../../structures/command.js";
 import client from "../../clientLogin.js";
+import Keys from "../../keys.js";
+import canUserUseCommand from "../../utils/checkIfUserCanUseCommand.js";
 
 export const command: CommandMessage = {
     slash: false,
@@ -9,14 +11,19 @@ export const command: CommandMessage = {
     description: 'Pauses the currently playing song.',
     async execute(message: Message, args: any) {
         let player = client.manager.players.get(message.guild!.id);
-        if (!player) return message.reply({ content: 'there is nothing playing in this guild!'});
-        if (!message.member?.voice.channel) return message.reply({ content: 'you must be in a voice channel to use this command!'});
-        if (message.member?.voice.channel != message.guild?.members.me?.voice.channel) return message.reply({ content: 'you must be in the same voice channel as me to use this command!'});
-        if (!player.queue.current) return message.reply({ content: 'there is nothing playing in this guild!'});
+        let embed = new EmbedBuilder()
+            .setColor(Keys.mainColor)
 
-        if(!player.playing) return message.reply({ content: 'The song is already paused!' });
+        if (!canUserUseCommand(player, message, embed)) return;
 
-        player.pause(true);
-        message.reply({ content: 'Pausing song... :pause_button:' });
+        if (!player!.playing) {
+            embed.setColor(Colors.Blurple);
+            embed.setDescription('The song is already paused!\nUse \`!resume\` or \`/resume\` to resume the song');
+            return message.reply({ embeds: [embed] });
+        }
+
+        player!.pause(true);
+        embed.setDescription(`:pause_button: Music paused!\nUse \`!resume\` or \`/resume\` to resume the song`);
+        message.reply({ embeds: [embed] });
     }
 }

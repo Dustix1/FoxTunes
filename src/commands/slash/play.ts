@@ -91,7 +91,7 @@ export const command: CommandSlash = {
 
                 embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${millisecondsToTime(res.tracks[0].duration)}\``);
                 interaction.reply({ embeds: [embed] });
-                
+
                 if (!player.playing && !player.paused && !player.queue.length) {
                     await player.play();
                 }

@@ -1,6 +1,8 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, GuildMember } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, GuildMember, EmbedBuilder, Colors } from "discord.js";
 import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
+import Keys from "../../keys.js";
+import { canUserUseSlashCommand } from "../../utils/checkIfUserCanUseCommand.js";
 
 export const command: CommandSlash = {
     slash: true,
@@ -10,14 +12,19 @@ export const command: CommandSlash = {
         .setDescription('Pauses the currently playing song.'),
     async execute(interaction: ChatInputCommandInteraction) {
         let player = client.manager.players.get(interaction.guild!.id);
-        if (!player) return interaction.reply({ content: 'there is nothing playing in this guild!' });
-        if (!(interaction.member! as GuildMember).voice.channel) return interaction.reply({ content: 'you must be in a voice channel to use this command!' });
-        if ((interaction.member! as GuildMember).voice.channel != interaction.guild?.members.me?.voice.channel) return interaction.reply({ content: 'you must be in the same voice channel as me to use this command!' });
-        if (!player.queue.current) return interaction.reply({ content: 'there is nothing playing in this guild!' });
+        let embed = new EmbedBuilder()
+            .setColor(Keys.mainColor)
 
-        if (!player.playing) return interaction.reply({ content: 'The song is already paused!' });
+        if (!canUserUseSlashCommand(player, interaction, embed)) return;
 
-        player.pause(true);
-        interaction.reply({ content: 'Pausing song... :pause_button:' });
+        if (!player!.playing) {
+            embed.setColor(Colors.Blurple);
+            embed.setDescription('The song is already paused!\nUse \`!resume\` or \`/resume\` to resume the song');
+            return interaction.reply({ embeds: [embed], ephemeral: true });
+        }
+
+        player!.pause(true);
+        embed.setDescription(`:pause_button: Music paused!\nUse \`!resume\` or \`/resume\` to resume the song`);
+        interaction.reply({ content: ':pause_button: Music paused!\nUse \`!resume\` or \`/resume\` to resume the song' });
     }
 }

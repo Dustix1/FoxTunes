@@ -1,7 +1,8 @@
-import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, Colors, EmbedBuilder, GuildMember, SlashCommandBuilder } from "discord.js";
 import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
-import { skip } from "node:test";
+import { canUserUseSlashCommand } from "../../utils/checkIfUserCanUseCommand.js";
+import Keys from "../../keys.js";
 
 export const command: CommandSlash = {
     slash: true,
@@ -15,28 +16,34 @@ export const command: CommandSlash = {
         ),
     async execute(interaction: ChatInputCommandInteraction) {
         let player = client.manager.players.get(interaction.guild!.id);
-        if (!player) return interaction.reply({ content: 'there is nothing playing in this guild!' });
-        if (!(interaction.member! as GuildMember).voice.channel) return interaction.reply({ content: 'you must be in a voice channel to use this command!' });
-        if ((interaction.member! as GuildMember).voice.channel != interaction.guild?.members.me?.voice.channel) return interaction.reply({ content: 'you must be in the same voice channel as me to use this command!' });
-        if (!player.queue.current) return interaction.reply({ content: 'there is nothing playing in this guild!' });
+        let embed = new EmbedBuilder()
+            .setColor(Keys.mainColor)
+
+        if (!canUserUseSlashCommand(player, interaction, embed)) return;
 
         if (!interaction.options.getString('skipnumber')) {
-            player.stop();
-            interaction.reply({ content: 'Skipping song...' });
+            player!.stop();
+            embed.setDescription(':fast_forward: Song skipped!');
+            interaction.reply({ embeds: [embed] });
         } else {
             let skipNumber;
-            interaction.options.getString('skipnumber')?.toLocaleLowerCase() === 'all' ? skipNumber = player.queue.length + 1 : skipNumber = parseInt(interaction.options.getString('skipnumber')!);
-            if (isNaN(skipNumber)) return interaction.reply({ content: 'Please provide a number.', ephemeral: true });
+            interaction.options.getString('skipnumber')?.toLocaleLowerCase() === 'all' ? skipNumber = player!.queue.length + 1 : skipNumber = parseInt(interaction.options.getString('skipnumber')!);
+            if (isNaN(skipNumber)) {
+                embed.setColor(Colors.Red);
+                embed.setDescription('You need to provide a number!');
+                return interaction.reply({ embeds: [embed], ephemeral: true });
+            }
             skipNumber = Math.abs(skipNumber);
 
-            if (skipNumber > player.queue.length) {
-                skipNumber = player.queue.length + 1;
-                player.queue.clear();
-                player.stop();
+            if (skipNumber > player!.queue.length) {
+                skipNumber = player!.queue.length + 1;
+                player!.queue.clear();
+                player!.stop();
             } else {
-                player.stop(skipNumber);
+                player!.stop(skipNumber);
             }
-            interaction.reply({ content: `Skipping ${skipNumber} songs...` });
+            embed.setDescription(`:fast_forward: Skipped \`${skipNumber}\` songs!`);
+            interaction.reply({ embeds: [embed] });
         }
     }
 }

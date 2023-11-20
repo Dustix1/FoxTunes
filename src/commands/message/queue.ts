@@ -17,7 +17,7 @@ async function addEmbendFields(player: Player, embed: EmbedBuilder, page: number
     fields.push({ name: 'Now Playing', value: `[${player!.queue.current?.title.replace(/[\p{Emoji}]/gu, '')}](${player!.queue.current!.uri})\nDuration: ${millisecondsToTime(player!.queue.current?.duration!)}`, inline: false });
 
     player?.queue.slice(page == 1 ? 0 : (page * songsPerPage) - songsPerPage, page == 1 ? songsPerPage : ((page * songsPerPage) - songsPerPage) + songsPerPage).forEach((track, index) => {
-        fields.push({ name: `${page == 1 ? (index + 1) : (((page * songsPerPage) - songsPerPage) + index) + 1 }. ${track.title.replace(/[\p{Emoji}]/gu, '')}`, value: `[LINK](${track.uri})\nDuration: ${millisecondsToTime(track.duration!)}`, inline: false });
+        fields.push({ name: `${page == 1 ? (index + 1) : (((page * songsPerPage) - songsPerPage) + index) + 1}. ${track.title.replace(/[\p{Emoji}]/gu, '')}`, value: `[LINK](${track.uri})\nDuration: ${millisecondsToTime(track.duration!)}`, inline: false });
     });
     embed.setFooter({ text: `Page ${page} of ${Math.ceil(player!.queue.size == 0 ? 1 : player!.queue.size / songsPerPage)}` });
     embed.addFields(fields!);
@@ -27,7 +27,7 @@ async function waitForButton(myMessage: Promise<Message>, message: Message, play
     try {
         let buttonInt = (await myMessage).awaitMessageComponent({ time: 90000 });
         (await buttonInt).customId == 'next' ? page++ : page--;
-        await addEmbendFields(player, queueEmbed, page, previousButton, nextButton).then (async () => {
+        await addEmbendFields(player, queueEmbed, page, previousButton, nextButton).then(async () => {
             (await buttonInt).update({ embeds: [queueEmbed], components: [{ type: 1, components: [previousButton, nextButton] }] });
             waitForButton(myMessage, message, player, queueEmbed, previousButton, nextButton);
         });
@@ -63,8 +63,7 @@ export const command: CommandMessage = {
 
         let queueEmbed = new EmbedBuilder()
             .setColor(Keys.mainColor)
-            .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
-            .setTitle('Queue')
+            .setTitle(`Queue for ${message.guild?.name} (${player.queue.size} songs)`)
 
         page = 1;
         addEmbendFields(player, queueEmbed, page, previousButton, nextButton);

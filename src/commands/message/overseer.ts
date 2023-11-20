@@ -1,7 +1,7 @@
 import { EmbedBuilder, Message } from "discord.js";
 import { CommandMessage } from "../../structures/command.js";
 
-export const command : CommandMessage = {
+export const command: CommandMessage = {
     slash: false,
     name: 'overseer',
     usage: '\`\`!overseer\nNo available Arguments.\`\`',
