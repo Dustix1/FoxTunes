@@ -1,6 +1,7 @@
 export type CommandMessage = {
     slash: false,
     name: string,
+    aliases?: string[],
     usage: string,
     description: string,
     hidden?: boolean,

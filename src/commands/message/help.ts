@@ -11,6 +11,7 @@ function capitalizeFirstLetter(string: string) {
 export const command: CommandMessage = {
     slash: false,
     name: 'help',
+    aliases: ['h'],
     usage: '\`\`!help\nAvailable Arguments: command_name\`\`',
     description: 'List all commands or info about a specific command.',
     async execute(message: Message, args: any) {

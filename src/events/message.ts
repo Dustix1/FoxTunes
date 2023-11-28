@@ -11,14 +11,27 @@ export const event = {
         if (!message.content.startsWith(Keys.prefix)) return;
 
         const args = message.content.slice(1).trim().split(/ +/);
-        const command = args.shift().toLowerCase();
+        let wantedCommand = args.shift().toLowerCase();
 
-        if (!commandsMessage.has(command)) return;
+        if (!commandsMessage.has(wantedCommand)) {
+            let hasAlias = false;
+            commandsMessage.forEach((command, key) => {
+                if(!hasAlias && command.aliases) {
+                    command.aliases.forEach((alias: any) => {
+                        if (alias === wantedCommand) {
+                            hasAlias = true;
+                            wantedCommand = key;
+                        }
+                    });
+                }
+            });
+            if (!hasAlias) return;
+        }
         
         try {
             logMessage(chalk.hex(Keys.secondaryColor).bold(`${message.author.username}`) + ` used ` + chalk.hex(Keys.secondaryColor).bold(`${message}`) + ` on ` + chalk.hex(Keys.secondaryColor).bold(`${message.guild.name} `) + chalk.hex(Keys.secondaryColor).bold(`(${message.guild.id})`));
 
-            await commandsMessage.get(command).execute(message, args);
+            await commandsMessage.get(wantedCommand).execute(message, args);
         } catch (error) {
             console.error(error);
             await message.reply('there was an error trying to execute that command!');

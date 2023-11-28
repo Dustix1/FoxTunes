@@ -7,6 +7,7 @@ import canUserUseCommand from "../../utils/checkIfUserCanUseCommand.js";
 export const command: CommandMessage = {
     slash: false,
     name: 'skip',
+    aliases: ['s'],
     usage: '\`\`!skip\nAvailable arguments: number_of_songs_to_skip/all\`\`',
     description: 'Skips a song.',
     async execute(message: Message, args: any) {

@@ -7,6 +7,7 @@ import canUserUseCommand from "../../utils/checkIfUserCanUseCommand.js";
 export const command: CommandMessage = {
     slash: false,
     name: 'pause',
+    aliases: ['p'],
     usage: '\`\`!pause\nNo available arguments\`\`',
     description: 'Pauses the currently playing song.',
     async execute(message: Message, args: any) {
