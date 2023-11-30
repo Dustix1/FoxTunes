@@ -9,6 +9,7 @@ import millisecondsToTime from "../../utils/msToTime.js";
 export const command: CommandMessage = {
     slash: false,
     name: 'play',
+    aliases: ['p'],
     usage: '\`\`!play\nAvailable Arguments: song_name/song_url\`\`',
     description: 'Plays a song.',
     async execute(message: Message, args: any) {

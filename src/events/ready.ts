@@ -16,7 +16,7 @@ export const event = {
         })();
 
         client.user?.setPresence({
-            activities: [{ name: '▷▶NEW UPDATE◀◁', type: ActivityType.Custom }],
+            activities: [{ name: '!help', type: ActivityType.Listening }], // ▷▶NEW UPDATE◀◁
             status: 'online',
         })
     }
