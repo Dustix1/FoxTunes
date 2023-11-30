@@ -19,7 +19,7 @@ export const command: CommandMessage = {
         const Client = new Genius.Client();
 
         embed.setColor(Colors.Blurple)
-            .setDescription('searching for lyrics...');
+            .setDescription('searching for lyrics...\nThis may take a while.');
         const msg = message.reply({ embeds: [embed] });
 
         const search = await Client.songs.search(player!.queue.current!.title);

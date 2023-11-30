@@ -42,6 +42,7 @@ async function waitForButton(myMessage: Promise<Message>, message: Message, play
 export const command: CommandMessage = {
     slash: false,
     name: 'queue',
+    aliases: ['q'],
     usage: '\`\`!queue\nNo available Arguments.\`\`',
     description: 'Lists the queue.',
     async execute(message: Message, args: any) {

@@ -20,7 +20,7 @@ export const command: CommandSlash = {
 
         await interaction.deferReply().then(async () => {
             embed.setColor(Colors.Blurple)
-            .setDescription('searching for lyrics...');
+            .setDescription('searching for lyrics...\nThis may take a while.');
             interaction.editReply({ embeds: [embed] });
 
             const search = await Client.songs.search(player!.queue.current!.title);

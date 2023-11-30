@@ -13,7 +13,8 @@ export const command: CommandMessage = {
     usage: '\`\`!play\nAvailable Arguments: song_name/song_url\`\`',
     description: 'Plays a song.',
     async execute(message: Message, args: any) {
-        const query = message.content.slice(6);
+        const query = message.content.split(' ').slice(1).join(' ');
+        logMessage(query, true);
         let embed = new EmbedBuilder()
             .setColor(Keys.mainColor)
 
