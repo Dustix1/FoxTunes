@@ -6,9 +6,9 @@ import { canUserUseSlashCommand } from "../../utils/checkIfUserCanUseCommand.js"
 
 export const command: CommandSlash = {
     slash: true,
-    usage: '\`\`/remove-from-queue\nAvailable arguments: song_position\`\`',
+    usage: '\`\`/remove\nAvailable arguments: song_position\`\`',
     data: new SlashCommandBuilder()
-        .setName('remove-from-queue')
+        .setName('remove')
         .setDescription('Removes a song from the queue.')
         .addNumberOption(option => option.setName('position').setDescription('The song position.').setRequired(true)),
     async execute(interaction: ChatInputCommandInteraction) {

@@ -39,10 +39,23 @@ export const command: CommandSlash = {
         
         let command = interaction.options.getString('command')?.toLowerCase();
         if (!commandsMessage.has(command)) {
-            let embed = new EmbedBuilder()
-            .setColor(Colors.Red)
-            .setDescription('Command not found!\nUse `!help` or `/help` to list all commands.');
-            return interaction.reply({ embeds: [embed], ephemeral: true });
+            let hasAlias = false;
+            commandsMessage.forEach((actualCommand, key) => {
+                if (!hasAlias && actualCommand.aliases) {
+                    actualCommand.aliases.forEach((alias: any) => {
+                        if (alias === command) {
+                            hasAlias = true;
+                            command = key;
+                        }
+                    });
+                }
+            });
+            if (!hasAlias) {
+                let embed = new EmbedBuilder()
+                    .setColor(Colors.Red)
+                    .setDescription('Command not found!\nUse `!help` or `/help` to list all commands.');
+                return interaction.reply({ embeds: [embed] });
+            }
         }
 
         let helpEmbed;

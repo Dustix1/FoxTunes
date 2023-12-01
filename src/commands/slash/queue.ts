@@ -4,6 +4,7 @@ import { Player } from "magmastream";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import prettyMilliseconds from "pretty-ms";
+import { canUserUseSlashCommand } from "../../utils/checkIfUserCanUseCommand.js";
 
 const songsPerPage = 10;
 let page: number;
@@ -51,10 +52,10 @@ export const command: CommandSlash = {
         .setDescription('Lists the queue.'),
     async execute(interaction: ChatInputCommandInteraction) {
         let player = client.manager.players.get(interaction.guild!.id);
-        if (!player) return interaction.reply({ content: 'there is nothing playing in this guild!' });
-        if (!(interaction.member! as GuildMember).voice.channel) return interaction.reply({ content: 'you must be in a voice channel to use this command!' });
-        if ((interaction.member! as GuildMember).voice.channel != interaction.guild?.members.me?.voice.channel) return interaction.reply({ content: 'you must be in the same voice channel as me to use this command!' });
-        if (!player.queue.current) return interaction.reply({ content: 'there is nothing playing in this guild!' });
+        let embed = new EmbedBuilder()
+            .setColor(Keys.mainColor)
+
+        if (!canUserUseSlashCommand(player, interaction, embed)) return;
 
         let previousButton = new ButtonBuilder()
             .setCustomId('previous')
@@ -68,10 +69,10 @@ export const command: CommandSlash = {
 
         let queueEmbed = new EmbedBuilder()
             .setColor(Keys.mainColor)
-            .setTitle(`Queue for ${interaction.guild?.name} (${player.queue.size} songs)`)
+            .setTitle(`Queue for ${interaction.guild?.name} (${player!.queue.size} songs)`)
 
         page = 1;
-        addEmbendFields(player, queueEmbed, page, previousButton, nextButton);
+        addEmbendFields(player!, queueEmbed, page, previousButton, nextButton);
         interaction.reply({ embeds: [queueEmbed], components: [{ type: 1, components: [previousButton, nextButton] }] }).then((msg) => {
             msg.fetch().then((myMessage) => {
                 waitForButton(myMessage, player!, queueEmbed, previousButton, nextButton);
