@@ -34,7 +34,8 @@ export const command: CommandMessage = {
             embed.setDescription(`Couldn't find lyrics for \`${player!.queue.current!.title}\``);
             embed.setColor(Colors.Red);
         }
-        embed.setTitle('Lyrics for ' + player!.queue.current!.title)
+        embed.setTitle('Lyrics for ' + search[0].title)
+            .setAuthor({ name: 'Please note that this may not be accurate.', iconURL: client.user?.displayAvatarURL() })
             .setColor(Keys.mainColor)
             .setThumbnail(player!.queue.current!.thumbnail!)
             .setFooter({ text: 'Lyrics from: https://genius.com/' });

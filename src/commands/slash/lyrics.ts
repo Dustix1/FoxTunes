@@ -36,6 +36,7 @@ export const command: CommandSlash = {
                 embed.setColor(Colors.Red);
             }
             embed.setColor(Keys.mainColor)
+            .setAuthor({ name: 'Please note that this may not be accurate.', iconURL: client.user?.displayAvatarURL() })
             .setTitle('Lyrics for ' + player!.queue.current!.title)
             .setThumbnail(player!.queue.current!.thumbnail!)
             .setFooter({ text: 'Lyrics from: https://genius.com/' });

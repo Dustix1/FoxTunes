@@ -41,28 +41,51 @@ export const command: CommandMessage = {
         }
 
         let helpEmbed;
-        if (!commandsSlash.get(command)) {
-            helpEmbed = new EmbedBuilder()
-            .setColor(Keys.mainColor)
-            .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
-            .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
-            .setDescription(commandsMessage.get(command).description)
-            .addFields(
-                { name: 'Command Usage:', value: '*PREFIX COMMAND ONLY*\n' + commandsMessage.get(command).usage, inline: true }
-            )
+        if(commandsMessage.get(command).aliases) {
+            if (!commandsSlash.get(command)) {
+                helpEmbed = new EmbedBuilder()
+                .setColor(Keys.mainColor)
+                .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
+                .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
+                .setDescription(commandsMessage.get(command).description)
+                .addFields(
+                    { name: 'Command Usage:', value: '*PREFIX COMMAND ONLY*\n' + commandsMessage.get(command).usage + `\n\n**Aliases:**\n \`${commandsMessage.get(command).aliases.join(', ')}\``, inline: true }
+                )
+            } else {
+                helpEmbed = new EmbedBuilder()
+                .setColor(Keys.mainColor)
+                .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
+                .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
+                .setDescription(commandsMessage.get(command).description)
+                .addFields(
+                    { name: 'Command Usage:', value: commandsMessage.get(command).usage + `\n\n**Aliases:**\n \`${commandsMessage.get(command).aliases.join(', ')}\``, inline: true },
+                    { name: 'Slash Command Usage:', value: commandsSlash.get(command).usage, inline: true }
+                )
+            }
+            return message.channel.send({ embeds: [helpEmbed] });
         } else {
-            helpEmbed = new EmbedBuilder()
-            .setColor(Keys.mainColor)
-            .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
-            .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
-            .setDescription(commandsMessage.get(command).description)
-            .addFields(
-                { name: 'Command Usage:', value: commandsMessage.get(command).usage, inline: true },
-                { name: 'Slash Command Usage:', value: commandsSlash.get(command).usage, inline: true }
-            )
+            if (!commandsSlash.get(command)) {
+                helpEmbed = new EmbedBuilder()
+                .setColor(Keys.mainColor)
+                .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
+                .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
+                .setDescription(commandsMessage.get(command).description)
+                .addFields(
+                    { name: 'Command Usage:', value: '*PREFIX COMMAND ONLY*\n' + commandsMessage.get(command).usage, inline: true }
+                )
+            } else {
+                helpEmbed = new EmbedBuilder()
+                .setColor(Keys.mainColor)
+                .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
+                .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
+                .setDescription(commandsMessage.get(command).description)
+                .addFields(
+                    { name: 'Command Usage:', value: commandsMessage.get(command).usage, inline: true },
+                    { name: 'Slash Command Usage:', value: commandsSlash.get(command).usage, inline: true }
+                )
+            }
+            return message.channel.send({ embeds: [helpEmbed] });
         }
-
-        message.channel.send({ embeds: [helpEmbed] });
             
     }
 }
