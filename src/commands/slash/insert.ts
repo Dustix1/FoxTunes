@@ -4,7 +4,7 @@ import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import { canUserUseSlashCommand } from "../../utils/checkIfUserCanUseCommand.js";
 import logMessage from "../../utils/logMessage.js";
-import millisecondsToTime from "../../utils/msToTime.js";
+import prettyMilliseconds from "pretty-ms";
 
 export const command: CommandSlash = {
     slash: true,
@@ -51,7 +51,7 @@ export const command: CommandSlash = {
             case "track":
                 player!.queue.add(res.tracks[0], offset);
 
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${millisecondsToTime(res.tracks[0].duration)}\``);
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true})}\``);
                 interaction.reply({ embeds: [embed] });
                 break;
 
@@ -67,7 +67,7 @@ export const command: CommandSlash = {
             case "search":
                 player!.queue.add(res.tracks[0], offset);
 
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${millisecondsToTime(res.tracks[0].duration)}\``);
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true})}\``);
                 interaction.reply({ embeds: [embed] });
                 break;
         }

@@ -4,7 +4,7 @@ import client from "../../clientLogin.js";
 import { createPlayer, player } from "../../structures/player.js";
 import logMessage from "../../utils/logMessage.js";
 import Keys from "../../keys.js";
-import millisecondsToTime from "../../utils/msToTime.js";
+import prettyMilliseconds from "pretty-ms";
 
 export const command: CommandSlash = {
     slash: true,
@@ -61,7 +61,7 @@ export const command: CommandSlash = {
 
                 if (player.state !== 'CONNECTED') await player.connect();
 
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${millisecondsToTime(res.tracks[0].duration)}\``);
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true})}\``);
                 interaction.reply({ embeds: [embed] });
 
                 if (!player.playing && !player.paused && !player.queue.length) {
@@ -89,7 +89,7 @@ export const command: CommandSlash = {
 
                 player.queue.add(res.tracks[0]);
 
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${millisecondsToTime(res.tracks[0].duration)}\``);
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true})}\``);
                 interaction.reply({ embeds: [embed] });
 
                 if (!player.playing && !player.paused && !player.queue.length) {
