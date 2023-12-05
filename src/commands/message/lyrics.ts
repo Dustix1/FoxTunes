@@ -4,6 +4,7 @@ import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import canUserUseCommand from "../../utils/checkIfUserCanUseCommand.js";
 import Genius from "genius-lyrics";
+import logMessage from "../../utils/logMessage.js";
 
 export const command: CommandMessage = {
     slash: false,
@@ -28,7 +29,9 @@ export const command: CommandMessage = {
             embed.setDescription(`Couldn't find lyrics for \`${player!.queue.current!.title}\``);
             return (await msg).edit({ embeds: [embed] });
         }
-        const lyrics = await search[0].lyrics();
+
+        let lyrics = await search[0].lyrics();
+        if(lyrics.length > 4096) lyrics = lyrics.slice(0, 4096);
         embed.setDescription(lyrics);
         if (!lyrics) {
             embed.setDescription(`Couldn't find lyrics for \`${player!.queue.current!.title}\``);
@@ -38,7 +41,7 @@ export const command: CommandMessage = {
             .setAuthor({ name: 'Please note that this may not be accurate.', iconURL: client.user?.displayAvatarURL() })
             .setColor(Keys.mainColor)
             .setThumbnail(player!.queue.current!.thumbnail!)
-            .setFooter({ text: 'Lyrics from: https://genius.com/' });
+            .setFooter({ text: 'Lyrics from: ' + search[0].url });
         (await msg).edit({ embeds: [embed] });
     }
 }

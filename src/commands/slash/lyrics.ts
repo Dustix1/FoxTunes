@@ -29,7 +29,8 @@ export const command: CommandSlash = {
                 embed.setDescription(`Couldn't find lyrics for \`${player!.queue.current!.title}\``);
                 return interaction.editReply({ embeds: [embed] });
             }
-            const lyrics = await search[0].lyrics();
+            let lyrics = await search[0].lyrics();
+            if(lyrics.length > 4096) lyrics = lyrics.slice(0, 4096);
             embed.setDescription(lyrics);
             if (!lyrics) {
                 embed.setDescription(`Couldn't find lyrics for \`${player!.queue.current!.title}\``);

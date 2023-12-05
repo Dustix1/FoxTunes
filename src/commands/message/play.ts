@@ -11,7 +11,7 @@ export const command: CommandMessage = {
     name: 'play',
     aliases: ['p'],
     usage: '\`\`!play\nAvailable Arguments: song_name/song_url\`\`',
-    description: 'Plays a song.',
+    description: 'Plays a song or playlist.',
     async execute(message: Message, args: any) {
         const query = message.content.split(' ').slice(1).join(' ');
         logMessage(query, true);
@@ -67,7 +67,7 @@ export const command: CommandMessage = {
 
                 if (player.state !== 'CONNECTED') await player.connect();
 
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true})}\``);
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true})}\``);
                 message.reply({ embeds: [embed] });
 
                 if (!player.playing && !player.paused && !player.queue.length) {
@@ -95,7 +95,7 @@ export const command: CommandMessage = {
 
                 player.queue.add(res.tracks[0]);
 
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true})}\``);
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true})}\``);
                 message.reply({ embeds: [embed] });
 
                 if (!player.playing && !player.paused && !player.queue.length) {
