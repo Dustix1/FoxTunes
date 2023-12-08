@@ -1,5 +1,5 @@
-import { Events, ActivityType } from 'discord.js';
-import { spinnerDiscordLogin, spinnerLavalinkLogin } from '../utils/spinners.js';
+import { ActivityType, Events, PresenceUpdateStatus } from 'discord.js';
+import { spinnerDiscordLogin } from '../utils/spinners.js';
 import registerCommands from '../utils/registerSlashCommands.js';
 import client from '../clientLogin.js';
 import chalk from 'chalk';
@@ -14,10 +14,5 @@ export const event = {
             await registerCommands();
             await spinnerDiscordLogin.succeed(chalk.green(`Discord login successful!`));
         })();
-
-        client.user?.setPresence({
-            activities: [{ name: '!help', type: ActivityType.Listening }], // ▷▶NEW UPDATE◀◁
-            status: 'online',
-        })
     }
 }
