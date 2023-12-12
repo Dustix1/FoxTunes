@@ -36,13 +36,14 @@ export const command: CommandSlash = {
         await interaction.deferReply().then(async () => {
             if (!(client.manager.players.get(interaction.guild!.id))) createPlayer(interaction);
 
-            const res = await player.search(query, interaction.user);
+            let player = client.manager.players.get(interaction.guild!.id);
+            const res = await player!.search(query, interaction.user);
 
             logMessage(res.loadType, true);
 
             switch (res.loadType) {
                 case "empty":
-                    if (!player.queue.current) player.destroy();
+                    if (!player!.queue.current) player!.destroy();
 
                     embed.setColor(Colors.Red);
                     embed.setDescription(`Nothing found when searching for \`${query}\``);
@@ -50,7 +51,7 @@ export const command: CommandSlash = {
                     break;
 
                 case "error":
-                    if (!player.queue.current) player.destroy();
+                    if (!player!.queue.current) player!.destroy();
 
                     embed.setColor(Colors.Red);
                     embed.setDescription(`Load failed when searching for \`${query}\``);
@@ -58,43 +59,43 @@ export const command: CommandSlash = {
                     break;
 
                 case "track":
-                    player.queue.add(res.tracks[0]);
+                    player!.queue.add(res.tracks[0]);
 
-                    if (player.state !== 'CONNECTED') await player.connect();
+                    if (player!.state !== 'CONNECTED') await player!.connect();
 
                     embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true })}\``);
                     interaction.editReply({ embeds: [embed] });
 
-                    if (!player.playing && !player.paused && !player.queue.length) {
-                        await player.play();
+                    if (!player!.playing && !player!.paused && !player!.queue.length) {
+                        await player!.play();
                     }
                     break;
 
                 case "playlist":
                     if (!res.playlist?.tracks) return;
 
-                    if (player.state !== 'CONNECTED') await player.connect();
+                    if (player!.state !== 'CONNECTED') await player!.connect();
 
-                    player.queue.add(res.playlist.tracks);
+                    player!.queue.add(res.playlist.tracks);
 
                     embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue.`);
                     interaction.editReply({ embeds: [embed] });
 
-                    if (!player.playing && !player.paused && player.queue.size === res.playlist.tracks.length) {
-                        await player.play();
+                    if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {
+                        await player!.play();
                     }
                     break;
 
                 case "search":
-                    if (player.state !== 'CONNECTED') await player.connect();
+                    if (player!.state !== 'CONNECTED') await player!.connect();
 
-                    player.queue.add(res.tracks[0]);
+                    player!.queue.add(res.tracks[0]);
 
                     embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true })}\``);
                     interaction.editReply({ embeds: [embed] });
 
-                    if (!player.playing && !player.paused && !player.queue.length) {
-                        await player.play();
+                    if (!player!.playing && !player!.paused && !player!.queue.length) {
+                        await player!.play();
                     }
                     break;
             }

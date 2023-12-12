@@ -1,7 +1,6 @@
 import { Manager } from 'magmastream';
 import client from './clientLogin.js';
 import Keys from './keys.js';
-import { ClientPresence } from 'discord.js';
 
 const nodes = [
     {

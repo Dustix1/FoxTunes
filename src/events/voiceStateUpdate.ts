@@ -1,5 +1,6 @@
 import { Events, VoiceState } from 'discord.js';
 import client from '../clientLogin.js';
+import logMessage from '../utils/logMessage.js';
 
 export const event = {
     name: Events.VoiceStateUpdate,
@@ -9,6 +10,7 @@ export const event = {
         let player = client.manager.players.get(oldState.guild!.id);
 
         if (!newState.channelId) {
+            logMessage(`Left voice channel in ${oldState.guild!.name}!`, true);
             player?.destroy();
         } else if (player){
             player!.voiceChannel = newState.channel!.id;

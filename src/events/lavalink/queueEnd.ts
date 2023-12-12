@@ -5,12 +5,14 @@ import Keys from "../../keys.js";
 import prettyMilliseconds from "pretty-ms";
 import client from "../../clientLogin.js";
 import { TextBasedChannel } from "discord.js";
+import { guildSongPreviousCache } from "./trackStart.js";
 
 export const event = {
     name: 'queueEnd',
     manager: true,
     async execute(player: Player, track: Track) {
         if (!player) return;
+        guildSongPreviousCache.set(player.guild, track.uri);
 
         let date = new Date();
         let embed = new EmbedBuilder()
