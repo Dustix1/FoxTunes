@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, Colors, GuildMember } from "discord.js";
 import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
@@ -14,7 +14,18 @@ export const command: CommandSlash = {
         let player = client.manager.players.get(interaction.guild!.id);
         let embed = new EmbedBuilder()
             .setColor(Keys.mainColor)
-        if (!canUserUseSlashCommand(player, interaction, embed)) return;
+            if (!player) {
+                embed.setColor(Colors.Red);
+                embed.setDescription("There is nothing playing in this guild! Play a song by using `/play` or `!play`");
+                interaction.reply({ embeds: [embed], ephemeral: true });
+                return false;
+            }
+            if ((interaction.member! as GuildMember).voice.channel != interaction.guild?.members.me?.voice.channel) {
+                embed.setColor(Colors.Red);
+                embed.setDescription(`You must be in the same voice channel as me to use this command. I'm in <#${interaction.guild?.members.me?.voice.channelId}>`);
+                interaction.reply({ embeds: [embed], ephemeral: true });
+                return false;
+            }
 
         player?.disconnect();
         player?.destroy();

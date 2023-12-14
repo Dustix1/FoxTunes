@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder } from "discord.js";
+import { Message, EmbedBuilder, Colors } from "discord.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import { CommandMessage } from "../../structures/command.js";
@@ -14,7 +14,18 @@ export const command: CommandMessage = {
         let player = client.manager.players.get(message.guild!.id);
         let embed = new EmbedBuilder()
             .setColor(Keys.mainColor)
-        if (!canUserUseCommand(player, message, embed)) return;
+            if (!player) {
+                embed.setColor(Colors.Red);
+                embed.setDescription("There is nothing playing in this guild! Play a song by using `/play` or `!play`");
+                message.reply({ embeds: [embed] });
+                return false;
+            }
+            if (message.member?.voice.channel != message.guild?.members.me?.voice.channel) {
+                embed.setColor(Colors.Red);
+                embed.setDescription(`You must be in the same voice channel as me to use this command. I'm in <#${message.guild?.members.me?.voice.channelId}>`);
+                message.reply({ embeds: [embed] });
+                return false;
+            }
 
         player?.disconnect();
         player?.destroy();

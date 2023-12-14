@@ -30,12 +30,6 @@ export function canUserUseSlashCommand(player: Player | undefined, interaction: 
         interaction.reply({ embeds: [embed], ephemeral: true });
         return false;
     }
-    if (!(interaction.member! as GuildMember).voice.channel) {
-        embed.setColor(Colors.Red);
-        embed.setDescription("You must be in a voice channel to use this command!");
-        interaction.reply({ embeds: [embed], ephemeral: true });
-        return false;
-    }
     if ((interaction.member! as GuildMember).voice.channel != interaction.guild?.members.me?.voice.channel) {
         embed.setColor(Colors.Red);
         embed.setDescription(`You must be in the same voice channel as me to use this command. I'm in <#${interaction.guild?.members.me?.voice.channelId}>`);
