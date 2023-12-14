@@ -104,6 +104,17 @@ export async function editFromCommand(command: string) {
             player.trackRepeat ? loopButton.setStyle(ButtonStyle.Success) : loopButton.setStyle(ButtonStyle.Secondary);
             nowPlayingMessage!.edit({ embeds: [embed], components: [{ type: 1, components: [shuffleButton, (player.paused ? resumeButton : pauseButton), skipButton, stopButton, loopButton] }] });
             break;
+        case 'disconnect':
+            shuffleButton.setDisabled(true);
+            pauseButton.setDisabled(true);
+            resumeButton.setDisabled(true);
+            skipButton.setDisabled(true);
+            stopButton.setDisabled(true);
+            loopButton.setDisabled(true);
+            embed.setFooter({ text: `by ${player.queue.current?.author}  •  This message is inactive.` });
+            nowPlayingMessage!.edit({ embeds: [embed], components: [{ type: 1, components: [shuffleButton, pauseButton, skipButton, stopButton, loopButton] }] });
+            collector.stop();
+            break;
     }
 }
 
@@ -134,6 +145,7 @@ async function startCollector(collector: InteractionCollector<ButtonInteraction<
                 player.stop();
                 player.disconnect();
                 interaction.update({ embeds: [embed], components: [{ type: 1, components: [shuffleButton, pauseButton, skipButton, stopButton, loopButton] }] });
+                collector.stop();
                 break;
             case 'shuffle':
                 player.queue.shuffle();

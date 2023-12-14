@@ -3,6 +3,7 @@ import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import { canUserUseSlashCommand } from "../../utils/checkIfUserCanUseCommand.js";
+import { editFromCommand } from "../../events/lavalink/trackStart.js";
 
 export const command: CommandSlash = {
     slash: true,
@@ -29,7 +30,7 @@ export const command: CommandSlash = {
 
         player?.disconnect();
         player?.destroy();
-        
+        editFromCommand('disconnect');
         embed.setDescription('Disconnected from the voice channel.');
         interaction.reply({ embeds: [embed] });
     }
