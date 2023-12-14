@@ -63,7 +63,7 @@ export const command: CommandSlash = {
 
                     if (player!.state !== 'CONNECTED') await player!.connect();
 
-                    embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true })}\``);
+                    embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true, secondsDecimalDigits: 0 })}\``);
                     interaction.editReply({ embeds: [embed] });
 
                     if (!player!.playing && !player!.paused && !player!.queue.length) {
@@ -91,7 +91,7 @@ export const command: CommandSlash = {
 
                     player!.queue.add(res.tracks[0]);
 
-                    embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true })}\``);
+                    embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true, secondsDecimalDigits: 0 })}\``);
                     interaction.editReply({ embeds: [embed] });
 
                     if (!player!.playing && !player!.paused && !player!.queue.length) {

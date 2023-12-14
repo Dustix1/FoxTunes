@@ -3,6 +3,7 @@ import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import { canUserUseSlashCommand } from "../../utils/checkIfUserCanUseCommand.js";
+import { editFromCommand } from "../../events/lavalink/trackStart.js";
 
 export const command: CommandSlash = {
     slash: true,
@@ -26,6 +27,7 @@ export const command: CommandSlash = {
 
         if (!interaction.options.getString('queue')) {
             player!.setTrackRepeat(!player!.trackRepeat);
+            editFromCommand('loop');
             embed.setDescription(`:repeat: Looping ${player!.trackRepeat ? 'enabled' : 'disabled'}!`);
             interaction.reply({ embeds: [embed] });
         } else {

@@ -3,6 +3,7 @@ import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import { canUserUseSlashCommand } from "../../utils/checkIfUserCanUseCommand.js";
+import { editFromCommand } from "../../events/lavalink/trackStart.js";
 
 export const command: CommandSlash = {
     slash: true,
@@ -24,6 +25,7 @@ export const command: CommandSlash = {
         }
 
         player!.pause(true);
+        editFromCommand('pause');
         embed.setDescription(`:pause_button: Music paused!\nUse \`!resume\` or \`/resume\` to resume the song`);
         interaction.reply({ content: ':pause_button: Music paused!\nUse \`!resume\` or \`/resume\` to resume the song' });
     }

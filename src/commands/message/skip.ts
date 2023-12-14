@@ -32,7 +32,6 @@ export const command: CommandMessage = {
             skipNumber = Math.abs(skipNumber);
 
             if (skipNumber > player!.queue.length) {
-                skipNumber = player!.queue.length + 1;
                 player!.queue.clear();
                 player!.stop();
             } else {

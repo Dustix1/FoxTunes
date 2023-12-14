@@ -2,7 +2,6 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, Colors,
 import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
-import { canUserUseSlashCommand } from "../../utils/checkIfUserCanUseCommand.js";
 import prettyMilliseconds from "pretty-ms";
 import { guildSongPreviousCache } from "../../events/lavalink/trackStart.js";
 import { createPlayer } from "../../structures/player.js";
@@ -68,7 +67,7 @@ export const command: CommandSlash = {
                 case "track":
                     player!.queue.add(res.tracks[0]);
 
-                    embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true })}\``);
+                    embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true, secondsDecimalDigits: 0 })}\``);
                     interaction.editReply({ embeds: [embed] });
 
                     if (!player!.playing && !player!.paused && !player!.queue.length) {
@@ -92,7 +91,7 @@ export const command: CommandSlash = {
                 case "search":
                     player!.queue.add(res.tracks[0]);
 
-                    embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true })}\``);
+                    embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true, secondsDecimalDigits: 0 })}\``);
                     interaction.editReply({ embeds: [embed] });
 
                     if (!player!.playing && !player!.paused && !player!.queue.length) {
