@@ -29,6 +29,7 @@
     "genius-lyrics": "^4.4.6",
     "glob": "^10.3.4",
     "magmastream": "^2.2.3",
+    "mongoose": "^8.0.3",
     "ora": "^7.0.1",
     "pretty-ms": "^8.0.0"
   }

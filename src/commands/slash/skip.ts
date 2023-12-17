@@ -3,6 +3,7 @@ import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
 import { canUserUseSlashCommand } from "../../utils/checkIfUserCanUseCommand.js";
 import Keys from "../../keys.js";
+import { editFromCommand } from "../../events/lavalink/trackStart.js";
 
 export const command: CommandSlash = {
     slash: true,
@@ -23,6 +24,7 @@ export const command: CommandSlash = {
 
         if (!interaction.options.getString('skipnumber')) {
             player!.stop();
+            editFromCommand('skip');
             embed.setDescription(':fast_forward: Song skipped!');
             interaction.reply({ embeds: [embed] });
         } else {
@@ -38,8 +40,10 @@ export const command: CommandSlash = {
             if (skipNumber > player!.queue.length) {
                 player!.queue.clear();
                 player!.stop();
+                editFromCommand('skip');
             } else {
                 player!.stop(skipNumber);
+                editFromCommand('skip');
             }
             embed.setDescription(`:fast_forward: Skipped \`${skipNumber}\` songs!`);
             interaction.reply({ embeds: [embed] });

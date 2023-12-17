@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { Keys } from './keys.js';
+import('./mongodbConnection.js')
 
 console.log(chalk.hex(Keys.secondaryColor)('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'));
 console.log(chalk.hex(Keys.mainColor).bold('    ► Initiating startup sequence... ◄    '));

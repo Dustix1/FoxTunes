@@ -9,6 +9,7 @@ export const Keys = {
     secondaryColor: '#ffaa00',
     prefix: getEnvVar('PREFIX'),
     ownerID: getEnvVar('OWNER_ID'),
+    mongodbURI: getEnvVar('MONGODB_URI'),
 } as const;
 
 export default Keys;
