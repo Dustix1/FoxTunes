@@ -30,7 +30,7 @@ async function addEmbendFields(player: Player, embed: EmbedBuilder, page: number
     let fields: APIEmbedField[] = [];
 
     let songs = `**<:note:1180261330251415674> Now Playing**\n\`${player.queue.current!.author}\` - [${player.queue.current!.title.replace(/[\p{Emoji}]/gu, '')}](${player!.queue.current!.uri}) - \`${prettyMilliseconds(player!.queue.current?.duration!, { colonNotation: true, secondsDecimalDigits: 0 })}\`\n\n`;
-    if (player.queue.size != 0) songs += `**<:queue:1180256450560405555> Songs in Queue [${player.queue.size}]**\n`;
+    if (player.queue.size != 0) songs += `**<:queue:1180256450560405555> Songs in Queue [${player.queue.size + 1}]**\n`;
     player?.queue.slice(page == 1 ? 0 : (page * songsPerPage) - songsPerPage, page == 1 ? songsPerPage : ((page * songsPerPage) - songsPerPage) + songsPerPage).forEach((track, index) => {
         songs += `**${page == 1 ? (index + 1) : (((page * songsPerPage) - songsPerPage) + index) + 1}.** - \`${track.author}\` - [${track.title.replace(/[\p{Emoji}]/gu, '')}](${track.uri}) - \`${prettyMilliseconds(track.duration!, { colonNotation: true, secondsDecimalDigits: 0 })}\`\n`;
     });

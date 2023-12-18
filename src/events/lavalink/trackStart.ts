@@ -5,12 +5,12 @@ import logMessage from "../../utils/logMessage.js";
 import Keys from "../../keys.js";
 import prettyMilliseconds from "pretty-ms";
 import { player } from "../../structures/player.js";
-import model from "../../models/likedSongs.js";
+import modelLikedSongs from "../../models/likedSongs.js";
 
 export const guildSongPreviousCache = new Map<string, string>();
 export const guildSongNewCache = new Map<string, string>();
 
-let nowPlayingMessage: Message | undefined;
+let nowPlayingMessage: Message;
 let embed: EmbedBuilder;
 let pauseButton: ButtonBuilder;
 let resumeButton: ButtonBuilder;
@@ -24,6 +24,9 @@ let rowPaused: ActionRowBuilder;
 let rowSkip: ActionRowBuilder;
 let rowLike: ActionRowBuilder;
 let collector: InteractionCollector<ButtonInteraction<CacheType>>;
+
+let embedReply = new EmbedBuilder()
+            .setColor(Keys.mainColor)
 
 export const event = {
     name: 'trackStart',
@@ -127,6 +130,7 @@ export async function editFromCommand(command: string) {
             skipButton.setDisabled(true);
             stopButton.setDisabled(true);
             loopButton.setDisabled(true);
+            likeButton.setDisabled(true);
             embed.setFooter({ text: `by ${player.queue.current?.author}  •  This message is inactive.` });
             nowPlayingMessage!.edit({ embeds: [embed], components: [rowDefault as any, rowLike] });
             collector.stop();
@@ -142,6 +146,7 @@ export async function editFromCommand(command: string) {
                 skipButton.setDisabled(true);
                 stopButton.setDisabled(true);
                 loopButton.setDisabled(true);
+                likeButton.setDisabled(true);
                 embed.setFooter({ text: `This message is inactive.` });
                 nowPlayingMessage!.edit({ embeds: [embed], components: [rowDefault as any, rowLike] });
                 collector.stop();
@@ -172,6 +177,7 @@ async function startCollector(collector: InteractionCollector<ButtonInteraction<
                     skipButton.setDisabled(true);
                     stopButton.setDisabled(true);
                     loopButton.setDisabled(true);
+                    likeButton.setDisabled(true);
                     embed.setFooter({ text: `This message is inactive.` });
                     player.queue.clear();
                     player.stop();
@@ -186,6 +192,7 @@ async function startCollector(collector: InteractionCollector<ButtonInteraction<
                 skipButton.setDisabled(true);
                 stopButton.setDisabled(true);
                 loopButton.setDisabled(true);
+                likeButton.setDisabled(true);
                 embed.setFooter({ text: `by ${player.queue.current?.author}  •  This message is inactive.` });
                 player.queue.clear();
                 player.stop();
@@ -195,7 +202,8 @@ async function startCollector(collector: InteractionCollector<ButtonInteraction<
                 break;
             case 'shuffle':
                 player.queue.shuffle();
-                interaction.reply({ content: 'Shuffled the queue!' });
+                embedReply.setDescription(`Shuffled the queue!`);
+                interaction.reply({ embeds: [ embedReply ] });
                 break;
             case 'loop':
                 player.setTrackRepeat(!player.trackRepeat);
@@ -204,21 +212,24 @@ async function startCollector(collector: InteractionCollector<ButtonInteraction<
                 interaction.update({ embeds: [embed], components: [rowSkip as any, rowLike] });
                 break;
             case 'like':
-                let likedSongs = await model.findOne({ userId: interaction.user.id });
+                let likedSongs = await modelLikedSongs.findOne({ userId: interaction.user.id });
                 let currentSong = guildSongNewCache.get(player.guild);
 
                 if (!likedSongs) {
-                    likedSongs = await model.create({ userId: interaction.user.id, songs: [currentSong!] });
+                    likedSongs = await modelLikedSongs.create({ userId: interaction.user.id, songs: [currentSong!] });
                     logMessage(`Added ${guildSongNewCache.get(player.guild)} to ${interaction.user.id}'s liked songs!`, true);
-                    interaction.reply({ content: `Added \`${player.queue.current?.title}\` to your liked songs playlist.`, ephemeral: true });
+                    embedReply.setDescription(`Added \`${player.queue.current?.title}\` to your liked songs playlist.`);
+                    interaction.reply({ embeds: [ embedReply ] , ephemeral: true });
                 } else if (likedSongs?.songs.includes(currentSong!)) {
                     likedSongs.songs.splice(likedSongs.songs.indexOf(guildSongNewCache.get(player.guild)!), 1);
                     logMessage(`Removed ${guildSongNewCache.get(player.guild)} from ${interaction.user.id}'s liked songs!`, true);
-                    interaction.reply({ content: `Removed \`${player.queue.current?.title}\` from your liked songs playlist.`, ephemeral: true });
+                    embedReply.setDescription(`Removed \`${player.queue.current?.title}\` from your liked songs playlist.`);
+                    interaction.reply({ embeds: [ embedReply ] , ephemeral: true });
                 } else {
                     likedSongs?.songs.push(currentSong!);
                     logMessage(`Added ${guildSongNewCache.get(player.guild)} to ${interaction.user.id}'s liked songs!`, true);
-                    interaction.reply({ content: `Added \`${player.queue.current?.title}\` to your liked songs playlist.`, ephemeral: true });
+                    embedReply.setDescription(`Added \`${player.queue.current?.title}\` to your liked songs playlist.`);
+                    interaction.reply({ embeds: [ embedReply ] , ephemeral: true });
                 }
                 await likedSongs?.save();
                 break;

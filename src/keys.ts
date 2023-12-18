@@ -10,6 +10,8 @@ export const Keys = {
     prefix: getEnvVar('PREFIX'),
     ownerID: getEnvVar('OWNER_ID'),
     mongodbURI: getEnvVar('MONGODB_URI'),
+    mongodbUsername: getEnvVar('MONGODB_USER'),
+    mongodbPassword: getEnvVar('MONGODB_PWD'),
 } as const;
 
 export default Keys;

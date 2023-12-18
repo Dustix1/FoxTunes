@@ -13,7 +13,7 @@ export const event = {
         spinnerLavalinkLogin.succeed(chalk.green(`Lavalink connection established!`));
 
             client.user!.setPresence({
-                activities: [{ name: '!help', type: ActivityType.Listening }], // ▷▶NEW UPDATE◀◁
+                activities: [{ name: '!help', type: ActivityType.Listening }],
                 status: PresenceUpdateStatus.Online,
             })
             lavalinkConnectionStatus.isStandby = false;

@@ -3,8 +3,9 @@ import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import { CommandMessage } from "../../structures/command.js";
 import canUserUseCommand from "../../utils/checkIfUserCanUseCommand.js";
-import logMessage from "../../utils/logMessage.js";
 import prettyMilliseconds from "pretty-ms";
+import { Track } from "magmastream";
+import modelLikedSongs from "../../models/likedSongs.js";
 
 export const command: CommandMessage = {
     slash: false,
@@ -46,9 +47,37 @@ export const command: CommandMessage = {
             return message.reply({ embeds: [embed] });
         }
 
-        const res = await player!.search(query, message.author);
+        let res: any;
 
-        logMessage(res.loadType, true);
+        if (query.toLowerCase() === 'liked') {
+            let likedSongs = await modelLikedSongs.findOne({ userId: message.author.id });
+            if (!likedSongs) {
+                embed.setColor(Colors.Red);
+                embed.setDescription(`You have no liked songs!`);
+                return await message.reply({ embeds: [embed] });
+            }
+            let likedSongsArray = likedSongs.songs;
+            if (likedSongsArray.length === 0) {
+                embed.setColor(Colors.Red);
+                embed.setDescription(`You have no liked songs!`);
+                return await message.reply({ embeds: [embed] });
+            }
+            let resLiked = {
+                loadType: 'liked',
+                playlist: {
+                    name: '',
+                    tracks: [] as Track[],
+                    duration: 0
+                }
+            };
+            await Promise.all(likedSongsArray.map(async uri => {
+                resLiked.playlist?.tracks.push((await player!.search(uri, message.author)).tracks[0] as Track);
+            }));
+            resLiked.playlist!.name = `${message.author.username}'s Liked Songs`;
+            res = resLiked;
+        } else {
+            res = await player!.search(query, message.author);
+        }
 
         switch (res.loadType) {
             case "empty":
@@ -66,7 +95,7 @@ export const command: CommandMessage = {
             case "track":
                 player!.queue.add(res.tracks[0], offset);
 
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true})}\``);
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true })}\``);
                 message.reply({ embeds: [embed] });
                 break;
 
@@ -79,10 +108,19 @@ export const command: CommandMessage = {
                 message.reply({ embeds: [embed] });
                 break;
 
+            case "liked":
+                if (!res.playlist?.tracks) return;
+
+                player!.queue.add(res.playlist.tracks, offset);
+
+                embed.setDescription(`Added \`${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}\` with \`${res.playlist.tracks.length}\` tracks to the queue at position \`${offset + 1}\`.`);
+                message.reply({ embeds: [embed] });
+                break;
+
             case "search":
                 player!.queue.add(res.tracks[0], offset);
 
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true})}\``);
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true })}\``);
                 message.reply({ embeds: [embed] });
                 break;
         }

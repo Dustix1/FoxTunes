@@ -2,9 +2,10 @@ import { Colors, EmbedBuilder, Message } from "discord.js";
 import { CommandMessage } from "../../structures/command.js";
 import { createPlayer, player } from "../../structures/player.js";
 import client from "../../clientLogin.js";
-import logMessage from "../../utils/logMessage.js";
 import Keys from "../../keys.js";
 import prettyMilliseconds from "pretty-ms";
+import modelLikedSongs from "../../models/likedSongs.js";
+import { Track } from "magmastream";
 
 export const command: CommandMessage = {
     slash: false,
@@ -14,7 +15,6 @@ export const command: CommandMessage = {
     description: 'Plays a song or playlist.',
     async execute(message: Message, args: any) {
         const query = message.content.split(' ').slice(1).join(' ');
-        logMessage(query, true);
         let embed = new EmbedBuilder()
             .setColor(Keys.mainColor)
 
@@ -43,9 +43,37 @@ export const command: CommandMessage = {
 
         let player = client.manager.players.get(message.guild!.id);
 
-        const res = await player!.search(query, message.author);
+        let res: any;
 
-        logMessage(res.loadType, true);
+        if (query.toLowerCase() === 'liked') {
+            let likedSongs = await modelLikedSongs.findOne({ userId: message.author.id });
+            if (!likedSongs) {
+                embed.setColor(Colors.Red);
+                embed.setDescription(`You have no liked songs!`);
+                return await message.reply({ embeds: [embed] });
+            }
+            let likedSongsArray = likedSongs.songs;
+            if (likedSongsArray.length === 0) {
+                embed.setColor(Colors.Red);
+                embed.setDescription(`You have no liked songs!`);
+                return await message.reply({ embeds: [embed] });
+            }
+            let resLiked = {
+                loadType: 'liked',
+                playlist: {
+                    name: '',
+                    tracks: [] as Track[],
+                    duration: 0
+                }
+            };
+            await Promise.all(likedSongsArray.map(async uri => {
+                resLiked.playlist?.tracks.push((await player!.search(uri, message.author)).tracks[0] as Track);
+            }));
+            resLiked.playlist!.name = `${message.author.username}'s Liked Songs`;
+            res = resLiked;
+        } else {
+            res = await player!.search(query, message.author);
+        }
 
         switch (res.loadType) {
             case "empty":
@@ -82,9 +110,24 @@ export const command: CommandMessage = {
 
                 if (player!.state !== 'CONNECTED') await player!.connect();
 
+                embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue.`);
                 player!.queue.add(res.playlist.tracks);
 
-                embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue.`);
+                message.reply({ embeds: [embed] });
+
+                if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {
+                    await player!.play();
+                }
+                break;
+
+            case "liked":
+                if (!res.playlist?.tracks) return;
+
+                if (player!.state !== 'CONNECTED') await player!.connect();
+
+                embed.setDescription(`Added \`${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}\` with \`${res.playlist.tracks.length}\` tracks to the queue.`);
+                player!.queue.add(res.playlist.tracks);
+
                 message.reply({ embeds: [embed] });
 
                 if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {

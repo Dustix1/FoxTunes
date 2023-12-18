@@ -3,8 +3,9 @@ import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import { canUserUseSlashCommand } from "../../utils/checkIfUserCanUseCommand.js";
-import logMessage from "../../utils/logMessage.js";
+import modelLikedSongs from "../../models/likedSongs.js";
 import prettyMilliseconds from "pretty-ms";
+import { Track } from "magmastream";
 
 export const command: CommandSlash = {
     slash: true,
@@ -28,48 +29,98 @@ export const command: CommandSlash = {
         if (offset < 0 || offset > player!.queue.length) {
             embed.setColor(Colors.Red);
             embed.setDescription("You need to provide a valid song position!");
-            return interaction.reply({ embeds: [embed], ephemeral: true});
+            return interaction.reply({ embeds: [embed], ephemeral: true });
         }
 
-        const res = await player!.search(query, interaction.user);
+        await interaction.deferReply().then(async () => {
+            let res: any;
+            if (query.toLowerCase() === 'liked') {
+                let likedSongs = await modelLikedSongs.findOne({ userId: interaction.user.id });
+                if (!likedSongs) {
+                    embed.setColor(Colors.Red);
+                    embed.setDescription(`You have no liked songs!`);
+                    return await interaction.reply({ embeds: [embed] });
+                }
+                let likedSongsArray = likedSongs.songs;
+                if (likedSongsArray.length === 0) {
+                    embed.setColor(Colors.Red);
+                    embed.setDescription(`You have no liked songs!`);
+                    return await interaction.reply({ embeds: [embed] });
+                }
+                let resLiked = {
+                    loadType: 'liked',
+                    playlist: {
+                        name: '',
+                        tracks: [] as Track[],
+                        duration: 0
+                    }
+                };
+                await Promise.all(likedSongsArray.map(async uri => {
+                    resLiked.playlist?.tracks.push((await player!.search(uri, interaction.user)).tracks[0] as Track);
+                }));
+                resLiked.playlist!.name = `${interaction.user.username}'s Liked Songs`;
+                res = resLiked;
+            } else {
+                res = await player!.search(query, interaction.user);
+            }
 
-        logMessage(res.loadType, true);
+            switch (res.loadType) {
+                case "empty":
+                    embed.setColor(Colors.Red);
+                    embed.setDescription(`Nothing found when searching for \`${query}\``);
+                    await interaction.editReply({ embeds: [embed] });
+                    break;
 
-        switch (res.loadType) {
-            case "empty":
-                embed.setColor(Colors.Red);
-                embed.setDescription(`Nothing found when searching for \`${query}\``);
-                await interaction.reply({ embeds: [embed], ephemeral: true });
-                break;
+                case "error":
+                    embed.setColor(Colors.Red);
+                    embed.setDescription(`Load failed when searching for \`${query}\``);
+                    await interaction.editReply({ embeds: [embed] });
+                    break;
 
-            case "error":
-                embed.setColor(Colors.Red);
-                embed.setDescription(`Load failed when searching for \`${query}\``);
-                await interaction.reply({ embeds: [embed], ephemeral: true });
-                break;
+                case "track":
+                    player!.queue.add(res.tracks[0], offset);
 
-            case "track":
-                player!.queue.add(res.tracks[0], offset);
+                    embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true })}\``);
+                    interaction.editReply({ embeds: [embed] });
+                    break;
 
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true})}\``);
-                interaction.reply({ embeds: [embed] });
-                break;
+                case "playlist":
+                    if (!res.playlist?.tracks) return;
 
-            case "playlist":
-                if (!res.playlist?.tracks) return;
+                    if (player!.state !== 'CONNECTED') await player!.connect();
 
-                player!.queue.add(res.playlist.tracks, offset);
+                    embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue.`);
+                    player!.queue.add(res.playlist.tracks);
 
-                embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue at position \`${offset + 1}\`.`);
-                interaction.reply({ embeds: [embed] });
-                break;
+                    interaction.editReply({ embeds: [embed] });
 
-            case "search":
-                player!.queue.add(res.tracks[0], offset);
+                    if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {
+                        await player!.play();
+                    }
+                    break;
 
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true})}\``);
-                interaction.reply({ embeds: [embed] });
-                break;
-        }
+                case "liked":
+                    if (!res.playlist?.tracks) return;
+
+                    if (player!.state !== 'CONNECTED') await player!.connect();
+
+                    embed.setDescription(`Added \`${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}\` with \`${res.playlist.tracks.length}\` tracks to the queue.`);
+                    player!.queue.add(res.playlist.tracks);
+
+                    interaction.editReply({ embeds: [embed] });
+
+                    if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {
+                        await player!.play();
+                    }
+                    break;
+
+                case "search":
+                    player!.queue.add(res.tracks[0], offset);
+
+                    embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true })}\``);
+                    interaction.editReply({ embeds: [embed] });
+                    break;
+            }
+        });
     }
 }

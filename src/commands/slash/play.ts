@@ -2,9 +2,10 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, GuildMember, Colors, 
 import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
 import { createPlayer, player } from "../../structures/player.js";
-import logMessage from "../../utils/logMessage.js";
 import Keys from "../../keys.js";
 import prettyMilliseconds from "pretty-ms";
+import modelLikedSongs from "../../models/likedSongs.js";
+import { Track } from "magmastream";
 
 export const command: CommandSlash = {
     slash: true,
@@ -37,9 +38,37 @@ export const command: CommandSlash = {
             if (!(client.manager.players.get(interaction.guild!.id))) createPlayer(interaction);
 
             let player = client.manager.players.get(interaction.guild!.id);
-            const res = await player!.search(query, interaction.user);
 
-            logMessage(res.loadType, true);
+            let res: any;
+            if (query.toLowerCase() === 'liked') {
+                let likedSongs = await modelLikedSongs.findOne({ userId: interaction.user.id });
+                if (!likedSongs) {
+                    embed.setColor(Colors.Red);
+                    embed.setDescription(`You have no liked songs!`);
+                    return await interaction.reply({ embeds: [embed] });
+                }
+                let likedSongsArray = likedSongs.songs;
+                if (likedSongsArray.length === 0) {
+                    embed.setColor(Colors.Red);
+                    embed.setDescription(`You have no liked songs!`);
+                    return await interaction.reply({ embeds: [embed] });
+                }
+                let resLiked = {
+                    loadType: 'liked',
+                    playlist: {
+                        name: '',
+                        tracks: [] as Track[],
+                        duration: 0
+                    }
+                };
+                await Promise.all(likedSongsArray.map(async uri => {
+                    resLiked.playlist?.tracks.push((await player!.search(uri, interaction.user)).tracks[0] as Track);
+                }));
+                resLiked.playlist!.name = `${interaction.user.username}'s Liked Songs`;
+                res = resLiked;
+            } else {
+                res = await player!.search(query, interaction.user);
+            }
 
             switch (res.loadType) {
                 case "empty":
@@ -75,10 +104,25 @@ export const command: CommandSlash = {
                     if (!res.playlist?.tracks) return;
 
                     if (player!.state !== 'CONNECTED') await player!.connect();
-
+                    
+                    embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue.`);
                     player!.queue.add(res.playlist.tracks);
 
-                    embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue.`);
+                    interaction.editReply({ embeds: [embed] });
+
+                    if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {
+                        await player!.play();
+                    }
+                    break;
+
+                case "liked":
+                    if (!res.playlist?.tracks) return;
+
+                    if (player!.state !== 'CONNECTED') await player!.connect();
+
+                    embed.setDescription(`Added \`${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}\` with \`${res.playlist.tracks.length}\` tracks to the queue.`);
+                    player!.queue.add(res.playlist.tracks);
+
                     interaction.editReply({ embeds: [embed] });
 
                     if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {
