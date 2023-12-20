@@ -10,7 +10,7 @@ import modelLikedSongs from "../../models/likedSongs.js";
 export const guildSongPreviousCache = new Map<string, string>();
 export const guildSongNewCache = new Map<string, string>();
 export const guildNowPlayingMessageCache = new Map<string, Message>();
-export const guildCollectorCache = new Map<string, InteractionCollector<ButtonInteraction<CacheType>>>();
+export const guildCollectorCache = new Map<string, InteractionCollector<ButtonInteraction<CacheType>> | InteractionCollector<ButtonInteraction<"cached">>>();
 
 let nowPlayingMessage: Message | undefined;
 export let embed: EmbedBuilder;
@@ -94,9 +94,9 @@ export const event = {
         let channel: TextChannel | undefined;
         try {
             if (nowPlayingMessage) {
-                channel = await (await client.guilds.fetch(player.guild))!.channels.fetch(nowPlayingMessage.channelId) as TextChannel; // ISSUE: FETCHING THE NEW CHANNEL NOT THE REMOVED ONE!!!!
+                channel = await (await client.guilds.fetch(player.guild))!.channels.fetch(nowPlayingMessage.channelId) as TextChannel;
             } else {
-                channel = await (await client.guilds.fetch(player.guild))!.channels.fetch(player.textChannel!) as TextChannel; // ISSUE: FETCHING THE NEW CHANNEL NOT THE REMOVED ONE!!!!
+                channel = await (await client.guilds.fetch(player.guild))!.channels.fetch(player.textChannel!) as TextChannel;
             }
         } catch {
             channel = undefined;
@@ -106,26 +106,25 @@ export const event = {
             if (!nowPlayingMessage) {
                 nowPlayingMessage = await channel.send({ embeds: [embed], components: [rowDefault as any, rowLike], flags: [4096] }).then(msg => {
                     guildNowPlayingMessageCache.set(player.guild, msg);
+                    const collector = msg!.createMessageComponentCollector({ componentType: ComponentType.Button });
+                    guildCollectorCache.set(player.guild, collector);
+                    startCollector();
                     return msg;
                 });
-                const collector = nowPlayingMessage!.createMessageComponentCollector({ componentType: ComponentType.Button });
-                guildCollectorCache.set(player.guild, collector);
-                startCollector();
             } else {
-                let channel = await (await client.guilds.fetch(player.guild))!.channels.fetch(player.textChannel!) as TextChannel;
                 if (channel.lastMessage?.id === nowPlayingMessage?.id) {
                     nowPlayingMessage!.edit({ embeds: [embed], components: [rowDefault as any, rowLike] });
                 } else {
                     nowPlayingMessage!.delete();
                     nowPlayingMessage = await channel.send({ embeds: [embed], components: [rowDefault as any, rowLike], flags: [4096] }).then(msg => {
                         guildNowPlayingMessageCache.set(player.guild, msg);
+                        let collector = guildCollectorCache.get(player.guild)!;
+                        collector.stop();
+                        collector = msg!.createMessageComponentCollector({ componentType: ComponentType.Button });
+                        guildCollectorCache.set(player.guild, collector);
+                        startCollector();
                         return msg;
                     });
-                    let collector = guildCollectorCache.get(player.guild)!;
-                    collector.stop();
-                    collector = nowPlayingMessage!.createMessageComponentCollector({ componentType: ComponentType.Button });
-                    guildCollectorCache.set(player.guild, collector);
-                    startCollector();
                 }
             }
         } else {
@@ -181,11 +180,9 @@ async function startCollector() {
                 interaction.update({ embeds: [embed], components: [rowDefault as any, rowLike] });
                 break;
             case 'skip':
-                if (player.queue[0]) {
-                    player.stop();
-                    embedReply.setDescription(':fast_forward: Song skipped!');
-                    interaction.reply({ embeds: [embedReply] });
-                }
+                player.stop();
+                embedReply.setDescription(':fast_forward: Song skipped!');
+                interaction.reply({ embeds: [embedReply] });
                 break;
             case 'stop':
                 player.queue.clear();
