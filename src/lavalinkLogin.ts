@@ -21,9 +21,4 @@ client.manager = new Manager({
     },
 });
 
-export const lavalinkConnectionStatus = {
-    isLavalinkConnected: false,
-    isStandby: false,
-}
-
 client.on('raw', (d) => client.manager.updateVoiceState(d));

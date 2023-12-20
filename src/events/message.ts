@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import logMessage from '../utils/logMessage.js';
 import { Keys } from '../keys.js';
 import client from '../clientLogin.js';
-import { lavalinkConnectionStatus } from '../lavalinkLogin.js';
+import { clientConnectionStatus } from '../clientLogin.js';
 
 export const event = {
     name: Events.MessageCreate,
@@ -38,7 +38,7 @@ export const event = {
             if (player) {
                 if (message.channel.id != player.textChannel) player.textChannel = message.channel.id;
             }
-            if(!lavalinkConnectionStatus.isLavalinkConnected) {
+            if(!clientConnectionStatus.isLavalinkConnected || !clientConnectionStatus.isMongoDBConnected) {
                 embed.setDescription('The bot is currently in standby mode. Please try again later.');
                 return message.channel.send({ embeds: [embed] });
             }

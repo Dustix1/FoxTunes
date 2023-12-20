@@ -3,6 +3,7 @@ import path from 'node:path';
 import Keys from '../keys.js';
 
 import client from '../clientLogin.js';
+import mongoose from 'mongoose';
 
 (async () => {
 	let eventFiles;
@@ -16,6 +17,8 @@ import client from '../clientLogin.js';
 				client.once(event.name, (...args) => event.execute(...args));
 			} else if (event.manager) {
 				client.manager.on(event.name, (...args) => event.execute(...args));
+			} else if (event.mongoose){
+				mongoose.connection.on(event.name, (...args) => event.execute(...args));
 			} else {
 				client.on(event.name, (...args) => event.execute(...args));
 			}

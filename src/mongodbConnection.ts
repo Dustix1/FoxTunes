@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import { spinnerDiscordLogin, spinnerMongodbLogin } from "./utils/spinners.js";
 import chalk from "chalk";
 import Keys from "./keys.js";
+import { ActivityType, PresenceUpdateStatus } from "discord.js";
+import client, { clientConnectionStatus } from "./clientLogin.js";
 
 mongoose.set('strictQuery', true);
 await mongoose.connect(process.env.MONGODB_URI!, {
@@ -12,6 +14,8 @@ await mongoose.connect(process.env.MONGODB_URI!, {
 }).then(() => {
     spinnerMongodbLogin.succeed(chalk.green('Database connection successful!'));
     spinnerDiscordLogin.start();
+    clientConnectionStatus.isStandby = false;
+    clientConnectionStatus.isMongoDBConnected = true;
 }).catch((err) => {
     console.error(err);
     spinnerMongodbLogin.fail(chalk.red('Database connection failed!'));

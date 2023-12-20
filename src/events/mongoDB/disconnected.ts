@@ -1,16 +1,17 @@
 import chalk from "chalk";
-import { spinnerLavalinkLogin } from "../../utils/spinners.js";
+import { spinnerMongodbLogin } from "../../utils/spinners.js";
 import { ActivityType, Colors, EmbedBuilder, PresenceUpdateStatus, TextBasedChannel } from "discord.js";
 import client from "../../clientLogin.js";
 import { clientConnectionStatus } from "../../clientLogin.js";
 import logMessage from "../../utils/logMessage.js";
 
+
 export const event = {
-    name: 'nodeError',
-    manager: true,
-    async execute(error: any) {
-        clientConnectionStatus.isLavalinkConnected = false;
-        spinnerLavalinkLogin.fail(chalk.red.bold(`Lavalink connection failed! --> Attempting to reconnect...`));
+    name: 'disconnected',
+    mongoose: true,
+    async execute() {
+        clientConnectionStatus.isMongoDBConnected = false;
+        spinnerMongodbLogin.fail(chalk.red.bold(`MongoDB connection failed! --> Attempting to reconnect...`));
 
         if (clientConnectionStatus.isStandby === false) {
             client.guilds.cache.forEach(guild => {

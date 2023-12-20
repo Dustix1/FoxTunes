@@ -20,4 +20,10 @@ client.login(Keys.clientToken)
     process.exit(1);
 })
 
+export const clientConnectionStatus = {
+    isLavalinkConnected: false,
+    isMongoDBConnected: false,
+    isStandby: false,
+}
+
 export default client;
