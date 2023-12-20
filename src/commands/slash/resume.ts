@@ -25,7 +25,7 @@ export const command: CommandSlash = {
         }
 
         player!.pause(false);
-        editFromCommand('resume');
+        editFromCommand('resume', interaction);
         embed.setDescription(`:arrow_forward: Music resumed!`);
         interaction.reply({ embeds: [embed] });
     }

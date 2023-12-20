@@ -25,7 +25,7 @@ export const command: CommandMessage = {
         }
 
         player!.pause(true);
-        editFromCommand('pause');
+        editFromCommand('pause', message);
         embed.setDescription(`:pause_button: Music paused!\nUse \`!resume\` or \`/resume\` to resume the song`);
         message.reply({ embeds: [embed] });
     }

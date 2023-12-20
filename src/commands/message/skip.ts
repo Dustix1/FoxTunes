@@ -20,7 +20,6 @@ export const command: CommandMessage = {
 
         if (!args[0]) {
             player!.stop();
-            editFromCommand('skip');
             embed.setDescription(':fast_forward: Song skipped!');
             message.reply({ embeds: [embed] });
         } else {
@@ -36,10 +35,8 @@ export const command: CommandMessage = {
             if (skipNumber > player!.queue.length) {
                 player!.queue.clear();
                 player!.stop();
-                editFromCommand('skip');
             } else {
                 player!.stop(skipNumber);
-                editFromCommand('skip');
             }
             embed.setDescription(`:fast_forward: Skipped \`${skipNumber}\` songs!`);
             message.reply({ embeds: [embed] });

@@ -28,9 +28,7 @@ export const command: CommandMessage = {
                 return false;
             }
 
-        player?.disconnect();
-        player?.destroy();
-        editFromCommand('disconnect');
+        editFromCommand('disconnect', message);
         embed.setDescription('Disconnected from the voice channel.');
         message.channel.send({ embeds: [embed] });
     }

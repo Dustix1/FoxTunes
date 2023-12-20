@@ -25,8 +25,8 @@ export const command: CommandSlash = {
         }
 
         player!.pause(true);
-        editFromCommand('pause');
+        editFromCommand('pause', interaction);
         embed.setDescription(`:pause_button: Music paused!\nUse \`!resume\` or \`/resume\` to resume the song`);
-        interaction.reply({ content: ':pause_button: Music paused!\nUse \`!resume\` or \`/resume\` to resume the song' });
+        interaction.reply({ embeds: [embed] });
     }
 }

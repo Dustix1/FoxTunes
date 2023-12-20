@@ -31,9 +31,8 @@ export const command: CommandMessage = {
             return message.reply({ embeds: [embed] });
         }
 
-        const botCurrentVoiceChannelId = message.guild?.members.me?.voice.channelId;
-
-        if(player) {
+        if (player) {
+            const botCurrentVoiceChannelId = message.guild?.members.me?.voice.channelId;
             if (botCurrentVoiceChannelId && message.member.voice.channelId && message.member.voice.channelId !== botCurrentVoiceChannelId) {
                 embed.setColor(Colors.Red);
                 embed.setDescription(`You must be connnected to the same voice channel as me to use this command. I'm in <#${botCurrentVoiceChannelId}>`);
@@ -41,6 +40,8 @@ export const command: CommandMessage = {
             }
         } else {
             createPlayer(message);
+            player = client.manager.players.get(message.guild!.id);
+            player!.connect();
         }
 
         player = client.manager.players.get(message.guild!.id);
@@ -68,33 +69,7 @@ export const command: CommandMessage = {
                 embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true, secondsDecimalDigits: 0 })}\``);
                 message.reply({ embeds: [embed] });
 
-                if (!player!.playing && !player!.paused && !player!.queue.length) {
-                    await player!.play();
-                }
-                break;
-
-            case "playlist":
-                if (!res.playlist?.tracks) return;
-
-                player!.queue.add(res.playlist.tracks);
-
-                embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${guildCache}) with \`${res.playlist.tracks.length}\` tracks to the queue.`);
-                message.reply({ embeds: [embed] });
-
-                if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {
-                    await player!.play();
-                }
-                break;
-
-            case "search":
-                player!.queue.add(res.tracks[0]);
-
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true, secondsDecimalDigits: 0 })}\``);
-                message.reply({ embeds: [embed] });
-
-                if (!player!.playing && !player!.paused && !player!.queue.length) {
-                    await player!.play();
-                }
+                await player!.play();
                 break;
         }
     }

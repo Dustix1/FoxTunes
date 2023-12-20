@@ -35,7 +35,7 @@ export const event = {
         try {
             logMessage(chalk.hex(Keys.secondaryColor).bold(`${message.author.username}`) + ` used ` + chalk.hex(Keys.secondaryColor).bold(`${message}`) + ` on ` + chalk.hex(Keys.secondaryColor).bold(`${message.guild.name} `) + chalk.hex(Keys.secondaryColor).bold(`(${message.guild.id})`));
             let player = client.manager.players.get(message.guild!.id);
-            if (player && (wantedCommand == 'play')) {
+            if (player) {
                 if (message.channel.id != player.textChannel) player.textChannel = message.channel.id;
             }
             if(!lavalinkConnectionStatus.isLavalinkConnected) {

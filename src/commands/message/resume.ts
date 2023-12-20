@@ -24,7 +24,7 @@ export const command: CommandMessage = {
         }
 
         player!.pause(false);
-        editFromCommand('resume');
+        editFromCommand('resume', message);
         embed.setDescription(`:arrow_forward: Music resumed!`);
         message.reply({ embeds: [embed] });
     }

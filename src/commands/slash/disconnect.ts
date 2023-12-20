@@ -27,10 +27,8 @@ export const command: CommandSlash = {
                 interaction.reply({ embeds: [embed], ephemeral: true });
                 return false;
             }
-
-        player?.disconnect();
-        player?.destroy();
-        editFromCommand('disconnect');
+            
+        editFromCommand('disconnect', interaction);
         embed.setDescription('Disconnected from the voice channel.');
         interaction.reply({ embeds: [embed] });
     }

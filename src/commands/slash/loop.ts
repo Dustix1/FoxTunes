@@ -27,7 +27,7 @@ export const command: CommandSlash = {
 
         if (!interaction.options.getString('queue')) {
             player!.setTrackRepeat(!player!.trackRepeat);
-            editFromCommand('loop');
+            editFromCommand('loop', interaction);
             embed.setDescription(`:repeat: Looping ${player!.trackRepeat ? 'enabled' : 'disabled'}!`);
             interaction.reply({ embeds: [embed] });
         } else {

@@ -32,9 +32,8 @@ export const command: CommandSlash = {
             return interaction.reply({ embeds: [embed] });
         }
 
-        const botCurrentVoiceChannelId = interaction.guild?.members.me?.voice.channelId;
-
         if (player) {
+            const botCurrentVoiceChannelId = interaction.guild?.members.me?.voice.channelId;
             if (botCurrentVoiceChannelId && member.voice.channelId && member.voice.channelId !== botCurrentVoiceChannelId) {
                 embed.setColor(Colors.Red);
                 embed.setDescription(`You must be connnected to the same voice channel as me to use this command. I'm in <#${botCurrentVoiceChannelId}>`);
@@ -42,6 +41,8 @@ export const command: CommandSlash = {
             }
         } else {
             createPlayer(interaction);
+            player = client.manager.players.get(interaction.guild!.id);
+            player!.connect();
         }
 
         await interaction.deferReply().then(async () => {

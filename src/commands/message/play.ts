@@ -88,7 +88,7 @@ export const command: CommandMessage = {
                 if (!player!.queue.current) player!.destroy();
 
                 embed.setColor(Colors.Red);
-                embed.setDescription(`Load failed when searching for \`${query}\``);
+                embed.setDescription(`Load failed when searching for \`${query}\`\nPlease try again.`);
                 await message.reply({ embeds: [embed] });
                 break;
 

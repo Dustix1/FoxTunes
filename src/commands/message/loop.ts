@@ -19,7 +19,7 @@ export const command: CommandMessage = {
 
         if (!args[0]) {
             player!.setTrackRepeat(!player!.trackRepeat);
-            editFromCommand('loop');
+            editFromCommand('loop', message);
             embed.setDescription(`:repeat: Looping ${player!.trackRepeat ? 'enabled' : 'disabled'}!`);
             message.reply({ embeds: [embed] });
         } else {
