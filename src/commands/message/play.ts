@@ -5,7 +5,9 @@ import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import prettyMilliseconds from "pretty-ms";
 import modelLikedSongs from "../../models/likedSongs.js";
-import { Track } from "magmastream";
+import { SearchQuery, Track } from "magmastream";
+import playlistNames from "../../models/playlists.js";
+import customPlaylistSongsCache, { createCustomPlaylist } from "../../models/customPlaylist.js";
 
 export const command: CommandMessage = {
     slash: false,
@@ -45,7 +47,7 @@ export const command: CommandMessage = {
 
         let res: any;
 
-        if (query.toLowerCase() === 'liked') {
+        if (query.toLowerCase() == 'liked') {
             let likedSongs = await modelLikedSongs.findOne({ userId: message.author.id });
             if (!likedSongs) {
                 embed.setColor(Colors.Blurple);
@@ -71,6 +73,45 @@ export const command: CommandMessage = {
             }));
             resLiked.playlist!.name = `${message.author.username}'s Liked Songs`;
             res = resLiked;
+        } else if (args[0].toLowerCase() == 'playlist') {
+            if (!args[1]) {
+                embed.setColor(Colors.Red);
+                embed.setDescription(`You must provide a playlist name!`);
+                return await message.reply({ embeds: [embed] });
+            }
+            const playlistName = message.content.split(' ').slice(2).join(' ').replace(/[\p{Emoji}`]/gu, '').replace(/ /g, '_');
+            const playlistNamesModel = await playlistNames.findOne({ userId: message.author.id });
+            if (!playlistNamesModel) {
+                embed.setColor(Colors.Red);
+                embed.setDescription(`You have no playlists!`);
+                return await message.reply({ embeds: [embed] });
+            }
+            if (!playlistNamesModel.playlists.includes(playlistName)) {
+                embed.setColor(Colors.Red);
+                embed.setDescription(`You have no playlist named \`${playlistName}\`!`);
+                return await message.reply({ embeds: [embed] });
+            } else {
+                let customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
+                if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: message.author.id });
+                if (!customPlaylistModel) {
+                    embed.setColor(Colors.Red);
+                    embed.setDescription(`You have no playlist named \`${playlistName}\`!`);
+                    return await message.reply({ embeds: [embed] });
+                }
+                let resPlaylist = {
+                    loadType: 'customPlaylist',
+                    playlist: {
+                        name: '',
+                        tracks: [] as Track[],
+                        duration: 0
+                    }
+                };
+                await Promise.all(customPlaylistModel.songs.map(async (uri: string | SearchQuery) => {
+                    resPlaylist.playlist?.tracks.push((await player!.search(uri, message.author)).tracks[0] as Track);
+                }));
+                resPlaylist.playlist!.name = `${message.author.username}'s ${playlistName}`;
+                res = resPlaylist;
+            }
         } else {
             res = await player!.search(query, message.author);
         }
@@ -97,7 +138,7 @@ export const command: CommandMessage = {
 
                 if (player!.state !== 'CONNECTED') await player!.connect();
 
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true, secondsDecimalDigits: 0 })}\``);
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true, secondsDecimalDigits: 0 })}\``);
                 message.reply({ embeds: [embed] });
 
                 if (!player!.playing && !player!.paused && !player!.queue.length) {
@@ -134,13 +175,27 @@ export const command: CommandMessage = {
                     await player!.play();
                 }
                 break;
+            case "customPlaylist":
+                if (!res.playlist?.tracks) return;
+
+                if (player!.state !== 'CONNECTED') await player!.connect();
+
+                embed.setDescription(`Added \`${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}\` with \`${res.playlist.tracks.length}\` tracks to the queue.`);
+                player!.queue.add(res.playlist.tracks);
+
+                message.reply({ embeds: [embed] });
+
+                if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {
+                    await player!.play();
+                }
+                break;
 
             case "search":
                 if (player!.state !== 'CONNECTED') await player!.connect();
 
                 player!.queue.add(res.tracks[0]);
 
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, {colonNotation: true, secondsDecimalDigits: 0 })}\``);
+                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true, secondsDecimalDigits: 0 })}\``);
                 message.reply({ embeds: [embed] });
 
                 if (!player!.playing && !player!.paused && !player!.queue.length) {

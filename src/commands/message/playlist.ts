@@ -10,28 +10,105 @@ import mongoose, { Collection, Document } from "mongoose";
 export const command: CommandMessage = {
     slash: false,
     name: 'playlist',
-    usage: '\`\`!playlist\nAvailable arguments: playlist_name/list/create/delete/delete-all add/remove/clear/playlist_name song\`\`',
+    usage: '\`\`!playlist\nAvailable arguments: playlist_name/list/create/delete/delete-all add/remove/clear/playlist_name   song\`\`',
     description: 'Manage your playlists',
     async execute(message: Message, args: any) {
         let embed = new EmbedBuilder()
             .setColor(Keys.mainColor)
 
         if (!args[0]) {
-            embed.setDescription(`Available arguments: \`playlist_name/list/create/delete/delete-all   add/remove/clear/playlist_name song\``)
+            embed.setDescription(`Available arguments: \`playlist_name/list/create/delete/delete-all   add/remove/list/clear/playlist_name   song\``)
             embed.setColor(Colors.Blurple);
             return message.reply({ embeds: [embed] })
         }
 
         let playlistNamesModel: any;
         let customPlaylistModel: any | Collection<Document<any, any>>;
-        const playlistName = message.content.split(' ').slice(2).join(' ').replace(/[\p{Emoji}`]/gu, '');
-        switch (args[0]) {
+        const playlistName = message.content.split(' ').slice(2).join(' ').replace(/[\p{Emoji}`]/gu, '').replace(/ /g, '_');
+
+        switch (args[0].toLowerCase()) {
             default:
                 playlistNamesModel = await playlistNames.findOne({ userId: message.author.id })
-                if (playlistNamesModel?.playlists.includes(args[0])) {
-
+                if (playlistNamesModel?.playlists.includes(args[0].toLowerCase())) {
+                    if (!args[1]) {
+                        customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === args[0].toLowerCase())?.findOne({ userId: message.author.id });
+                        if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(args[0]).findOne({ userId: message.author.id });
+                        if (!customPlaylistModel.songs || customPlaylistModel.songs.length === 0) {
+                            embed.setDescription(`Your playlist is empty!`);
+                            embed.setColor(Colors.Blurple);
+                            return message.reply({ embeds: [embed] })
+                        }
+                        embed.setTitle(`${args[0]}:`);
+                        embed.setDescription(`\n\`${customPlaylistModel.songs.join(', ')}\``);
+                        return message.channel.send({ embeds: [embed] })
+                        break;
+                    }
+                    const song = message.content.split(' ').slice(3).join(' ').replace(/[\p{Emoji}`]/gu, '');
+                    switch (args[1].toLowerCase()) {
+                        case 'add':
+                            if (!args[2]) {
+                                embed.setDescription(`You need to provide a song!`);
+                                embed.setColor(Colors.Red);
+                                return message.reply({ embeds: [embed] })
+                            }
+                            customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === args[0].toLowerCase())?.findOne({ userId: message.author.id });
+                            if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(args[0]).findOne({ userId: message.author.id });
+                            if (customPlaylistModel.songs.includes(song)) {
+                                embed.setDescription(`This song is already in the playlist!`);
+                                embed.setColor(Colors.Red);
+                                return message.reply({ embeds: [embed] });
+                            }
+                            customPlaylistModel.songs.push(song);
+                            embed.setDescription(`Added \`${song}\` to \`${args[0]}\``);
+                            await customPlaylistModel?.save();
+                            return message.reply({ embeds: [embed] });
+                            break;
+                        case 'remove':
+                            if (!args[2]) {
+                                embed.setDescription(`You need to provide a song!`);
+                                embed.setColor(Colors.Red);
+                                return message.reply({ embeds: [embed] })
+                            }
+                            customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === args[0].toLowerCase())?.findOne({ userId: message.author.id });
+                            if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(args[0]).findOne({ userId: message.author.id });
+                            if (!customPlaylistModel.songs.includes(song)) {
+                                embed.setDescription(`This song is not in the playlist!`);
+                                embed.setColor(Colors.Red);
+                                return message.reply({ embeds: [embed] });
+                            }
+                            customPlaylistModel.songs.splice(customPlaylistModel.songs.indexOf(song), 1);
+                            embed.setDescription(`Removed \`${song}\` from \`${args[0]}\``);
+                            await customPlaylistModel?.save();
+                            return message.reply({ embeds: [embed] });
+                            break;
+                        case 'list':
+                            customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === args[0].toLowerCase())?.findOne({ userId: message.author.id });
+                            if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(args[0]).findOne({ userId: message.author.id });
+                            if (!customPlaylistModel.songs || customPlaylistModel.songs.length === 0) {
+                                embed.setDescription(`Your playlist is empty!`);
+                                embed.setColor(Colors.Blurple);
+                                return message.reply({ embeds: [embed] })
+                            }
+                            embed.setTitle(`${args[0]}:`);
+                            embed.setDescription(`\n\`${customPlaylistModel.songs.join(', ')}\``);
+                            return message.channel.send({ embeds: [embed] })
+                            break;
+                        case 'clear':
+                            customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === args[0].toLowerCase())?.findOne({ userId: message.author.id });
+                            if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(args[0]).findOne({ userId: message.author.id });
+                            if (!customPlaylistModel.songs || customPlaylistModel.songs.length === 0) {
+                                embed.setDescription(`Your playlist is already empty!`);
+                                embed.setColor(Colors.Red);
+                                return message.reply({ embeds: [embed] })
+                            }
+                            customPlaylistModel.songs = [];
+                            embed.setDescription(`Cleared \`${args[0]}\``);
+                            await customPlaylistModel?.save();
+                            return message.reply({ embeds: [embed] });
+                            break;
+                    }
                 } else {
-                    embed.setDescription(`Available arguments: \`playlist_name/list/create/delete/delete-all   add/remove/clear/playlist_name song\``)
+                    embed.setDescription(`Available arguments: \`playlist_name/list/create/delete/delete-all   add/remove/clear/playlist_name   song\``)
                     embed.setColor(Colors.Blurple);
                     return message.reply({ embeds: [embed] })
                 }
@@ -96,7 +173,7 @@ export const command: CommandMessage = {
                     embed.setDescription('You need to provide a playlist name!');
                     embed.setColor(Colors.Blurple);
                     return message.reply({ embeds: [embed] });
-                } else if (args[1].toLowerCase() === 'likedsongs') { 
+                } else if (args[1].toLowerCase() === 'likedsongs') {
                     embed.setDescription(`You can't delete the \`likedsongs\` playlist!`);
                     embed.setColor(Colors.Red);
                     return message.reply({ embeds: [embed] });
