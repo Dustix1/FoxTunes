@@ -48,7 +48,7 @@ export const command: CommandMessage = {
         if (query.toLowerCase() === 'liked') {
             let likedSongs = await modelLikedSongs.findOne({ userId: message.author.id });
             if (!likedSongs) {
-                embed.setColor(Colors.Red);
+                embed.setColor(Colors.Blurple);
                 embed.setDescription(`You have no liked songs!`);
                 return await message.reply({ embeds: [embed] });
             }

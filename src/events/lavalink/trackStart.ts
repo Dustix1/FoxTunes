@@ -6,6 +6,7 @@ import Keys from "../../keys.js";
 import prettyMilliseconds from "pretty-ms";
 import { player } from "../../structures/player.js";
 import modelLikedSongs from "../../models/likedSongs.js";
+import playlistNames from "../../models/playlists.js";
 
 export const guildSongPreviousCache = new Map<string, string>();
 export const guildSongNewCache = new Map<string, string>();
@@ -203,10 +204,16 @@ async function startCollector() {
                 break;
             case 'like':
                 let likedSongs = await modelLikedSongs.findOne({ userId: interaction.user.id });
+                let playlistsModel = await playlistNames.findOne({ userId: interaction.user.id });
                 let currentSong = guildSongNewCache.get(player.guild);
 
                 if (!likedSongs) {
                     likedSongs = await modelLikedSongs.create({ userId: interaction.user.id, songs: [currentSong!] });
+                    if (!playlistsModel) {
+                        playlistsModel = await playlistNames.create({ userId: interaction.user.id, playlists: ['likedsongs'] });
+                    } else {
+                        playlistsModel.playlists.push('likedsongs');
+                    }
                     logMessage(`Added ${guildSongNewCache.get(player.guild)} to ${interaction.user.id}'s liked songs!`, true);
                     embedReply.setDescription(`Added \`${player.queue.current?.title}\` to your liked songs playlist.`);
                     interaction.reply({ embeds: [embedReply], ephemeral: true });

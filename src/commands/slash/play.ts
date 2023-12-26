@@ -49,7 +49,7 @@ export const command: CommandSlash = {
                 }
                 let likedSongsArray = likedSongs.songs;
                 if (likedSongsArray.length === 0) {
-                    embed.setColor(Colors.Red);
+                    embed.setColor(Colors.Blurple);
                     embed.setDescription(`You have no liked songs!`);
                     return await interaction.reply({ embeds: [embed] });
                 }
