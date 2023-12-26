@@ -5,7 +5,10 @@ import { createPlayer, player } from "../../structures/player.js";
 import Keys from "../../keys.js";
 import prettyMilliseconds from "pretty-ms";
 import modelLikedSongs from "../../models/likedSongs.js";
-import { Track } from "magmastream";
+import { SearchQuery, Track } from "magmastream";
+import customPlaylistSongsCache, { createCustomPlaylist } from "../../models/customPlaylist.js";
+import playlistNames from "../../models/playlists.js";
+import logMessage from "../../utils/logMessage.js";
 
 export const command: CommandSlash = {
     slash: true,
@@ -13,7 +16,8 @@ export const command: CommandSlash = {
     data: new SlashCommandBuilder()
         .setName('play')
         .setDescription('Plays a song or playlist.')
-        .addStringOption((option) => option.setName('song').setDescription('The song to play.').setRequired(true)),
+        .addStringOption((option) => option.setName('song').setDescription('The song to play.').setRequired(true))
+        .addBooleanOption((option) => option.setName('customplaylist').setDescription('Are you trying to play a custom playlist?').setRequired(false)),
     async execute(interaction: ChatInputCommandInteraction) {
         const query = interaction.options.getString('song')!;
         let member = interaction.member as GuildMember;
@@ -45,13 +49,13 @@ export const command: CommandSlash = {
                 if (!likedSongs) {
                     embed.setColor(Colors.Red);
                     embed.setDescription(`You have no liked songs!`);
-                    return await interaction.reply({ embeds: [embed] });
+                    return await interaction.editReply({ embeds: [embed] });
                 }
                 let likedSongsArray = likedSongs.songs;
                 if (likedSongsArray.length === 0) {
                     embed.setColor(Colors.Blurple);
                     embed.setDescription(`You have no liked songs!`);
-                    return await interaction.reply({ embeds: [embed] });
+                    return await interaction.editReply({ embeds: [embed] });
                 }
                 let resLiked = {
                     loadType: 'liked',
@@ -66,6 +70,47 @@ export const command: CommandSlash = {
                 }));
                 resLiked.playlist!.name = `${interaction.user.username}'s Liked Songs`;
                 res = resLiked;
+            } else if (interaction.options.getBoolean('customplaylist')) {
+                const playlistName = interaction.options.getString('song')!;
+                const playlistNamesModel = await playlistNames.findOne({ userId: interaction.user.id });
+                if (!playlistNamesModel) {
+                    embed.setColor(Colors.Red);
+                    embed.setDescription(`You have no playlists!`);
+                    return await interaction.editReply({ embeds: [embed] });
+                }
+                if (!playlistNamesModel.playlists.includes(playlistName)) {
+                    embed.setColor(Colors.Red);
+                    embed.setDescription(`You have no playlist named \`${playlistName}\`!`);
+                    return await interaction.editReply({ embeds: [embed] });
+                } else {
+                    let customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: interaction.user.id });
+                    if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: interaction.user.id });
+                    if (!customPlaylistModel) {
+                        embed.setColor(Colors.Red);
+                        embed.setDescription(`You have no playlist named \`${playlistName}\`!`);
+                        return await interaction.editReply({ embeds: [embed] });
+                    }
+                    let customPlaylistSongs = customPlaylistModel.songs;
+                    if (customPlaylistSongs.length === 0) {
+                        embed.setColor(Colors.Red);
+                        embed.setDescription(`Your playlist named \`${playlistName}\` has no songs!`);
+                        return await interaction.editReply({ embeds: [embed] });
+                    }
+                    let resPlaylist = {
+                        loadType: 'customPlaylist',
+                        playlist: {
+                            name: '',
+                            tracks: [] as Track[],
+                            duration: 0
+                        }
+                    };
+                    await Promise.all(customPlaylistSongs.map(async (song: string | SearchQuery) => {
+                        resPlaylist.playlist?.tracks.push((await player!.search(song, interaction.user)).tracks[0] as Track);
+                    }));
+                    resPlaylist.playlist!.name = `${interaction.user.username}'s ${playlistName}`;
+                    res = resPlaylist;
+                    logMessage(res.playlist.tracks.length)
+                }
             } else {
                 res = await player!.search(query, interaction.user);
             }
@@ -104,7 +149,7 @@ export const command: CommandSlash = {
                     if (!res.playlist?.tracks) return;
 
                     if (player!.state !== 'CONNECTED') await player!.connect();
-                    
+
                     embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue.`);
                     player!.queue.add(res.playlist.tracks);
 
@@ -116,6 +161,20 @@ export const command: CommandSlash = {
                     break;
 
                 case "liked":
+                    if (!res.playlist?.tracks) return;
+
+                    if (player!.state !== 'CONNECTED') await player!.connect();
+
+                    embed.setDescription(`Added \`${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}\` with \`${res.playlist.tracks.length}\` tracks to the queue.`);
+                    player!.queue.add(res.playlist.tracks);
+
+                    interaction.editReply({ embeds: [embed] });
+
+                    if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {
+                        await player!.play();
+                    }
+                    break;
+                case "customPlaylist":
                     if (!res.playlist?.tracks) return;
 
                     if (player!.state !== 'CONNECTED') await player!.connect();

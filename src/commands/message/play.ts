@@ -106,8 +106,8 @@ export const command: CommandMessage = {
                         duration: 0
                     }
                 };
-                await Promise.all(customPlaylistModel.songs.map(async (uri: string | SearchQuery) => {
-                    resPlaylist.playlist?.tracks.push((await player!.search(uri, message.author)).tracks[0] as Track);
+                await Promise.all(customPlaylistModel.songs.map(async (song: string | SearchQuery) => {
+                    resPlaylist.playlist?.tracks.push((await player!.search(song, message.author)).tracks[0] as Track);
                 }));
                 resPlaylist.playlist!.name = `${message.author.username}'s ${playlistName}`;
                 res = resPlaylist;

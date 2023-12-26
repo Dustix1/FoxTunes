@@ -31,7 +31,7 @@ export const event = {
             await commandsSlash.get(command).execute(interaction, interaction.options);
         } catch (error) {
                 embed.setDescription('There was an error trying to execute that command!');
-            await interaction.reply({ embeds: [embed] });
+            interaction.deferred ? await interaction.editReply({ embeds: [embed] }) : await interaction.reply({ embeds: [embed] });
             console.error(error);
         }
     }
