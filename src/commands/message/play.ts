@@ -73,6 +73,7 @@ export const command: CommandMessage = {
             }));
             resLiked.playlist!.name = `${message.author.username}'s Liked Songs`;
             res = resLiked;
+
         } else if (args[0].toLowerCase() == 'playlist') {
             if (!args[1]) {
                 embed.setColor(Colors.Red);
@@ -101,16 +102,23 @@ export const command: CommandMessage = {
                 let resPlaylist = {
                     loadType: 'customPlaylist',
                     playlist: {
-                        name: '',
+                        name: `${message.author.username}'s ${playlistName}`,
                         tracks: [] as Track[],
                         duration: 0
                     }
                 };
-                await Promise.all(customPlaylistModel.songs.map(async (song: string | SearchQuery) => {
-                    resPlaylist.playlist?.tracks.push((await player!.search(song, message.author)).tracks[0] as Track);
-                }));
-                resPlaylist.playlist!.name = `${message.author.username}'s ${playlistName}`;
-                res = resPlaylist;
+                resPlaylist.playlist.tracks.push(...customPlaylistModel.songs as Track[]);
+
+                if (!resPlaylist.playlist?.tracks) return;
+
+                if (player!.state !== 'CONNECTED') await player!.connect();
+
+                player!.queue.add(resPlaylist.playlist.tracks);
+
+                if (!player!.playing && !player!.paused && player!.queue.size === resPlaylist.playlist.tracks.length) {
+                    await player!.play();
+                }
+                return;
             }
         } else {
             res = await player!.search(query, message.author);
@@ -152,6 +160,7 @@ export const command: CommandMessage = {
                 if (player!.state !== 'CONNECTED') await player!.connect();
 
                 embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue.`);
+
                 player!.queue.add(res.playlist.tracks);
 
                 message.reply({ embeds: [embed] });
@@ -167,20 +176,7 @@ export const command: CommandMessage = {
                 if (player!.state !== 'CONNECTED') await player!.connect();
 
                 embed.setDescription(`Added \`${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}\` with \`${res.playlist.tracks.length}\` tracks to the queue.`);
-                player!.queue.add(res.playlist.tracks);
 
-                message.reply({ embeds: [embed] });
-
-                if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {
-                    await player!.play();
-                }
-                break;
-            case "customPlaylist":
-                if (!res.playlist?.tracks) return;
-
-                if (player!.state !== 'CONNECTED') await player!.connect();
-
-                embed.setDescription(`Added \`${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}\` with \`${res.playlist.tracks.length}\` tracks to the queue.`);
                 player!.queue.add(res.playlist.tracks);
 
                 message.reply({ embeds: [embed] });

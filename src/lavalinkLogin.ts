@@ -1,6 +1,7 @@
 import { Manager } from 'magmastream';
 import client from './clientLogin.js';
 import Keys from './keys.js';
+import CustomManager from './mixins/customManagerCreate.js';
 
 const nodes = [
     {
@@ -13,7 +14,7 @@ const nodes = [
     }
 ];
 
-client.manager = new Manager({
+client.manager = new CustomManager({
     nodes,
     send: (id, payload) => {
         const guild = client.guilds.cache.get(id);

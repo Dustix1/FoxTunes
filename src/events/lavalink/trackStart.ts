@@ -57,7 +57,7 @@ export const event = {
     name: 'trackStart',
     manager: true,
     async execute(player: Player, track: Track) {
-        logMessage(`Track started in ${player.guild} with song ${track.uri}!`, true);
+        logMessage(`Track started in ${player.guild} with song ${track.uri}`, true);
 
         let currentTrack = guildSongNewCache.get(player.guild);
 

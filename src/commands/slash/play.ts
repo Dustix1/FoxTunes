@@ -93,7 +93,7 @@ export const command: CommandSlash = {
                     let customPlaylistSongs = customPlaylistModel.songs;
                     if (customPlaylistSongs.length === 0) {
                         embed.setColor(Colors.Red);
-                        embed.setDescription(`Your playlist named \`${playlistName}\` has no songs!`);
+                        embed.setDescription(`Your playlist \`${playlistName}\` has no songs!`);
                         return await interaction.editReply({ embeds: [embed] });
                     }
                     let resPlaylist = {
@@ -104,8 +104,8 @@ export const command: CommandSlash = {
                             duration: 0
                         }
                     };
-                    await Promise.all(customPlaylistSongs.map(async (song: string | SearchQuery) => {
-                        resPlaylist.playlist?.tracks.push((await player!.search(song, interaction.user)).tracks[0] as Track);
+                    await Promise.all(customPlaylistSongs.map(async (uri: string | SearchQuery) => {
+                        resPlaylist.playlist?.tracks.push((await player!.search(uri, interaction.user)).tracks[0] as Track);
                     }));
                     resPlaylist.playlist!.name = `${interaction.user.username}'s ${playlistName}`;
                     res = resPlaylist;
