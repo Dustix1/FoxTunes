@@ -11,6 +11,7 @@ export const command: CommandMessage = {
     aliases: ['stop'],
     usage: '\`\`!pause\nNo available arguments\`\`',
     description: 'Pauses the currently playing song.',
+    group: 'musicPlayback',
     async execute(message: Message, args: any) {
         let player = client.manager.players.get(message.guild!.id);
         let embed = new EmbedBuilder()

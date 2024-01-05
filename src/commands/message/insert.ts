@@ -14,6 +14,7 @@ export const command: CommandMessage = {
     aliases: ['add', 'insert-song', 'add-song'],
     usage: '\`\`!insert\nAvailable arguments: insert_position song_name_or_url\`\`',
     description: 'Inserts a song into the queue.',
+    group: 'queueMgmt',
     async execute(message: Message, args: any) {
         let player = client.manager.players.get(message.guild!.id);
         let embed = new EmbedBuilder()

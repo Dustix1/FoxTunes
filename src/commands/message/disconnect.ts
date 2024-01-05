@@ -11,6 +11,7 @@ export const command: CommandMessage = {
     aliases: ['dc'],
     usage: '\`\`!disconnect\nNo available arguments\`\`',
     description: 'Disconnects the bot from the voice channel.',
+    group: 'musicPlayback',
     async execute(message: Message, args: any) {
         let player = client.manager.players.get(message.guild!.id);
         let embed = new EmbedBuilder()

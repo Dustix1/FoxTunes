@@ -11,6 +11,7 @@ export const command: CommandMessage = {
     aliases: ['s'],
     usage: '\`\`!skip\nAvailable arguments: number_of_songs_to_skip/all\`\`',
     description: 'Skips a song.',
+    group: 'musicPlayback',
     async execute(message: Message, args: any) {
         let player = client.manager.players.get(message.guild!.id);
         let embed = new EmbedBuilder()

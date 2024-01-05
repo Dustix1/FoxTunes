@@ -8,6 +8,7 @@ export const command: CommandMessage = {
     name: 'overseer',
     usage: '\`\`!overseer\nNo available Arguments.\`\`',
     description: 'Overseer advertisement.',
+    group: 'general',
     async execute(message: Message, args: any) {
         const overseerEmbed = new EmbedBuilder()
             .setColor('#ff0000')

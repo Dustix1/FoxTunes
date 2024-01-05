@@ -14,6 +14,7 @@ export const command: CommandMessage = {
     aliases: ['p'],
     usage: '\`\`!play\nAvailable Arguments: song_name/song_url\`\`',
     description: 'Plays a song or playlist.',
+    group: 'musicPlayback',
     async execute(message: Message, args: any) {
         const query = message.content.split(' ').slice(1).join(' ');
         let embed = new EmbedBuilder()

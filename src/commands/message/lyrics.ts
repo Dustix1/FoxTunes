@@ -12,6 +12,7 @@ export const command: CommandMessage = {
     aliases: ['text'],
     usage: '\`\`!lyrics\nNo available arguments.\`\`',
     description: 'Finds the lyrics of the currently playing song.',
+    group: 'musicPlayback',
     async execute(message: Message, args: any) {
         let player = client.manager.players.get(message.guild!.id);
         let embed = new EmbedBuilder()

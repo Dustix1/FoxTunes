@@ -78,6 +78,7 @@ export const command: CommandMessage = {
     aliases: ['q'],
     usage: '\`\`!queue\nNo available Arguments.\`\`',
     description: 'Lists the queue.',
+    group: 'queueMgmt',
     async execute(message: Message, args: any) {
         let player = client.manager.players.get(message.guild!.id);
         let embed = new EmbedBuilder()

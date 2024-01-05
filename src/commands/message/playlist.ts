@@ -13,8 +13,10 @@ import { Player, Track } from "magmastream";
 export const command: CommandMessage = {
     slash: false,
     name: 'playlist',
-    usage: '\`\`!playlist\nAvailable arguments: playlist_name/list/create/delete/delete-all add/remove/clear/playlist_name   song\`\`',
+    aliases: ['pl', 'playlists', 'customplaylist', 'custom-playlist'],
+    usage: '\`Please refer to !help playlist since this is a complex command\`',
     description: 'Manage your custom playlists',
+    group: 'general',
     async execute(message: Message, args: any) {
         let embed = new EmbedBuilder()
             .setColor(Keys.mainColor);
@@ -25,7 +27,7 @@ export const command: CommandMessage = {
         }
 
         if (!args[0]) {
-            embed.setDescription(`Available arguments: \`playlist_name/list/create/delete/delete-all   add/remove/list/clear/playlist_name   song\``)
+            embed.setDescription(this.usage)
             embed.setColor(Colors.Blurple);
             return message.reply({ embeds: [embed] })
         }
@@ -53,7 +55,7 @@ export const command: CommandMessage = {
                     const playlistName = args[0];
                     switch (args[1].toLowerCase()) {
                         default:
-                            embed.setDescription(`Available arguments: \`playlist_name/list/create/delete/delete-all   add/remove/clear/playlist_name   song\``)
+                            embed.setDescription(this.usage)
                             embed.setColor(Colors.Blurple);
                             return message.reply({ embeds: [embed] })
                             break;
@@ -131,7 +133,7 @@ export const command: CommandMessage = {
                             break;
                     }
                 } else {
-                    embed.setDescription(`Available arguments: \`playlist_name/list/create/delete/delete-all   add/remove/clear/playlist_name   song\``)
+                    embed.setDescription(this.usage)
                     embed.setColor(Colors.Blurple);
                     return message.reply({ embeds: [embed] })
                 }
@@ -231,36 +233,18 @@ export const command: CommandMessage = {
                     embed.setColor(Colors.Red);
                     return message.reply({ embeds: [embed] });
                 } else {
-                    let likedSongsModel = await playlistNames.findOne({ userId: message.author.id });
-                    if (likedSongsModel) {
-                        playlistNamesModel.playlists.forEach(async (playlistName: string) => {
-                            if (playlistName != 'likedsongs') {
-                                customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
-                                if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: message.author.id });
-                                const cpmColl: Collection = customPlaylistModel.collection;
-                                if (await cpmColl.countDocuments() > 1) {
-                                    await cpmColl.deleteOne({ userId: message.author.id });
-                                } else {
-                                    cpmColl.drop();
-                                }
-                            }
-                        });
-                        playlistNamesModel.playlists = ['likedsongs'];
-                        embed.setDescription(`Deleted all your playlists except liked songs!\n Please note that you can't delete the \`likedsongs\` playlist`);
-                    } else {
-                        playlistNamesModel.playlists.forEach(async (playlistName: string) => {
-                            customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
-                            if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: message.author.id });
-                            const cpmColl: Collection = customPlaylistModel.collection;
-                            if (await cpmColl.countDocuments() > 1) {
-                                await cpmColl.deleteOne({ userId: message.author.id });
-                            } else {
-                                cpmColl.drop();
-                            }
-                        });
-                        playlistNamesModel.playlists = [];
-                        embed.setDescription(`Deleted all your playlists!`);
-                    }
+                    playlistNamesModel.playlists.forEach(async (playlistName: string) => {
+                        customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
+                        if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: message.author.id });
+                        const cpmColl: Collection = customPlaylistModel.collection;
+                        if (await cpmColl.countDocuments() > 1) {
+                            await cpmColl.deleteOne({ userId: message.author.id });
+                        } else {
+                            cpmColl.drop();
+                        }
+                    });
+                    playlistNamesModel.playlists = [];
+                    embed.setDescription(`Deleted all your playlists!`);
                 }
                 await playlistNamesModel?.save();
                 return message.reply({ embeds: [embed] });

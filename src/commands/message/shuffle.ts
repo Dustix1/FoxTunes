@@ -9,6 +9,7 @@ export const command: CommandMessage = {
     name: 'shuffle',
     usage: '\`\`!shuffle\nNo available arguments\`\`',
     description: 'shuffles the queue.',
+    group: 'queueMgmt',
     async execute(message: Message, args: any) {
         let player = client.manager.players.get(message.guild!.id);
         let embed = new EmbedBuilder()

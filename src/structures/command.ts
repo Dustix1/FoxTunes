@@ -5,7 +5,8 @@ export type CommandMessage = {
     usage: string,
     description: string,
     hidden?: boolean,
-    execute: Function
+    execute: Function,
+    group: string
 }
 
 export type CommandSlash = {

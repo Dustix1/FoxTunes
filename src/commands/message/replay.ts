@@ -13,6 +13,7 @@ export const command: CommandMessage = {
     name: 'replay',
     usage: '\`\`!replay\nNo available arguments\`\`',
     description: 'Replays the last played song.',
+    group: 'musicPlayback',
     async execute(message: Message, args: any) {
         let player = client.manager.players.get(message.guild!.id);
         let embed = new EmbedBuilder()

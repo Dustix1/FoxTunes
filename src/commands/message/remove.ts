@@ -10,6 +10,7 @@ export const command: CommandMessage = {
     aliases: ['rm', 'delete', 'del', 'remove-song', 'rm-song', 'delete-song', 'del-song'],
     usage: '\`\`!remove\nAvailable arguments: song_position\`\`',
     description: 'Removes a song from the queue.',
+    group: 'queueMgmt',
     async execute(message: Message, args: any) {
         let player = client.manager.players.get(message.guild!.id);
         let embed = new EmbedBuilder()

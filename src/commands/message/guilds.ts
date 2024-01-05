@@ -8,6 +8,7 @@ export const command: CommandMessage = {
     name: 'guilds',
     usage: '\`\`!guilds\nNo available arguments.\`\`',
     description: 'List all available guilds.',
+    group: 'general',
     hidden: true,
     async execute(message: Message, args: any) {
         if (message.author.id !== Keys.ownerID) return;
