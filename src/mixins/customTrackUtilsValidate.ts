@@ -21,7 +21,7 @@ function CustomTrackUtilsMixin(Base: typeof BaseTrackUtils) {
             }
 
             if (!(trackOrTracks[TRACK_SYMBOL] || trackOrTracks[UNRESOLVED_TRACK_SYMBOL])) {
-                logMessage(`Track is not an array and is not valid -> probably missing "TRACK_SYMBOL" or "UNRESOLVED_TRACK_SYMBOL" property on track object --> ignoring it.`, false, 'warn');
+                logMessage(`Track is not an array and is not valid -> probably missing "TRACK_SYMBOL" or "UNRESOLVED_TRACK_SYMBOL" property on track object --> ignoring it.`, true, 'warn');
             }
             return true;
         }

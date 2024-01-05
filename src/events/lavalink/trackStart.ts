@@ -212,8 +212,6 @@ async function startCollector() {
 
                 if (!playlistNamesModel) {
                     playlistNamesModel = await playlistNames.create({ userId: interaction.user.id, playlists: [playlistName] });
-                    customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName)?.findOne({ userId: interaction.user.id });
-                    if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: interaction.user.id });
                     let customPlaylist = customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase());
                     if (customPlaylist) {
                         newTrack = {
@@ -236,6 +234,7 @@ async function startCollector() {
                         embedReply.setDescription(`Added \`${player.queue.current?.title}\` to your liked songs playlist.`);
                         interaction.reply({ embeds: [embedReply], ephemeral: true });
                     } else {
+                        customPlaylist = createCustomPlaylist(playlistName);
                         newTrack = {
                             uri: player.queue.current!.uri,
                             artworkUrl: player.queue.current!.artworkUrl,
@@ -257,10 +256,9 @@ async function startCollector() {
                         interaction.reply({ embeds: [embedReply], ephemeral: true });
                     }
                 } else if (playlistNamesModel.playlists.includes(playlistName.toLowerCase())) {
-                    customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName)?.findOne({ userId: interaction.user.id });
-                    if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: interaction.user.id });
                     let customPlaylist = customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase());
                     if (customPlaylist) {
+                        customPlaylistModel = await customPlaylist.findOne({ userId: interaction.user.id });
                         let alreadyTrack: Track | undefined;
                         customPlaylistModel.songs.forEach((track: Track) => {
                             if (track.uri == player.queue.current?.uri) {
@@ -293,6 +291,8 @@ async function startCollector() {
                             interaction.reply({ embeds: [embedReply], ephemeral: true });
                         }
                     } else {
+                        customPlaylist = createCustomPlaylist(playlistName);
+                        customPlaylistModel = await customPlaylist.findOne({ userId: interaction.user.id });
                         let alreadyTrack: Track | undefined;
                         customPlaylistModel.songs.forEach((track: Track) => {
                             if (track.uri == player.queue.current?.uri) {
@@ -326,11 +326,10 @@ async function startCollector() {
                         }
                     }
                 } else {
-                    customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName)?.findOne({ userId: interaction.user.id });
-                    if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: interaction.user.id });
                     playlistNamesModel.playlists.push(playlistName);
                     let customPlaylist = customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase());
                     if (customPlaylist) {
+                        customPlaylistModel = await customPlaylist.findOne({ userId: interaction.user.id });
                         let alreadyTrack: Track | undefined;
                         customPlaylistModel.songs.forEach((track: Track) => {
                             if (track.uri == player.queue.current?.uri) {
@@ -363,6 +362,8 @@ async function startCollector() {
                             interaction.reply({ embeds: [embedReply], ephemeral: true });
                         }
                     } else {
+                        customPlaylist = createCustomPlaylist(playlistName);
+                        customPlaylistModel = await customPlaylist.findOne({ userId: interaction.user.id });
                         let alreadyTrack: Track | undefined;
                         customPlaylistModel.songs.forEach((track: Track) => {
                             if (track.uri == player.queue.current?.uri) {
