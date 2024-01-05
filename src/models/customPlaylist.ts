@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-let customPlaylistSongsCache: mongoose.Model<any, any>[] = [];
+let customPlaylistCache: mongoose.Model<any, any>[] = [];
 
 
 export function createCustomPlaylist(name: string) {
@@ -30,8 +30,8 @@ export function createCustomPlaylist(name: string) {
     });
 
     const customPlaylist = mongoose.model(name, customPlaylistSchema, name.toLowerCase());
-    customPlaylistSongsCache.push(customPlaylist);
+    customPlaylistCache.push(customPlaylist);
     return customPlaylist;
 }
 
-export default customPlaylistSongsCache;
+export default customPlaylistCache;

@@ -3,13 +3,12 @@ import Keys from "../../keys.js";
 import { CommandMessage } from "../../structures/command.js";
 import playlistNames from "../../models/playlists.js";
 import { createCustomPlaylist } from "../../models/customPlaylist.js";
-import customPlaylistSongsCache from "../../models/customPlaylist.js";
+import customPlaylistCache from "../../models/customPlaylist.js";
 import logMessage from "../../utils/logMessage.js";
 import { Collection, Document, model } from "mongoose";
 import client from "../../clientLogin.js";
 import { createPlayer } from "../../structures/player.js";
-import likedSongs from "../../models/likedSongs.js";
-import { Player } from "magmastream";
+import { Player, Track } from "magmastream";
 
 export const command: CommandMessage = {
     slash: false,
@@ -40,37 +39,7 @@ export const command: CommandMessage = {
                 playlistNamesModel = await playlistNames.findOne({ userId: message.author.id })
                 if (playlistNamesModel?.playlists.includes(args[0].toLowerCase())) {
                     if (!args[1]) {
-                        if (args[0].toLowerCase() === 'likedsongs') {
-                            let likedSongsModel = await likedSongs.findOne({ userId: message.author.id });
-                            if (!likedSongsModel) {
-                                embed.setDescription(`You have no liked songs!`);
-                                embed.setColor(Colors.Red);
-                                return message.reply({ embeds: [embed] });
-                            }
-                            let likedSongsArray = likedSongsModel.songs;
-                            if (likedSongsArray.length === 0) {
-                                embed.setDescription(`You have no liked songs!`);
-                                embed.setColor(Colors.Red);
-                                return message.reply({ embeds: [embed] });
-                            }
-                            let resLiked = {
-                                loadType: 'liked',
-                                playlist: {
-                                    name: '',
-                                    tracks: [] as any[],
-                                    duration: 0
-                                }
-                            };
-                            await Promise.all(likedSongsArray.map(async (uri: string) => {
-                                resLiked.playlist?.tracks.push((await client.manager.players.get('0000000000000000000')!.search(uri, message.author)).tracks[0] as any);
-                            }));
-                            resLiked.playlist!.name = `${message.author.username}'s Liked Songs`;
-                            embed.setTitle(`${message.author.displayName}'s Liked Songs:`);
-                            const desc = customPlaylistModel.songs.map((song: { title: any; uri: any; }) => `[${song.title}](${song.uri})`).join(', ');
-                            embed.setDescription(`\n${desc}`);
-                            return message.channel.send({ embeds: [embed] })
-                        }
-                        customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === args[0].toLowerCase())?.findOne({ userId: message.author.id });
+                        customPlaylistModel = await customPlaylistCache.find(model => model.modelName === args[0].toLowerCase())?.findOne({ userId: message.author.id });
                         if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(args[0]).findOne({ userId: message.author.id });
                         if (!customPlaylistModel.songs || customPlaylistModel.songs.length === 0) {
                             embed.setDescription(`Your playlist is empty!`);
@@ -80,9 +49,14 @@ export const command: CommandMessage = {
                         listPlaylist(customPlaylistModel, args, message);
                         break;
                     }
-                    const song = message.content.split(' ').slice(3).join(' ');
+                    let song: string = message.content.split(' ').slice(3).join(' ');
                     const playlistName = args[0];
                     switch (args[1].toLowerCase()) {
+                        default:
+                            embed.setDescription(`Available arguments: \`playlist_name/list/create/delete/delete-all   add/remove/clear/playlist_name   song\``)
+                            embed.setColor(Colors.Blurple);
+                            return message.reply({ embeds: [embed] })
+                            break;
                         case 'add':
                             if (!args[2]) {
                                 embed.setDescription(`You need to provide a song!`);
@@ -98,54 +72,41 @@ export const command: CommandMessage = {
                                 embed.setColor(Colors.Red);
                                 return message.reply({ embeds: [embed] })
                             }
-                            customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === args[0].toLowerCase())?.findOne({ userId: message.author.id });
+                            customPlaylistModel = await customPlaylistCache.find(model => model.modelName === args[0].toLowerCase())?.findOne({ userId: message.author.id });
                             if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(args[0]).findOne({ userId: message.author.id });
-                            if (!customPlaylistModel.songs.includes(song)) {
-                                embed.setDescription(`This song is not in the playlist!`);
-                                embed.setColor(Colors.Red);
-                                return message.reply({ embeds: [embed] });
+                            let track: Track | string | undefined;
+                            if (isNaN(parseInt(song))) {
+                                customPlaylistModel.songs.forEach((modelTrack: Track) => {
+                                    if (modelTrack.title.toLowerCase() == song.toLowerCase()) {
+                                        track = modelTrack;
+                                    }
+                                });
+                                if (!track) {
+                                    embed.setDescription(`This song is not in the playlist!`);
+                                    embed.setColor(Colors.Red);
+                                    return message.reply({ embeds: [embed] });
+                                }
+                                track = customPlaylistModel.songs.splice(customPlaylistModel.songs.indexOf(track), 1)[0];
+                            } else {
+                                try {
+                                    track = customPlaylistModel.songs.splice(parseInt(song) - 1, 1)[0];
+                                } catch {
+                                    embed.setDescription(`This is not a valid song number!`);
+                                    embed.setColor(Colors.Red);
+                                    return message.reply({ embeds: [embed] });
+                                }
+                                if (!track) {
+                                    embed.setDescription(`This song is not in the playlist!`);
+                                    embed.setColor(Colors.Red);
+                                    return message.reply({ embeds: [embed] });
+                                }
                             }
-                            customPlaylistModel.songs.splice(customPlaylistModel.songs.indexOf(song), 1);
-                            embed.setDescription(`Removed \`${song}\` from \`${args[0]}\``);
+                            embed.setDescription(`Removed \`${(track! as Track).title}\` from \`${args[0]}\``);
                             await customPlaylistModel?.save();
                             return message.reply({ embeds: [embed] });
                             break;
                         case 'list':
-                            if (args[0].toLowerCase() === 'likedsongs') {
-                                let likedSongsModel = await likedSongs.findOne({ userId: message.author.id });
-                                if (!likedSongsModel) {
-                                    embed.setDescription(`You have no liked songs!`);
-                                    embed.setColor(Colors.Red);
-                                    return message.reply({ embeds: [embed] });
-                                }
-                                let likedSongsArray = likedSongsModel.songs;
-                                if (likedSongsArray.length === 0) {
-                                    embed.setDescription(`You have no liked songs!`);
-                                    embed.setColor(Colors.Red);
-                                    return message.reply({ embeds: [embed] });
-                                }
-                                let resLiked = {
-                                    loadType: 'liked',
-                                    playlist: {
-                                        name: '',
-                                        tracks: [] as any[],
-                                        duration: 0
-                                    }
-                                };
-                                await Promise.all(likedSongsArray.map(async (uri: string) => {
-                                    resLiked.playlist?.tracks.push((await client.manager.players.get('0000000000000000000')!.search(uri, message.author)).tracks[0] as any);
-                                }));
-                                resLiked.playlist!.name = `${message.author.username}'s Liked Songs`;
-                                embed.setTitle(`${message.author.displayName}'s Liked Songs:`);
-                                let desc: string = '';
-                                resLiked.playlist?.tracks.forEach((track: any) => {
-                                    desc += `[${track.title}](${track.uri})\n`;
-                                });
-                                embed.setDescription(`\n${desc}`);
-                                return message.channel.send({ embeds: [embed] })
-                            }
-
-                            customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === args[0].toLowerCase())?.findOne({ userId: message.author.id });
+                            customPlaylistModel = await customPlaylistCache.find(model => model.modelName === args[0].toLowerCase())?.findOne({ userId: message.author.id });
                             if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(args[0]).findOne({ userId: message.author.id });
                             if (!customPlaylistModel.songs || customPlaylistModel.songs.length === 0) {
                                 embed.setDescription(`Your playlist is empty!`);
@@ -156,7 +117,7 @@ export const command: CommandMessage = {
                             break;
 
                         case 'clear':
-                            customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === args[0].toLowerCase())?.findOne({ userId: message.author.id });
+                            customPlaylistModel = await customPlaylistCache.find(model => model.modelName === args[0].toLowerCase())?.findOne({ userId: message.author.id });
                             if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(args[0]).findOne({ userId: message.author.id });
                             if (!customPlaylistModel.songs || customPlaylistModel.songs.length === 0) {
                                 embed.setDescription(`Your playlist is already empty!`);
@@ -193,16 +154,12 @@ export const command: CommandMessage = {
                     embed.setDescription('You need to provide a playlist name!');
                     embed.setColor(Colors.Blurple);
                     return message.reply({ embeds: [embed] })
-                } else if (args[1].toLowerCase() === 'likedsongs') {
-                    embed.setDescription(`You can't create the \`likedsongs\` playlist!\nIt's automatically created when you like a song!`);
-                    embed.setColor(Colors.Red);
-                    return message.reply({ embeds: [embed] })
                 }
                 playlistNamesModel = await playlistNames.findOne({ userId: message.author.id });
 
                 if (!playlistNamesModel) {
                     playlistNamesModel = await playlistNames.create({ userId: message.author.id, playlists: [playlistName] });
-                    let customPlaylist = customPlaylistSongsCache.find(model => model.modelName === playlistName.toLowerCase());
+                    let customPlaylist = customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase());
                     if (customPlaylist) {
                         customPlaylistModel = await customPlaylist.create({ userId: message.author.id, songs: [] });
                     } else {
@@ -218,7 +175,7 @@ export const command: CommandMessage = {
                     return message.reply({ embeds: [embed] })
                 } else {
                     playlistNamesModel.playlists.push(playlistName);
-                    let customPlaylist = customPlaylistSongsCache.find(model => model.modelName === playlistName.toLowerCase());
+                    let customPlaylist = customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase());
                     if (customPlaylist) {
                         customPlaylistModel = await customPlaylist.create({ userId: message.author.id, songs: [] });
                     } else {
@@ -253,7 +210,7 @@ export const command: CommandMessage = {
                     embed.setColor(Colors.Red);
                     return message.reply({ embeds: [embed] });
                 } else {
-                    customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
+                    customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
                     if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: message.author.id });
                     const cpmColl: Collection = customPlaylistModel.collection;
                     if (await cpmColl.countDocuments() > 1) {
@@ -278,7 +235,7 @@ export const command: CommandMessage = {
                     if (likedSongsModel) {
                         playlistNamesModel.playlists.forEach(async (playlistName: string) => {
                             if (playlistName != 'likedsongs') {
-                                customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
+                                customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
                                 if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: message.author.id });
                                 const cpmColl: Collection = customPlaylistModel.collection;
                                 if (await cpmColl.countDocuments() > 1) {
@@ -292,7 +249,7 @@ export const command: CommandMessage = {
                         embed.setDescription(`Deleted all your playlists except liked songs!\n Please note that you can't delete the \`likedsongs\` playlist`);
                     } else {
                         playlistNamesModel.playlists.forEach(async (playlistName: string) => {
-                            customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
+                            customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
                             if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: message.author.id });
                             const cpmColl: Collection = customPlaylistModel.collection;
                             if (await cpmColl.countDocuments() > 1) {
@@ -334,7 +291,7 @@ async function searchQuery(query: string, message: Message, embed: EmbedBuilder,
             break;
 
         case "track":
-            customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
+            customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
             if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: message.author.id });
             if (customPlaylistModel.songs.includes(res.tracks[0])) {
                 embed.setDescription(`This song is already in the playlist!`);
@@ -367,7 +324,7 @@ async function searchQuery(query: string, message: Message, embed: EmbedBuilder,
             if (!res.playlist?.tracks) {
                 return;
             }
-            customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
+            customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
             if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: message.author.id });
 
             let alreadyInPlaylist: string[] = [];
@@ -408,7 +365,7 @@ async function searchQuery(query: string, message: Message, embed: EmbedBuilder,
             break;
 
         case "search":
-            customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
+            customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
             if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: message.author.id });
             customPlaylistModel.songs.forEach((song: { uri: string; }) => {
                 if (song.uri == res.tracks[0].uri) {

@@ -4,10 +4,9 @@ import { createPlayer, player } from "../../structures/player.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import prettyMilliseconds from "pretty-ms";
-import modelLikedSongs from "../../models/likedSongs.js";
 import { SearchQuery, Track } from "magmastream";
 import playlistNames from "../../models/playlists.js";
-import customPlaylistSongsCache, { createCustomPlaylist } from "../../models/customPlaylist.js";
+import customPlaylistCache, { createCustomPlaylist } from "../../models/customPlaylist.js";
 
 export const command: CommandMessage = {
     slash: false,
@@ -48,31 +47,50 @@ export const command: CommandMessage = {
         let res: any;
 
         if (query.toLowerCase() == 'liked') {
-            let likedSongs = await modelLikedSongs.findOne({ userId: message.author.id });
-            if (!likedSongs) {
-                embed.setColor(Colors.Blurple);
-                embed.setDescription(`You have no liked songs!`);
+            const playlistName = 'liked_songs';
+            const playlistNamesModel = await playlistNames.findOne({ userId: message.author.id });
+            if (!playlistNamesModel) {
+                embed.setColor(Colors.Red);
+                embed.setDescription(`You have no playlists!`);
                 return await message.reply({ embeds: [embed] });
             }
-            let likedSongsArray = likedSongs.songs;
-            if (likedSongsArray.length === 0) {
+            if (!playlistNamesModel.playlists.includes(playlistName)) {
                 embed.setColor(Colors.Red);
                 embed.setDescription(`You have no liked songs!`);
                 return await message.reply({ embeds: [embed] });
-            }
-            let resLiked = {
-                loadType: 'liked',
-                playlist: {
-                    name: '',
-                    tracks: [] as Track[],
-                    duration: 0
+            } else {
+                let customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
+                if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: message.author.id });
+                if (!customPlaylistModel) {
+                    embed.setColor(Colors.Red);
+                    embed.setDescription(`You have no playlist named \`${playlistName}\`!`);
+                    return await message.reply({ embeds: [embed] });
                 }
-            };
-            await Promise.all(likedSongsArray.map(async uri => {
-                resLiked.playlist?.tracks.push((await player!.search(uri, message.author)).tracks[0] as Track);
-            }));
-            resLiked.playlist!.name = `${message.author.username}'s Liked Songs`;
-            res = resLiked;
+                let resPlaylist = {
+                    loadType: 'likedPlaylist',
+                    playlist: {
+                        name: `${message.author.username}'s ${playlistName}`,
+                        tracks: [] as Track[],
+                        duration: 0
+                    }
+                };
+                resPlaylist.playlist.tracks.push(...customPlaylistModel.songs as Track[]);
+
+                if (!resPlaylist.playlist?.tracks) return;
+
+                if (player!.state !== 'CONNECTED') await player!.connect();
+
+                player!.queue.add(resPlaylist.playlist.tracks);
+
+                if (!player!.playing && !player!.paused && player!.queue.size === resPlaylist.playlist.tracks.length) {
+                    await player!.play();
+                }
+
+                embed.setDescription(`Added \`${playlistName}\` to the queue.`);
+                message.reply({ embeds: [embed] });
+
+                return;
+            }
 
         } else if (args[0].toLowerCase() == 'playlist') {
             if (!args[1]) {
@@ -92,7 +110,7 @@ export const command: CommandMessage = {
                 embed.setDescription(`You have no playlist named \`${playlistName}\`!`);
                 return await message.reply({ embeds: [embed] });
             } else {
-                let customPlaylistModel = await customPlaylistSongsCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
+                let customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase())?.findOne({ userId: message.author.id });
                 if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: message.author.id });
                 if (!customPlaylistModel) {
                     embed.setColor(Colors.Red);
@@ -118,6 +136,10 @@ export const command: CommandMessage = {
                 if (!player!.playing && !player!.paused && player!.queue.size === resPlaylist.playlist.tracks.length) {
                     await player!.play();
                 }
+
+                embed.setDescription(`Added \`${playlistName}\` to the queue.`);
+                message.reply({ embeds: [embed] });
+
                 return;
             }
         } else {
@@ -160,22 +182,6 @@ export const command: CommandMessage = {
                 if (player!.state !== 'CONNECTED') await player!.connect();
 
                 embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue.`);
-
-                player!.queue.add(res.playlist.tracks);
-
-                message.reply({ embeds: [embed] });
-
-                if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {
-                    await player!.play();
-                }
-                break;
-
-            case "liked":
-                if (!res.playlist?.tracks) return;
-
-                if (player!.state !== 'CONNECTED') await player!.connect();
-
-                embed.setDescription(`Added \`${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}\` with \`${res.playlist.tracks.length}\` tracks to the queue.`);
 
                 player!.queue.add(res.playlist.tracks);
 

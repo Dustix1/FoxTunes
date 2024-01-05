@@ -1,12 +1,13 @@
 import { Player, Track } from "magmastream";
 import client from "../../clientLogin.js";
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, ComponentType, EmbedBuilder, InteractionCollector, Message, TextChannel } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, Colors, ComponentType, EmbedBuilder, InteractionCollector, Message, TextChannel } from "discord.js";
 import logMessage from "../../utils/logMessage.js";
 import Keys from "../../keys.js";
 import prettyMilliseconds from "pretty-ms";
 import { player } from "../../structures/player.js";
-import modelLikedSongs from "../../models/likedSongs.js";
+import customPlaylistCache, { createCustomPlaylist } from "../../models/customPlaylist.js";
 import playlistNames from "../../models/playlists.js";
+import { Document, Collection } from "mongoose";
 
 export const guildSongPreviousCache = new Map<string, string>();
 export const guildSongNewCache = new Map<string, string>();
@@ -203,32 +204,200 @@ async function startCollector() {
                 interaction.update({ embeds: [embed], components: [rowDefault as any, rowLike] });
                 break;
             case 'like':
-                let likedSongs = await modelLikedSongs.findOne({ userId: interaction.user.id });
-                let playlistsModel = await playlistNames.findOne({ userId: interaction.user.id });
-                let currentSong = guildSongNewCache.get(player.guild);
+                let playlistNamesModel: any;
+                let customPlaylistModel: any | Collection<Document<any, any>>;
+                let newTrack;
+                const playlistName = 'liked_songs';
+                playlistNamesModel = await playlistNames.findOne({ userId: interaction.user.id });
 
-                if (!likedSongs) {
-                    likedSongs = await modelLikedSongs.create({ userId: interaction.user.id, songs: [currentSong!] });
-                    if (!playlistsModel) {
-                        playlistsModel = await playlistNames.create({ userId: interaction.user.id, playlists: ['likedsongs'] });
+                if (!playlistNamesModel) {
+                    playlistNamesModel = await playlistNames.create({ userId: interaction.user.id, playlists: [playlistName] });
+                    customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName)?.findOne({ userId: interaction.user.id });
+                    if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: interaction.user.id });
+                    let customPlaylist = customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase());
+                    if (customPlaylist) {
+                        newTrack = {
+                            uri: player.queue.current!.uri,
+                            artworkUrl: player.queue.current!.artworkUrl,
+                            sourceName: player.queue.current!.sourceName,
+                            title: player.queue.current!.title,
+                            identifier: player.queue.current!.identifier,
+                            author: player.queue.current!.author,
+                            duration: player.queue.current!.duration,
+                            isSeekable: player.queue.current!.isSeekable,
+                            isStream: player.queue.current!.isStream,
+                            thumbnail: player.queue.current!.thumbnail,
+                            requester: player.queue.current!.requester,
+                            track: player.queue.current!.track,
+                        };
+
+                        customPlaylistModel = await customPlaylist.create({ userId: interaction.user.id, songs: [newTrack] });
+
+                        embedReply.setDescription(`Added \`${player.queue.current?.title}\` to your liked songs playlist.`);
+                        interaction.reply({ embeds: [embedReply], ephemeral: true });
                     } else {
-                        playlistsModel.playlists.push('likedsongs');
+                        newTrack = {
+                            uri: player.queue.current!.uri,
+                            artworkUrl: player.queue.current!.artworkUrl,
+                            sourceName: player.queue.current!.sourceName,
+                            title: player.queue.current!.title,
+                            identifier: player.queue.current!.identifier,
+                            author: player.queue.current!.author,
+                            duration: player.queue.current!.duration,
+                            isSeekable: player.queue.current!.isSeekable,
+                            isStream: player.queue.current!.isStream,
+                            thumbnail: player.queue.current!.thumbnail,
+                            requester: player.queue.current!.requester,
+                            track: player.queue.current!.track,
+                        };
+
+                        customPlaylistModel = await customPlaylist!.create({ userId: interaction.user.id, songs: [newTrack] });
+
+                        embedReply.setDescription(`Added \`${player.queue.current?.title}\` to your liked songs playlist.`);
+                        interaction.reply({ embeds: [embedReply], ephemeral: true });
                     }
-                    logMessage(`Added ${guildSongNewCache.get(player.guild)} to ${interaction.user.id}'s liked songs!`, true);
-                    embedReply.setDescription(`Added \`${player.queue.current?.title}\` to your liked songs playlist.`);
-                    interaction.reply({ embeds: [embedReply], ephemeral: true });
-                } else if (likedSongs?.songs.includes(currentSong!)) {
-                    likedSongs.songs.splice(likedSongs.songs.indexOf(guildSongNewCache.get(player.guild)!), 1);
-                    logMessage(`Removed ${guildSongNewCache.get(player.guild)} from ${interaction.user.id}'s liked songs!`, true);
-                    embedReply.setDescription(`Removed \`${player.queue.current?.title}\` from your liked songs playlist.`);
-                    interaction.reply({ embeds: [embedReply], ephemeral: true });
+                } else if (playlistNamesModel.playlists.includes(playlistName.toLowerCase())) {
+                    customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName)?.findOne({ userId: interaction.user.id });
+                    if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: interaction.user.id });
+                    let customPlaylist = customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase());
+                    if (customPlaylist) {
+                        let alreadyTrack: Track | undefined;
+                        customPlaylistModel.songs.forEach((track: Track) => {
+                            if (track.uri == player.queue.current?.uri) {
+                                alreadyTrack = track;
+                            }
+                        });
+                        if (alreadyTrack) {
+                            customPlaylistModel.songs.splice(customPlaylistModel.songs.indexOf(alreadyTrack), 1);
+                            embedReply.setDescription(`Removed \`${player.queue.current?.title}\` from your liked songs playlist.`);
+                            interaction.reply({ embeds: [embedReply], ephemeral: true });
+                        } else {
+                            newTrack = {
+                                uri: player.queue.current!.uri,
+                                artworkUrl: player.queue.current!.artworkUrl,
+                                sourceName: player.queue.current!.sourceName,
+                                title: player.queue.current!.title,
+                                identifier: player.queue.current!.identifier,
+                                author: player.queue.current!.author,
+                                duration: player.queue.current!.duration,
+                                isSeekable: player.queue.current!.isSeekable,
+                                isStream: player.queue.current!.isStream,
+                                thumbnail: player.queue.current!.thumbnail,
+                                requester: player.queue.current!.requester,
+                                track: player.queue.current!.track,
+                            };
+
+                            customPlaylistModel.songs.push(newTrack);
+
+                            embedReply.setDescription(`Added \`${player.queue.current?.title}\` to your liked songs playlist.`);
+                            interaction.reply({ embeds: [embedReply], ephemeral: true });
+                        }
+                    } else {
+                        let alreadyTrack: Track | undefined;
+                        customPlaylistModel.songs.forEach((track: Track) => {
+                            if (track.uri == player.queue.current?.uri) {
+                                alreadyTrack = track;
+                            }
+                        });
+                        if (alreadyTrack) {
+                            customPlaylistModel.songs.splice(customPlaylistModel.songs.indexOf(alreadyTrack), 1);
+                            embedReply.setDescription(`Removed \`${player.queue.current?.title}\` from your liked songs playlist.`);
+                            interaction.reply({ embeds: [embedReply], ephemeral: true });
+                        } else {
+                            newTrack = {
+                                uri: player.queue.current!.uri,
+                                artworkUrl: player.queue.current!.artworkUrl,
+                                sourceName: player.queue.current!.sourceName,
+                                title: player.queue.current!.title,
+                                identifier: player.queue.current!.identifier,
+                                author: player.queue.current!.author,
+                                duration: player.queue.current!.duration,
+                                isSeekable: player.queue.current!.isSeekable,
+                                isStream: player.queue.current!.isStream,
+                                thumbnail: player.queue.current!.thumbnail,
+                                requester: player.queue.current!.requester,
+                                track: player.queue.current!.track,
+                            };
+
+                            customPlaylistModel.songs.push(newTrack);
+
+                            embedReply.setDescription(`Added \`${player.queue.current?.title}\` to your liked songs playlist.`);
+                            interaction.reply({ embeds: [embedReply], ephemeral: true });
+                        }
+                    }
                 } else {
-                    likedSongs?.songs.push(currentSong!);
-                    logMessage(`Added ${guildSongNewCache.get(player.guild)} to ${interaction.user.id}'s liked songs!`, true);
-                    embedReply.setDescription(`Added \`${player.queue.current?.title}\` to your liked songs playlist.`);
-                    interaction.reply({ embeds: [embedReply], ephemeral: true });
+                    customPlaylistModel = await customPlaylistCache.find(model => model.modelName === playlistName)?.findOne({ userId: interaction.user.id });
+                    if (!customPlaylistModel) customPlaylistModel = await createCustomPlaylist(playlistName).findOne({ userId: interaction.user.id });
+                    playlistNamesModel.playlists.push(playlistName);
+                    let customPlaylist = customPlaylistCache.find(model => model.modelName === playlistName.toLowerCase());
+                    if (customPlaylist) {
+                        let alreadyTrack: Track | undefined;
+                        customPlaylistModel.songs.forEach((track: Track) => {
+                            if (track.uri == player.queue.current?.uri) {
+                                alreadyTrack = track;
+                            }
+                        });
+                        if (alreadyTrack) {
+                            customPlaylistModel.songs.splice(customPlaylistModel.songs.indexOf(alreadyTrack), 1);
+                            embedReply.setDescription(`Removed \`${player.queue.current?.title}\` from your liked songs playlist.`);
+                            interaction.reply({ embeds: [embedReply], ephemeral: true });
+                        } else {
+                            newTrack = {
+                                uri: player.queue.current!.uri,
+                                artworkUrl: player.queue.current!.artworkUrl,
+                                sourceName: player.queue.current!.sourceName,
+                                title: player.queue.current!.title,
+                                identifier: player.queue.current!.identifier,
+                                author: player.queue.current!.author,
+                                duration: player.queue.current!.duration,
+                                isSeekable: player.queue.current!.isSeekable,
+                                isStream: player.queue.current!.isStream,
+                                thumbnail: player.queue.current!.thumbnail,
+                                requester: player.queue.current!.requester,
+                                track: player.queue.current!.track,
+                            };
+
+                            customPlaylistModel = await customPlaylist.create({ userId: interaction.user.id, songs: [newTrack] });
+
+                            embedReply.setDescription(`Added \`${player.queue.current?.title}\` to your liked songs playlist.`);
+                            interaction.reply({ embeds: [embedReply], ephemeral: true });
+                        }
+                    } else {
+                        let alreadyTrack: Track | undefined;
+                        customPlaylistModel.songs.forEach((track: Track) => {
+                            if (track.uri == player.queue.current?.uri) {
+                                alreadyTrack = track;
+                            }
+                        });
+                        if (alreadyTrack) {
+                            customPlaylistModel.songs.splice(customPlaylistModel.songs.indexOf(alreadyTrack), 1);
+                            embedReply.setDescription(`Removed \`${player.queue.current?.title}\` from your liked songs playlist.`);
+                            interaction.reply({ embeds: [embedReply], ephemeral: true });
+                        } else {
+                            newTrack = {
+                                uri: player.queue.current!.uri,
+                                artworkUrl: player.queue.current!.artworkUrl,
+                                sourceName: player.queue.current!.sourceName,
+                                title: player.queue.current!.title,
+                                identifier: player.queue.current!.identifier,
+                                author: player.queue.current!.author,
+                                duration: player.queue.current!.duration,
+                                isSeekable: player.queue.current!.isSeekable,
+                                isStream: player.queue.current!.isStream,
+                                thumbnail: player.queue.current!.thumbnail,
+                                requester: player.queue.current!.requester,
+                                track: player.queue.current!.track,
+                            };
+
+                            customPlaylistModel = await customPlaylist!.create({ userId: interaction.user.id, songs: [newTrack] });
+
+                            embedReply.setDescription(`Added \`${player.queue.current?.title}\` to your liked songs playlist.`);
+                            interaction.reply({ embeds: [embedReply], ephemeral: true });
+                        }
+                    }
                 }
-                await likedSongs?.save();
+                await playlistNamesModel?.save();
+                await customPlaylistModel?.save();
                 break;
         }
     });

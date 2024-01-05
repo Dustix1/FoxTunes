@@ -15,13 +15,13 @@ function CustomTrackUtilsMixin(Base: typeof BaseTrackUtils) {
             if (Array.isArray(trackOrTracks) && trackOrTracks.length) {
                 for (const track of trackOrTracks) {
                     if (!(track[TRACK_SYMBOL] || track[UNRESOLVED_TRACK_SYMBOL]))
-                        logMessage(`Track is an array and is not valid -> "TRACK_SYMBOL" or "UNRESOLVED_TRACK_SYMBOL" property on track object --> ignoring it.`, true, 'warn');
+                        logMessage(`Track is an array and is not valid -> probably missing "TRACK_SYMBOL" or "UNRESOLVED_TRACK_SYMBOL" property on track object --> ignoring it.`, true, 'warn');
                 }
                 return true;
             }
 
             if (!(trackOrTracks[TRACK_SYMBOL] || trackOrTracks[UNRESOLVED_TRACK_SYMBOL])) {
-                logMessage(`Track is not an array and is not valid -> probably missing "TRACK_SYMBOL" or "UNRESOLVED_TRACK_SYMBOL" property on track object --> ignoring it.`, true, 'warn');
+                logMessage(`Track is not an array and is not valid -> probably missing "TRACK_SYMBOL" or "UNRESOLVED_TRACK_SYMBOL" property on track object --> ignoring it.`, false, 'warn');
             }
             return true;
         }
