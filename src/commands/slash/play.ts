@@ -10,7 +10,7 @@ import playlistNames from "../../models/playlists.js";
 
 export const command: CommandSlash = {
     slash: true,
-    usage: '\`\`/play\nAvailable Arguments: song_name/song_url\`\`',
+    usage: '`\`!play\nAvailable Arguments: song_name/song_url/liked/playlist <custom playlist name>\`\`',
     data: new SlashCommandBuilder()
         .setName('play')
         .setDescription('Plays a song or playlist.')

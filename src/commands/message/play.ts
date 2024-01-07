@@ -12,7 +12,7 @@ export const command: CommandMessage = {
     slash: false,
     name: 'play',
     aliases: ['p'],
-    usage: '\`\`!play\nAvailable Arguments: song_name/song_url\`\`',
+    usage: '\`\`!play\nAvailable Arguments: song_name/song_url/liked/playlist <custom playlist name>\`\`',
     description: 'Plays a song or playlist.',
     group: 'musicPlayback',
     async execute(message: Message, args: any) {

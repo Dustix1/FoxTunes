@@ -74,10 +74,10 @@ export const command: CommandMessage = {
                 .setColor(Keys.mainColor)
                 .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
                 .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
-                .setDescription(`${commandsMessage.get(command).description}\n*this command cannot be used as a slash command.*
+                .setDescription(`${commandsMessage.get(command).description}\n*this command cannot be used as a slash command.*\n
                 **Command Usage:**
                 *you can list what playlists you have with \`!playlist list\`*
-                you can play your playlist with \`!play playlist <the name of the playlist>\`\n
+                you can play your playlist with \`!play playlist <the name of the playlist>\` or play your liked songs playlist with \`!play liked\`\n
                 ***Playlist creation/deletion:***
                 \`!playlist create <the name of the playlist>\` - creates a playlist with the specified name
                 \`!playlist delete <the name of the playlist>\` - deletes the playlist with the specified name
@@ -86,7 +86,7 @@ export const command: CommandMessage = {
                 you can list all songs in a playlist with \`!playlist <the name of the playlist> list\`
                 \n***Adding/removing songs from a playlist:***
                 \`!playlist <the name of the playlist> add <the name of the song>\` - adds the song to the playlist
-                \`!playlist <the name of the playlist> remove <the name of the song>\` - removes the song from the playlist
+                \`!playlist <the name of the playlist> remove <the name or position of the song>\` - removes the song from the playlist
                 \`!playlist <the name of the playlist> clear\` - removes all songs from the playlist
                 \n**Aliases:**\n \`${commandsMessage.get(command).aliases.join(', ')}\``)
             return message.channel.send({ embeds: [helpEmbed] });
