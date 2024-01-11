@@ -138,7 +138,7 @@ export const command: CommandMessage = {
                     await player!.play();
                 }
 
-                embed.setDescription(`Added \`${playlistName}\` to the queue.`);
+                embed.setDescription(`Added ${message.author.displayName}'s \`${playlistName}\` to the queue.`);
                 message.reply({ embeds: [embed] });
 
                 return;
