@@ -189,7 +189,7 @@ async function startCollector() {
             case 'stop':
                 player.queue.clear();
                 player.stop();
-                embedReply.setDescription('Disconnected from the voice channel.');
+                embedReply.setDescription(':stop_button: Stopped the player!');
                 interaction.reply({ embeds: [embedReply] });
                 break;
             case 'shuffle':
