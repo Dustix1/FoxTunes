@@ -11,11 +11,22 @@ export const event = {
     async execute() {
         clientConnectionStatus.isLavalinkConnected = true;
         spinnerLavalinkLogin.succeed(chalk.green(`Lavalink connection established!`));
+        fetch('https://ntfy.sh/robinjebestphasduo', {
+            method: 'POST', // PUT works too
+            body: 'Lavalink connection established!',
+            headers: {
+                'Icon': client.user!.displayAvatarURL(),
+                'Title': 'FoxTunes is now online!',
+                'Priority': 'default',
+                'Tags': 'heavy_check_mark',
+                'Click': 'https://discord.com/app'
+            }
+        })
 
-            client.user!.setPresence({
-                activities: [{ name: '!help', type: ActivityType.Listening }],
-                status: PresenceUpdateStatus.Online,
-            })
-            clientConnectionStatus.isStandby = false;
+        client.user!.setPresence({
+            activities: [{ name: '!help         Working on getting this shit running 24/7', type: ActivityType.Custom }],
+            status: PresenceUpdateStatus.Online,
+        })
+        clientConnectionStatus.isStandby = false;
     }
 }

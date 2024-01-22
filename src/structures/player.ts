@@ -18,6 +18,6 @@ export const createPlayer = (message: Message | ChatInputCommandInteraction | nu
         voiceChannel: member.voice.channel!.id,
         textChannel: message.channel!.id,
         selfDeafen: true,
-        volume: 20,
+        volume: 50,
     });
 }

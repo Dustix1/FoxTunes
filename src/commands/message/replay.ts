@@ -11,6 +11,7 @@ import { createPlayer } from "../../structures/player.js";
 export const command: CommandMessage = {
     slash: false,
     name: 'replay',
+    aliases: ['r'],
     usage: '\`\`!replay\nNo available arguments\`\`',
     description: 'Replays the last played song.',
     group: 'musicPlayback',
