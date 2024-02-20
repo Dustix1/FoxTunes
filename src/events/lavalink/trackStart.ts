@@ -415,17 +415,19 @@ export async function editFromCommand(command: string, message: Message | ChatIn
     rowDefault = new ActionRowBuilder().addComponents([shuffleButton, (player.paused ? resumeButton : pauseButton), skipButton, stopButton, loopButton]);
     nowPlayingMessage = guildNowPlayingMessageCache.get(player.guild);
 
-    embed = new EmbedBuilder()
-        .setColor(Keys.mainColor)
-        .setTitle('Now Playing')
-        .setFooter({ text: `by ${player.queue.current!.author}` })
-        .setThumbnail(player.queue.current!.thumbnail!)
-        .setDescription(`[**${player.queue.current!.title.replace(/[\p{Emoji}]/gu, '')}**](${player.queue.current!.uri}) - \`${prettyMilliseconds(player.queue.current!.duration!, { colonNotation: true, secondsDecimalDigits: 0 })}\``)
+    if (command != 'disconnect') {
+        embed = new EmbedBuilder()
+            .setColor(Keys.mainColor)
+            .setTitle('Now Playing')
+            .setFooter({ text: `by ${player.queue.current!.author}` })
+            .setThumbnail(player.queue.current!.thumbnail!)
+            .setDescription(`[**${player.queue.current!.title.replace(/[\p{Emoji}]/gu, '')}**](${player.queue.current!.uri}) - \`${prettyMilliseconds(player.queue.current!.duration!, { colonNotation: true, secondsDecimalDigits: 0 })}\``)
 
-    loopButton = new ButtonBuilder()
-        .setCustomId('loop')
-        .setEmoji('<:loop1:1184916570917576806>')
-        .setStyle(player.trackRepeat ? ButtonStyle.Success : ButtonStyle.Secondary);
+        loopButton = new ButtonBuilder()
+            .setCustomId('loop')
+            .setEmoji('<:loop1:1184916570917576806>')
+            .setStyle(player.trackRepeat ? ButtonStyle.Success : ButtonStyle.Secondary);
+    }
 
     shuffleButton.setDisabled(false);
     pauseButton.setDisabled(false);
@@ -455,13 +457,31 @@ export async function editFromCommand(command: string, message: Message | ChatIn
             stopButton.setDisabled(true);
             loopButton.setDisabled(true);
             likeButton.setDisabled(true);
-            embed.setFooter({ text: `by ${player.queue.current?.author}  •  This message is inactive.` });
             rowDefault = new ActionRowBuilder().addComponents([shuffleButton, (player.paused ? resumeButton : pauseButton), skipButton, stopButton, loopButton]);
-            player?.disconnect();
-            player?.destroy();
-            nowPlayingMessage!.edit({ embeds: [embed], components: [rowDefault as any, rowLike] });
-            const collector = guildCollectorCache.get(message!.guildId!)!;
-            collector.stop();
+
+            if (player.queue.current) {
+                embed.setFooter({ text: nowPlayingMessage!.embeds[0].footer!.text! + `   •   This message is inactive.` });
+                player?.disconnect();
+                player?.destroy();
+                nowPlayingMessage!.edit({ embeds: [embed], components: [rowDefault as any, rowLike] });
+                guildNowPlayingMessageCache.delete(message!.guildId!);
+                const collector = guildCollectorCache.get(message!.guildId!)!;
+                collector.stop();
+            } else {
+                embed = new EmbedBuilder()
+                    .setColor(Keys.mainColor)
+                    .setTitle('Now Playing')
+                    .setFooter({ text: nowPlayingMessage!.embeds[0].footer!.text! })
+                    .setThumbnail(nowPlayingMessage!.embeds[0].thumbnail!.url!)
+                    .setDescription(nowPlayingMessage!.embeds[0].description!)
+
+                player?.disconnect();
+                player?.destroy();
+                nowPlayingMessage!.edit({ embeds: [embed], components: [rowDefault as any, rowLike] });
+                guildNowPlayingMessageCache.delete(message!.guildId!);
+                const collector = guildCollectorCache.get(message!.guildId!)!;
+                collector.stop();
+            }
             break;
     }
 }

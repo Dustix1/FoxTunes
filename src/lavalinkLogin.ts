@@ -5,7 +5,7 @@ import CustomManager from './mixins/customManagerCreate.js';
 
 const nodes = [
     {
-        host: 'localhost',
+        host: '192.168.0.104',
         identifier: 'main',
         password: Keys.lavalinkPassword,
         port: 2334,

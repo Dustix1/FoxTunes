@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { Keys } from "../keys.js";
 
+
 export default function logMessage(message: any, debug: boolean = false, type?: 'warn' | 'error') {
     let date = new Date();
     if (!debug) {
