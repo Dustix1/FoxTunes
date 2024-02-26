@@ -13,7 +13,5 @@ export default function registerCommands() {
         commands.push(command.data.toJSON());
     });
 
-    client.guilds.cache.forEach(guild => {
-        rest.put(Routes.applicationGuildCommands(Keys.clientID, guild.id), { body: commands })
-    })
+    rest.put(Routes.applicationCommands(Keys.clientID), { body: commands })
 }
