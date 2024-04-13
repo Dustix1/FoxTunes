@@ -1,19 +1,22 @@
 # FoxTunes
 
-![Logo FoxTunes](https://i.ibb.co/GWn9NJt/Fox-Tunes-logo-5.jpg)
+![FoxTunes logo](https://i.ibb.co/GWn9NJt/Fox-Tunes-logo-5.jpg)
 
-#### Discord bot na přehrávání hudby<br>Autor projektu: David Kanovský
+#### Discord bot for music playback<br>Author: David Kanovský
 
-## Poděkování <a name = "thanks"></a>
-### Testování aplikace
+## Special thanks <a name = "thanks"></a>
+### App testers
 Erik Graf, Aleš Najser, Odra Vícha, Robin Harazim, Jiří Ryba, Lukáš Kanovský
-### Logo development aplikace
-![Logo FoxTunes](https://i.ibb.co/vwpZ2cG/Foxtunes.jpg)
+### Dev app logo
+![FoxTunes Dev logo](https://i.ibb.co/vwpZ2cG/Foxtunes.jpg)
 <br>Lukáš Kanovský
 
-# O projektu <a name = "about"></a>
-Tento projekt se zaměřuje na vývoj Discord bota (automatizovaného uživatele) napsaného v TypeScriptu, který umožňuje uživatelům přehrávat hudbu z různých platforem, jako jsou například YouTube a Spotify pomocí jediného příkazu. Uživatelé také mají možnost vytvořit svůj vlastní playlist, do kterého si mohou ukládat hudbu. Tento playlist je automaticky nahrán do databáze MongoDB. Uživatelé si do této databáze mohou dále ukládat svou oblíbenou hudbu pomocí tlačítka embedovaného do zprávy, která obsahuje informace o momentálně hrající hudbě. Při vývoji byly využity moderní technologie a programovací jazyk TypeScript. Zvláštní důraz byl kladen na integraci Lavalinku pro optimalizované přehrávání hudby.
+# About <a name = "about"></a>
+This project focuses on the development of a Discord bot (automated user) written in TypeScript, enabling users to play music from various platforms such as YouTube and Spotify with a single command. Users also have the option to create their own playlist to save
+music, which is automatically uploaded to a MongoDB database. Users can further save
+their favorite music to this database using a button embedded in a message containing information about the currently playing music. Modern technologies and the TypeScript programming language were used in the development, with particular emphasis on integrating
+Lavalink for optimized music playback.
 
-## Užitečné odkazy
-- [Dokumentace](./dokumentace/zaverecna_prace_David_Kanovsky.pdf)
-- [Prezentace](https://www.youtube.com/watch?v=F73k6-1O81Q)
+## Useful links
+- [Documentation](./dokumentace/zaverecna_prace_David_Kanovsky.pdf)
+- [Presentation](https://www.youtube.com/watch?v=F73k6-1O81Q)
