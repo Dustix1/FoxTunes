@@ -1,6 +1,6 @@
 import { Player, Track } from "magmastream";
 import client from "../../clientLogin.js";
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, Colors, ComponentType, EmbedBuilder, InteractionCollector, Message, TextChannel } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, Colors, ComponentType, EmbedBuilder, GuildMember, InteractionCollector, Message, TextChannel } from "discord.js";
 import logMessage from "../../utils/logMessage.js";
 import Keys from "../../keys.js";
 import prettyMilliseconds from "pretty-ms";
@@ -108,7 +108,16 @@ export const event = {
             if (!nowPlayingMessage) {
                 nowPlayingMessage = await channel.send({ embeds: [embed], components: [rowDefault as any, rowLike], flags: [4096] }).then(msg => {
                     guildNowPlayingMessageCache.set(player.guild, msg);
-                    const collector = msg!.createMessageComponentCollector({ componentType: ComponentType.Button });
+                    const collector = msg!.createMessageComponentCollector({
+                        componentType: ComponentType.Button, filter: i => {
+                            if ((i.member! as GuildMember).voice.channel != i.guild?.members.me?.voice.channel) {
+                                embedReply.setDescription('You are not in the same voice channel as me!');
+                                i.reply({ embeds: [embedReply], ephemeral: true });
+                                return false;
+                            }
+                            return true;
+                        }
+                    });
                     guildCollectorCache.set(player.guild, collector);
                     startCollector();
                     return msg;
@@ -122,7 +131,16 @@ export const event = {
                         guildNowPlayingMessageCache.set(player.guild, msg);
                         let collector = guildCollectorCache.get(player.guild)!;
                         collector.stop();
-                        collector = msg!.createMessageComponentCollector({ componentType: ComponentType.Button });
+                        collector = msg!.createMessageComponentCollector({
+                            componentType: ComponentType.Button, filter: i => {
+                                if ((i.member! as GuildMember).voice.channel != i.guild?.members.me?.voice.channel) {
+                                    embedReply.setDescription('You are not in the same voice channel as me!');
+                                    i.reply({ embeds: [embedReply], ephemeral: true });
+                                    return false;
+                                }
+                                return true;
+                            }
+                        });
                         guildCollectorCache.set(player.guild, collector);
                         startCollector();
                         return msg;
@@ -148,6 +166,7 @@ async function startCollector() {
             interaction.reply({ embeds: [embedReply] });
             return collector.stop();
         };
+
         rowDefault = new ActionRowBuilder().addComponents([shuffleButton, (player.paused ? resumeButton : pauseButton), skipButton, stopButton, loopButton]);
 
         embed = new EmbedBuilder()
@@ -458,6 +477,7 @@ export async function editFromCommand(command: string, message: Message | ChatIn
             loopButton.setDisabled(true);
             likeButton.setDisabled(true);
             rowDefault = new ActionRowBuilder().addComponents([shuffleButton, (player.paused ? resumeButton : pauseButton), skipButton, stopButton, loopButton]);
+            nowPlayingMessage = guildNowPlayingMessageCache.get(player.guild);
 
             if (player.queue.current) {
                 embed.setFooter({ text: nowPlayingMessage!.embeds[0].footer!.text! + `   •   This message is inactive.` });
@@ -468,12 +488,22 @@ export async function editFromCommand(command: string, message: Message | ChatIn
                 const collector = guildCollectorCache.get(message!.guildId!)!;
                 collector.stop();
             } else {
-                embed = new EmbedBuilder()
-                    .setColor(Keys.mainColor)
-                    .setTitle('Now Playing')
-                    .setFooter({ text: nowPlayingMessage!.embeds[0].footer!.text! })
-                    .setThumbnail(nowPlayingMessage!.embeds[0].thumbnail!.url!)
-                    .setDescription(nowPlayingMessage!.embeds[0].description!)
+                logMessage(`player: ${player ? 'true' : 'false'}`, true);
+                logMessage(`nowPlayingmessage: ${nowPlayingMessage ? 'true' : 'false'}`, true);
+                if (nowPlayingMessage!.embeds[0].thumbnail) {
+                    embed = new EmbedBuilder()
+                        .setColor(Keys.mainColor)
+                        .setTitle('Now Playing')
+                        .setFooter({ text: nowPlayingMessage!.embeds[0].footer!.text! })
+                        .setThumbnail(nowPlayingMessage!.embeds[0].thumbnail!.url!)
+                        .setDescription(nowPlayingMessage!.embeds[0].description!)
+                } else {
+                    embed = new EmbedBuilder()
+                        .setColor(Keys.mainColor)
+                        .setTitle('Now Playing')
+                        .setFooter({ text: nowPlayingMessage!.embeds[0].footer!.text! })
+                        .setDescription(nowPlayingMessage!.embeds[0].description!)
+                }
 
                 player?.disconnect();
                 player?.destroy();

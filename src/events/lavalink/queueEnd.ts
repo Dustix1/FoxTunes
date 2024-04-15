@@ -6,6 +6,7 @@ import prettyMilliseconds from "pretty-ms";
 import client from "../../clientLogin.js";
 import { TextBasedChannel } from "discord.js";
 import { embed as embedNowPlaying, guildSongPreviousCache, likeButton, pauseButton, resumeButton, rowLike, shuffleButton, skipButton, stopButton, embed, loopButton, guildCollectorCache, guildNowPlayingMessageCache } from "./trackStart.js";
+import { player } from "../../structures/player.js";
 
 export const event = {
     name: 'queueEnd',
@@ -49,10 +50,13 @@ export const event = {
         }
 
         setTimeout(() => {
-            if (!player.queue.current) {
-                guildNowPlayingMessageCache.delete(player.guild);
-                player.disconnect();
-                return player.destroy();
+            logMessage(`Queue end timeout in ${player.guild}`, true)
+            const newPlayer = client.manager.players.get(player.guild);
+            if (!newPlayer!.queue.current) {
+                logMessage(`Destroying player in ${newPlayer!.guild}`, true);
+                guildNowPlayingMessageCache.delete(newPlayer!.guild);
+                newPlayer!.disconnect();
+                return newPlayer!.destroy();
             }
         }, 300000);
     }
