@@ -42,6 +42,7 @@ export const event = {
             guildNowPlayingMessageCache.get(player.guild)?.edit({ embeds: [embedNowPlaying], components: [rowDefault as any, rowLike] });
             
             channel.send({ embeds: [embed] });
+            guildNowPlayingMessageCache.delete(player!.guild);
         } catch {
             player.queue.clear();
             player.stop();
@@ -52,9 +53,9 @@ export const event = {
         setTimeout(() => {
             logMessage(`Queue end timeout in ${player.guild}`, true)
             const newPlayer = client.manager.players.get(player.guild);
+            if (!newPlayer) return;
             if (!newPlayer!.queue.current) {
                 logMessage(`Destroying player in ${newPlayer!.guild}`, true);
-                guildNowPlayingMessageCache.delete(newPlayer!.guild);
                 newPlayer!.disconnect();
                 return newPlayer!.destroy();
             }
