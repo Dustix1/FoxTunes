@@ -479,6 +479,15 @@ export async function editFromCommand(command: string, message: Message | ChatIn
             rowDefault = new ActionRowBuilder().addComponents([shuffleButton, (player.paused ? resumeButton : pauseButton), skipButton, stopButton, loopButton]);
             nowPlayingMessage = guildNowPlayingMessageCache.get(player.guild);
 
+            if (!nowPlayingMessage) {
+                player?.disconnect();
+                player?.destroy();
+                guildNowPlayingMessageCache.delete(message!.guildId!);
+                const collector = guildCollectorCache.get(message!.guildId!)!;
+                if (collector) collector.stop();
+                return;
+            }
+
             if (player.queue.current) {
                 embed.setFooter({ text: nowPlayingMessage!.embeds[0].footer!.text! + `   •   This message is inactive.` });
                 player?.disconnect();
