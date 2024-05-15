@@ -1,4 +1,4 @@
-import { Colors, EmbedBuilder, Events, Interaction } from 'discord.js';
+import { ChannelType, Colors, EmbedBuilder, Events, Interaction } from 'discord.js';
 import { commandsSlash } from '../utils/commands.js';
 import chalk from 'chalk';
 import logMessage from '../utils/logMessage.js';
@@ -11,12 +11,20 @@ export const event = {
     async execute(interaction: Interaction) {
         if (!interaction.isCommand()) return;
 
+        let embed = new EmbedBuilder()
+                .setColor(Colors.Red);
+
+        if (interaction.channel === null)
+            {
+                embed.setDescription('Commands can only be used in a server channel!');
+                return interaction.reply({ embeds: [embed] });
+            }
+
         const command = interaction.commandName;
 
         if (!commandsSlash.has(command)) return;
 
-        let embed = new EmbedBuilder()
-                .setColor(Colors.Red);
+        
         try {
             logMessage(chalk.hex(Keys.secondaryColor).bold(`${interaction.user.username}`) + ` used ` + chalk.hex(Keys.secondaryColor).bold(`${interaction}`) + ` on ` + chalk.hex(Keys.secondaryColor).bold(`${interaction.guild?.name} `) + chalk.hex(Keys.secondaryColor).bold(`(${interaction.guild?.id})`));
             let player = client.manager.players.get(interaction.guild!.id);
