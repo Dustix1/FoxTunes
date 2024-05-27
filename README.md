@@ -1,6 +1,6 @@
 # FoxTunes
 
-![FoxTunes logo](https://i.ibb.co/GWn9NJt/Fox-Tunes-logo-5.jpg)
+<img src="./imgs/FoxTunes-logo.jpg" alt="FoxTunes logo" width="250">
 
 #### Discord bot for music playback<br>Author: David Kanovský
 
@@ -8,7 +8,8 @@
 ### App testers
 Erik Graf, Aleš Najser, Odra Vícha, Robin Harazim, Jiří Ryba, Lukáš Kanovský
 ### Dev app logo
-![FoxTunes Dev logo](https://i.ibb.co/vwpZ2cG/Foxtunes.jpg)
+<img src="./imgs/FoxTunesDev-logo.jpg" alt="FoxTunes Dev logo" width="150">
+
 <br>Lukáš Kanovský
 
 # About <a name = "about"></a>
