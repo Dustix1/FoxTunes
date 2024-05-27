@@ -3,13 +3,16 @@ import { spinnerLavalinkLogin } from "../../utils/spinners.js";
 import { ActivityType, Colors, EmbedBuilder, PresenceUpdateStatus, TextBasedChannel } from "discord.js";
 import client from "../../clientLogin.js";
 import { clientConnectionStatus } from "../../clientLogin.js";
+import Keys from "../../keys.js";
+
 
 export const event = {
     name: 'nodeError',
     manager: true,
     async execute(error: Error) {
         clientConnectionStatus.isLavalinkConnected = false;
-        spinnerLavalinkLogin.fail(chalk.red.bold(`Lavalink connection failed! --> Attempting to reconnect...`));
+        let date = new Date();
+        spinnerLavalinkLogin.fail(chalk.red.bold(`Lavalink connection failed! --> Attempting to reconnect... ⏳ ${chalk.hex(Keys.mainColor).bold(`[${date.toDateString()}] [${date.toTimeString().split(' ')[0]}]`)}⏳`));
 
         if (clientConnectionStatus.isStandby === false) {
             client.guilds.cache.forEach(guild => {

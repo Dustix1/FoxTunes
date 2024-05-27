@@ -12,7 +12,7 @@ export const event = {
         clientConnectionStatus.isLavalinkConnected = true;
         spinnerLavalinkLogin.succeed(chalk.green(`Lavalink connection established!`));
         fetch('https://ntfy.sh/robinjebestphasduo', {
-            method: 'POST', // PUT works too
+            method: 'POST',
             body: 'Lavalink connection established!',
             headers: {
                 'Icon': client.user!.displayAvatarURL(),
