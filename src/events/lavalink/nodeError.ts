@@ -12,7 +12,7 @@ export const event = {
     async execute(error: Error) {
         clientConnectionStatus.isLavalinkConnected = false;
         let date = new Date();
-        spinnerLavalinkLogin.fail(chalk.red.bold(`Lavalink connection failed! --> Attempting to reconnect... ⏳ ${chalk.hex(Keys.mainColor).bold(`[${date.toDateString()}] [${date.toTimeString().split(' ')[0]}]`)}⏳`));
+        spinnerLavalinkLogin.fail(chalk.red.bold(`Lavalink connection failed! --> Attempting to reconnect... ⏳ ${chalk.hex(Keys.mainColor).bold(`[${date.toDateString()}] [${date.toTimeString().split(' ')[0]}]`)} ⏳`));
 
         if (clientConnectionStatus.isStandby === false) {
             client.guilds.cache.forEach(guild => {

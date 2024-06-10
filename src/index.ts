@@ -6,7 +6,7 @@ let date = new Date();
 
 console.log(chalk.hex(Keys.secondaryColor)('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'));
 console.log(chalk.hex(Keys.mainColor).bold('    ► Initiating startup sequence... ◄    '));
-console.log(chalk.hex(Keys.secondaryColor).bold(`   ⏳ ${chalk.hex(Keys.mainColor).bold(`[${date.toDateString()}] [${date.toTimeString().split(' ')[0]}]`)}⏳   `));
+console.log(chalk.hex(Keys.secondaryColor).bold(`   ⏳ ${chalk.hex(Keys.mainColor).bold(`[${date.toDateString()}] [${date.toTimeString().split(' ')[0]}]`)} ⏳   `));
 console.log(chalk.hex(Keys.secondaryColor)('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'));
 
 if(Keys.mode === "development") {

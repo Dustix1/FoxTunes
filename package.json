@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node .",
     "dev": "nodemon --config nodemon.json src/index.ts",
-    "build": "tsc"
+    "build": "rmdir /s /q dist && tsc"
   },
   "keywords": [],
   "author": "David Kanovský",
