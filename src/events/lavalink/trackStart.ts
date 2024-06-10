@@ -458,15 +458,15 @@ export async function editFromCommand(command: string, message: Message | ChatIn
 
     switch (command) {
         case 'pause':
-            nowPlayingMessage!.edit({ embeds: [embed], components: [rowDefault as any, rowLike] });
+            if (nowPlayingMessage) nowPlayingMessage!.edit({ embeds: [embed], components: [rowDefault as any, rowLike] });
             break;
         case 'resume':
-            nowPlayingMessage!.edit({ embeds: [embed], components: [rowDefault as any, rowLike] });
+            if (nowPlayingMessage) nowPlayingMessage!.edit({ embeds: [embed], components: [rowDefault as any, rowLike] });
             break;
         case 'loop':
             player.trackRepeat ? loopButton.setStyle(ButtonStyle.Success) : loopButton.setStyle(ButtonStyle.Secondary);
             rowDefault = new ActionRowBuilder().addComponents([shuffleButton, (player.paused ? resumeButton : pauseButton), skipButton, stopButton, loopButton]);
-            nowPlayingMessage!.edit({ embeds: [embed], components: [rowDefault as any, rowLike] });
+            if (nowPlayingMessage) nowPlayingMessage!.edit({ embeds: [embed], components: [rowDefault as any, rowLike] });
             break;
         case 'disconnect':
             shuffleButton.setDisabled(true);
