@@ -20,7 +20,7 @@ export const event = {
                 if (player) {
                     let embed = new EmbedBuilder()
                         .setColor(Colors.Red)
-                        .setDescription(`:warning: The bot is experiencing technical difficulties and will be offline for a while. Please be patient.`)
+                        .setDescription(`:warning: The bot is currently experiencing technical difficulties or undergoing an update and will be offline for a while. Thank you for your patience.`)
                     
                     guild.channels.fetch(player.textChannel!).then(channel => {
                         (channel as TextBasedChannel).send({ embeds: [embed] });

@@ -13,7 +13,7 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-RUN npm run build
+RUN npm run build-docker
 
 # Expose a port (if your application requires it)
 EXPOSE 3000
