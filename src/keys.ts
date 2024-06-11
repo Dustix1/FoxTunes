@@ -12,6 +12,7 @@ export const Keys = {
     mongodbURI: getEnvVar('MONGODB_URI'),
     mongodbUsername: getEnvVar('MONGODB_USER'),
     mongodbPassword: getEnvVar('MONGODB_PWD'),
+    nick: getEnvVar('NICK')
 } as const;
 
 export default Keys;

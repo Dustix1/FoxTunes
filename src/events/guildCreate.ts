@@ -10,7 +10,7 @@ export const event = {
         if ((await guild.members.fetchMe()).permissions.has(PermissionsBitField.Flags.Administrator)) {
 
             logMessage(`Joined ${chalk.hex(Keys.secondaryColor).bold(guild.name)} (${guild.id}) with admin perms.`);
-            guild.members.fetchMe().then(me => me.setNickname('𝓕𝓸𝔁𝓣𝓾𝓷𝓮𝓼'));
+            guild.members.fetchMe().then(me => me.setNickname(Keys.nick));
             registerCommands();
 
         } else {
