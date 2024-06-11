@@ -27,7 +27,7 @@ export const event = {
         }
 
         client.user!.setPresence({
-            activities: [{ name: '!help', type: ActivityType.Listening }],
+            activities: [{ name: `${Keys.prefix}help`, type: ActivityType.Listening }],
             status: PresenceUpdateStatus.Online,
         })
         clientConnectionStatus.isStandby = false;
