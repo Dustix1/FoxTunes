@@ -135,7 +135,7 @@ export const command: CommandSlash = {
                 return;
             }
         } else {
-            res = await player!.search(query, interaction.user);
+            res = await player!.search(query, interaction.user as any);
         }
 
             switch (res.loadType) {

@@ -48,7 +48,7 @@ export const command: CommandMessage = {
 
         player = client.manager.players.get(message.guild!.id);
 
-        const res = await player!.search(guildCache, message.author);
+        const res = await player!.search(guildCache, message.author as any);
 
         logMessage(res.loadType, true);
 

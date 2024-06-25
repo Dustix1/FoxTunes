@@ -144,7 +144,7 @@ export const command: CommandMessage = {
                 return;
             }
         } else {
-            res = await player!.search(query, message.author);
+            res = await player!.search(query, message.author as any);
         }
 
         switch (res.loadType) {

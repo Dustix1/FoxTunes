@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, Colors, GuildMember } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, Colors, GuildMember, User, ClientUser } from "discord.js";
 import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
@@ -48,7 +48,7 @@ export const command: CommandSlash = {
         await interaction.deferReply().then(async () => {
             player = client.manager.players.get(interaction.guild!.id);
 
-            const res = await player!.search(guildCache!, interaction.user);
+            const res = await player!.search(guildCache!, interaction.user as any);
 
             logMessage(res.loadType, true);
 
