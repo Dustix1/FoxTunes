@@ -1,12 +1,12 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, GuildMember, Colors, EmbedBuilder } from "discord.js";
 import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
-import { createPlayer, player } from "../../structures/player.js";
+import { createPlayer } from "../../structures/player.js";
 import Keys from "../../keys.js";
-import prettyMilliseconds from "pretty-ms";
-import { SearchQuery, Track } from "magmastream";
+import { Track } from "magmastream";
 import customPlaylistCache, { createCustomPlaylist } from "../../models/customPlaylist.js";
 import playlistNames from "../../models/playlists.js";
+import playSong from "../../utils/playSong.js";
 
 export const command: CommandSlash = {
     slash: true,
@@ -138,64 +138,7 @@ export const command: CommandSlash = {
             res = await player!.search(query, interaction.user as any);
         }
 
-            switch (res.loadType) {
-                case "empty":
-                    if (!player!.queue.current) player!.destroy();
-
-                    embed.setColor(Colors.Red);
-                    embed.setDescription(`Nothing found when searching for \`${query}\``);
-                    await interaction.editReply({ embeds: [embed] });
-                    break;
-
-                case "error":
-                    if (!player!.queue.current) player!.destroy();
-
-                    embed.setColor(Colors.Red);
-                    embed.setDescription(`Load failed when searching for \`${query}\``);
-                    await interaction.editReply({ embeds: [embed] });
-                    break;
-
-                case "track":
-                    player!.queue.add(res.tracks[0]);
-
-                    if (player!.state !== 'CONNECTED') await player!.connect();
-
-                    embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true, secondsDecimalDigits: 0 })}\``);
-                    interaction.editReply({ embeds: [embed] });
-
-                    if (!player!.playing && !player!.paused && !player!.queue.length) {
-                        await player!.play();
-                    }
-                    break;
-
-                case "playlist":
-                    if (!res.playlist?.tracks) return;
-
-                    if (player!.state !== 'CONNECTED') await player!.connect();
-
-                    embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue.`);
-                    player!.queue.add(res.playlist.tracks);
-
-                    interaction.editReply({ embeds: [embed] });
-
-                    if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {
-                        await player!.play();
-                    }
-                    break;
-
-                case "search":
-                    if (player!.state !== 'CONNECTED') await player!.connect();
-
-                    player!.queue.add(res.tracks[0]);
-
-                    embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) by \`${res.tracks[0].author}\` to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true, secondsDecimalDigits: 0 })}\``);
-                    interaction.editReply({ embeds: [embed] });
-
-                    if (!player!.playing && !player!.paused && !player!.queue.length) {
-                        await player!.play();
-                    }
-                    break;
-            }
+            playSong(res, player!, embed, query, undefined, interaction);
         });
     }
 }

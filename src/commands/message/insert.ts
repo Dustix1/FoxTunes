@@ -3,10 +3,10 @@ import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import { CommandMessage } from "../../structures/command.js";
 import canUserUseCommand from "../../utils/checkIfUserCanUseCommand.js";
-import prettyMilliseconds from "pretty-ms";
 import { Track } from "magmastream";
 import customPlaylistCache, { createCustomPlaylist } from "../../models/customPlaylist.js";
 import playlistNames from "../../models/playlists.js";
+import playSong from "../../utils/playSong.js";
 
 export const command: CommandMessage = {
     slash: false,
@@ -123,50 +123,6 @@ export const command: CommandMessage = {
             res = await player!.search(query, message.author as any);
         }
 
-        switch (res.loadType) {
-            case "empty":
-                embed.setColor(Colors.Red);
-                embed.setDescription(`Nothing found when searching for \`${query}\``);
-                await message.reply({ embeds: [embed] });
-                break;
-
-            case "error":
-                embed.setColor(Colors.Red);
-                embed.setDescription(`Load failed when searching for \`${query}\``);
-                await message.reply({ embeds: [embed] });
-                break;
-
-            case "track":
-                player!.queue.add(res.tracks[0], offset);
-
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true })}\``);
-                message.reply({ embeds: [embed] });
-                break;
-
-            case "playlist":
-                if (!res.playlist?.tracks) return;
-
-                player!.queue.add(res.playlist.tracks, offset);
-
-                embed.setDescription(`Added [${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}](${query}) with \`${res.playlist.tracks.length}\` tracks to the queue at position \`${offset + 1}\`.`);
-                message.reply({ embeds: [embed] });
-                break;
-
-            case "customPlaylist":
-                if (!res.playlist?.tracks) return;
-
-                player!.queue.add(res.playlist.tracks, offset);
-
-                embed.setDescription(`Added \`${res.playlist.name.replace(/[\p{Emoji}]/gu, '')}\` with \`${res.playlist.tracks.length}\` tracks to the queue at position \`${offset + 1}\`.`);
-                message.reply({ embeds: [embed] });
-                break;
-
-            case "search":
-                player!.queue.add(res.tracks[0], offset);
-
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue at position \`${offset + 1}\` - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true })}\``);
-                message.reply({ embeds: [embed] });
-                break;
-        }
+        playSong(res, player!, embed, query, message, undefined);
     }
 }

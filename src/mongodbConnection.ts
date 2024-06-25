@@ -2,8 +2,7 @@ import mongoose from "mongoose";
 import { spinnerDiscordLogin, spinnerMongodbLogin } from "./utils/spinners.js";
 import chalk from "chalk";
 import Keys from "./keys.js";
-import { ActivityType, PresenceUpdateStatus } from "discord.js";
-import client, { clientConnectionStatus } from "./clientLogin.js";
+import { clientConnectionStatus } from "./clientLogin.js";
 
 mongoose.set('strictQuery', true);
 await mongoose.connect(process.env.MONGODB_URI!, {

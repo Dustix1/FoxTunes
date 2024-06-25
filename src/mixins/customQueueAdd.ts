@@ -1,4 +1,4 @@
-import { Queue, Track, TrackUtils } from 'magmastream';
+import { Queue, Track } from 'magmastream';
 import CustomTrackUtils from './customTrackUtilsValidate.js';
 
 function CustomQueueMixin(Base: typeof Queue) {

@@ -2,11 +2,10 @@ import { Message, EmbedBuilder, Colors } from "discord.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import { CommandMessage } from "../../structures/command.js";
-import canUserUseCommand from "../../utils/checkIfUserCanUseCommand.js";
-import prettyMilliseconds from "pretty-ms";
 import logMessage from "../../utils/logMessage.js";
 import { guildSongPreviousCache } from "../../events/lavalink/trackStart.js";
 import { createPlayer } from "../../structures/player.js";
+import playSong from "../../utils/playSong.js";
 
 export const command: CommandMessage = {
     slash: false,
@@ -52,27 +51,6 @@ export const command: CommandMessage = {
 
         logMessage(res.loadType, true);
 
-        switch (res.loadType) {
-            case "empty":
-                embed.setColor(Colors.Red);
-                embed.setDescription(`There has been an error with replaying the song!`);
-                await message.reply({ embeds: [embed] });
-                break;
-
-            case "error":
-                embed.setColor(Colors.Red);
-                embed.setDescription(`There has been an error with replaying the song!`);
-                await message.reply({ embeds: [embed] });
-                break;
-
-            case "track":
-                player!.queue.add(res.tracks[0]);
-
-                embed.setDescription(`Added [${res.tracks[0].title.replace(/[\p{Emoji}]/gu, '')}](${res.tracks[0].uri}) to the queue - \`${prettyMilliseconds(res.tracks[0].duration, { colonNotation: true, secondsDecimalDigits: 0 })}\``);
-                message.reply({ embeds: [embed] });
-
-                await player!.play();
-                break;
-        }
+        playSong(res, player!, embed, undefined, message, undefined);
     }
 }

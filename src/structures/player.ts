@@ -1,7 +1,6 @@
 import { ChatInputCommandInteraction, GuildMember, Message } from "discord.js";
 import client from "../clientLogin.js";
 import { Player } from "magmastream";
-import CustomQueue from "../mixins/customQueueAdd.js";
 
 export let player: Player;
 

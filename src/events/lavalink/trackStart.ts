@@ -1,6 +1,6 @@
 import { Player, Track } from "magmastream";
 import client from "../../clientLogin.js";
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, Colors, ComponentType, EmbedBuilder, GuildMember, InteractionCollector, Message, TextChannel } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, ComponentType, EmbedBuilder, GuildMember, InteractionCollector, Message, TextChannel } from "discord.js";
 import logMessage from "../../utils/logMessage.js";
 import Keys from "../../keys.js";
 import prettyMilliseconds from "pretty-ms";

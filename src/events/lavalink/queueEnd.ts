@@ -2,11 +2,9 @@ import { Player, Track } from "magmastream";
 import logMessage from "../../utils/logMessage.js";
 import { ActionRowBuilder, EmbedBuilder } from "discord.js";
 import Keys from "../../keys.js";
-import prettyMilliseconds from "pretty-ms";
 import client from "../../clientLogin.js";
 import { TextBasedChannel } from "discord.js";
-import { embed as embedNowPlaying, guildSongPreviousCache, likeButton, pauseButton, resumeButton, rowLike, shuffleButton, skipButton, stopButton, embed, loopButton, guildCollectorCache, guildNowPlayingMessageCache } from "./trackStart.js";
-import { player } from "../../structures/player.js";
+import { embed as embedNowPlaying, guildSongPreviousCache, likeButton, pauseButton, resumeButton, rowLike, shuffleButton, skipButton, stopButton, loopButton, guildCollectorCache, guildNowPlayingMessageCache } from "./trackStart.js";
 
 export const event = {
     name: 'queueEnd',

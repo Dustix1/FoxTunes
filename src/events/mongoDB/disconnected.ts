@@ -3,7 +3,6 @@ import { spinnerMongodbLogin } from "../../utils/spinners.js";
 import { ActivityType, Colors, EmbedBuilder, PresenceUpdateStatus, TextBasedChannel } from "discord.js";
 import client from "../../clientLogin.js";
 import { clientConnectionStatus } from "../../clientLogin.js";
-import logMessage from "../../utils/logMessage.js";
 
 
 export const event = {

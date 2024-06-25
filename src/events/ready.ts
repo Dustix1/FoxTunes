@@ -1,4 +1,4 @@
-import { ActivityType, Events, PresenceUpdateStatus } from 'discord.js';
+import { Events } from 'discord.js';
 import { spinnerDiscordLogin } from '../utils/spinners.js';
 import registerCommands from '../utils/registerSlashCommands.js';
 import client from '../clientLogin.js';

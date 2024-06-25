@@ -1,4 +1,4 @@
-import { ChannelType, Colors, EmbedBuilder, Events, Interaction } from 'discord.js';
+import { Colors, EmbedBuilder, Events, Interaction } from 'discord.js';
 import { commandsSlash } from '../utils/commands.js';
 import chalk from 'chalk';
 import logMessage from '../utils/logMessage.js';

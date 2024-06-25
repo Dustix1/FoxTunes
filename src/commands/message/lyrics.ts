@@ -4,7 +4,6 @@ import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import canUserUseCommand from "../../utils/checkIfUserCanUseCommand.js";
 import Genius from "genius-lyrics";
-import logMessage from "../../utils/logMessage.js";
 
 export const command: CommandMessage = {
     slash: false,

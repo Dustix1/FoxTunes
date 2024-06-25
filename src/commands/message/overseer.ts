@@ -1,7 +1,6 @@
 import { EmbedBuilder, Message } from "discord.js";
 import { CommandMessage } from "../../structures/command.js";
 import client from "../../clientLogin.js";
-import logMessage from "../../utils/logMessage.js";
 
 export const command: CommandMessage = {
     slash: false,

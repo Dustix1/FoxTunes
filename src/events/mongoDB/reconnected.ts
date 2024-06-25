@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { spinnerDiscordLogin, spinnerMongodbLogin } from "../../utils/spinners.js";
+import { spinnerMongodbLogin } from "../../utils/spinners.js";
 import { ActivityType, PresenceUpdateStatus } from "discord.js";
 import client, { clientConnectionStatus } from "../../clientLogin.js";
 

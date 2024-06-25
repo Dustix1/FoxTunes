@@ -5,7 +5,7 @@ import playlistNames from "../../models/playlists.js";
 import { createCustomPlaylist } from "../../models/customPlaylist.js";
 import customPlaylistCache from "../../models/customPlaylist.js";
 import logMessage from "../../utils/logMessage.js";
-import { Collection, Document, model } from "mongoose";
+import { Collection, Document } from "mongoose";
 import client from "../../clientLogin.js";
 import { createPlayer } from "../../structures/player.js";
 import { Player, Track } from "magmastream";

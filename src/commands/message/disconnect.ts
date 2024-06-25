@@ -2,7 +2,6 @@ import { Message, EmbedBuilder, Colors } from "discord.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
 import { CommandMessage } from "../../structures/command.js";
-import canUserUseCommand from "../../utils/checkIfUserCanUseCommand.js";
 import { editFromCommand } from "../../events/lavalink/trackStart.js";
 
 export const command: CommandMessage = {
