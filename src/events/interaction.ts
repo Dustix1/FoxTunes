@@ -5,11 +5,12 @@ import logMessage from '../utils/logMessage.js';
 import { Keys } from '../keys.js';
 import client from '../clientLogin.js';
 import { clientConnectionStatus } from '../clientLogin.js';
+import { reactToModal } from '../commands/slash/report-issue.js';
 
 export const event = {
     name: Events.InteractionCreate,
     async execute(interaction: Interaction) {
-        if (!interaction.isCommand()) return;
+        if (!interaction.isCommand()) return handleModals(interaction);
 
         let embed = new EmbedBuilder()
                 .setColor(Colors.Red);
@@ -42,5 +43,17 @@ export const event = {
             interaction.deferred ? await interaction.editReply({ embeds: [embed] }) : await interaction.reply({ embeds: [embed] });
             console.error(error);
         }
+    }
+}
+
+async function handleModals(interaction: Interaction) {
+    if (!interaction.isModalSubmit()) return;
+    const modal = interaction.customId.split('-');
+
+    switch (modal[1]) {
+        case 'issueReport':
+            return reactToModal(interaction, modal[0]);
+        default:
+            return;
     }
 }

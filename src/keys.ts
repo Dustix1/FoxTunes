@@ -12,7 +12,8 @@ export const Keys = {
     mongodbURI: getEnvVar('MONGODB_URI'),
     mongodbUsername: getEnvVar('MONGODB_USER'),
     mongodbPassword: getEnvVar('MONGODB_PWD'),
-    nick: getEnvVar('NICK')
+    nick: getEnvVar('NICK'),
+    foxtunesGuildID: getEnvVar('FOXTUNES_GUILD_ID'),
 } as const;
 
 export default Keys;
