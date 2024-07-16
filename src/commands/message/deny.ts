@@ -5,14 +5,14 @@ import client from "../../clientLogin.js";
 
 export const command: CommandMessage = {
     slash: false,
-    name: 'resolve',
-    usage: '\`\`!resolve\nAvailable arguments: resolve_message\`\`',
-    description: 'Resolves an issue or suggestion.',
+    name: 'deny',
+    usage: '\`\`!deny\nAvailable arguments: deny_message\`\`',
+    description: 'Denies an issue or suggestion.',
     group: 'general',
     hidden: true,
     async execute(message: Message, args: any) {
         let embed = new EmbedBuilder()
-            .setColor(Colors.Green);
+            .setColor(Colors.Red);
 
         if (message.guild?.id !== Keys.foxtunesGuildID) return;
         if (message.author.id !== Keys.ownerID) return;
@@ -24,18 +24,18 @@ export const command: CommandMessage = {
         const member = await foxTunesGuild.members.fetch(textChannel.topic!.split('-')[1]).catch(() => null);
 
         if (textChannel.topic?.split('-')[0] == 'issue') {
-            embed.setTitle('The issue has been resolved.');
+            embed.setTitle('The issue has been rejected.');
             if (args[0]) embed.setDescription(message.content.split(' ').slice(1).join(' '));
-            embed.setFooter({ text: 'Thank you for reporting the issue.' });
+            embed.setFooter({ text: 'We were unable to reproduce or resolve the issue.' });
 
             message.channel.send({ content: `<@${textChannel.topic.split('-')[1]}>` });
             message.channel.send({ embeds: [embed] });
 
             if (member) textChannel.permissionOverwrites.edit(member.id, { SendMessages: false });
         } else {
-            embed.setTitle('The suggestion was approved. It will be implemented soon.');
+            embed.setTitle('The suggestion was rejected.');
             if (args[0]) embed.setDescription(message.content.split(' ').slice(1).join(' '));
-            embed.setFooter({ text: 'Thank you for your suggestion. We will let you know once the feature is implemented or something changes.' });
+            embed.setFooter({ text: 'We appreciate your suggestion; however, we regret to inform you that it wasn\'t approved.' });
 
             message.channel.send({ content: `<@${textChannel.topic!.split('-')[1]}>` });
             message.channel.send({ embeds: [embed] });
