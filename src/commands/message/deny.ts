@@ -55,7 +55,7 @@ export const command: CommandMessage = {
             if (logChannel) {
                 embed.setTitle('A suggestion has been rejected.')
                     .setDescription(textChannel.url)
-                    .setFooter({ text: textChannel.topic!.split('-')[1] });
+                    .setFooter({ text: textChannel.topic! });
                 member ? embed.setAuthor({ name: textChannel.name.split('-')[0], iconURL: (member!.user as User).avatarURL()! }) : embed.setAuthor({ name: textChannel.name.split('-')[0] })
                 await logChannel.send({ embeds: [embed] });
             }

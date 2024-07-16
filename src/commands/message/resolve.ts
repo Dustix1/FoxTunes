@@ -37,12 +37,12 @@ export const command: CommandMessage = {
             if (logChannel) {
                 embed.setTitle('An issue has been resolved.')
                     .setDescription(textChannel.url)
-                    .setFooter({ text: textChannel.topic.split('-')[1] });
+                    .setFooter({ text: textChannel.topic! });
                 member ? embed.setAuthor({ name: textChannel.name.split('-')[0], iconURL: (member!.user as User).avatarURL()! }) : embed.setAuthor({ name: textChannel.name.split('-')[0] })
                 await logChannel.send({ embeds: [embed] });
             }
         } else {
-            embed.setTitle('The suggestion was approved. It will be implemented soon.');
+            embed.setTitle('The suggestion was approved. It will be implemented "soon".');
             if (args[0]) embed.setDescription(message.content.split(' ').slice(1).join(' '));
             embed.setFooter({ text: 'Thank you for your suggestion. We will let you know once the feature is implemented or something changes.' });
 
@@ -55,7 +55,7 @@ export const command: CommandMessage = {
             if (logChannel) {
                 embed.setTitle('A suggestion has been approved.')
                     .setDescription(textChannel.url)
-                    .setFooter({ text: textChannel.topic!.split('-')[1] });
+                    .setFooter({ text: textChannel.topic! });
                 member ? embed.setAuthor({ name: textChannel.name.split('-')[0], iconURL: (member!.user as User).avatarURL()! }) : embed.setAuthor({ name: textChannel.name.split('-')[0] })
                 await logChannel.send({ embeds: [embed] });
             }
