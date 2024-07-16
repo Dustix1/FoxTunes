@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle, ModalActionRowComponentBuilder, ModalSubmitInteraction, CategoryChannel, ChannelType, PermissionOverwrites, PermissionsBitField, PermissionFlagsBits, Colors } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle, ModalActionRowComponentBuilder, ModalSubmitInteraction, CategoryChannel, ChannelType, PermissionOverwrites, PermissionsBitField, PermissionFlagsBits, Colors, TextChannel, User } from "discord.js";
 import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
@@ -69,6 +69,16 @@ export async function reactToSuggestionModal(interaction: ModalSubmitInteraction
         .setDescription(`${interaction.fields.getField('suggestionText').value}`)
 
     await channel.send({ embeds: [embed] });
+
+    const logChannel = await foxTunesGuild.channels.fetch('1262881636442439841').catch(() => null) as TextChannel;
+    if (logChannel) {
+        embed.setTitle('A new suggestion has been submitted')
+             .setDescription(channel.url)
+             .setAuthor({ name: interaction.member!.user.username, iconURL: (interaction.member!.user as User).avatarURL()! })
+             .setFooter({ text: `${userID}` });
+        await logChannel.send({ embeds: [embed] });
+        await logChannel.send({ content: `<@${Keys.ownerID}>` });
+    }
 
     const member = await foxTunesGuild.members.fetch(userID).catch(() => null);
     embed = new EmbedBuilder()

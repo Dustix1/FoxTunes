@@ -1,7 +1,8 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle, ModalActionRowComponentBuilder, ModalSubmitInteraction, CategoryChannel, ChannelType, PermissionOverwrites, PermissionsBitField, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle, ModalActionRowComponentBuilder, ModalSubmitInteraction, CategoryChannel, ChannelType, PermissionOverwrites, PermissionsBitField, PermissionFlagsBits, TextChannel, User, Colors } from "discord.js";
 import { CommandSlash } from "../../structures/command.js";
 import client from "../../clientLogin.js";
 import Keys from "../../keys.js";
+import logMessage from "../../utils/logMessage.js";
 
 export const command: CommandSlash = {
     slash: true,
@@ -99,12 +100,22 @@ export async function reactToIssueModal(interaction: ModalSubmitInteraction, use
         .setDescription(`${severity}\n${interaction.fields.getField('issueText').value}`)
 
     await channel.send({ embeds: [embed] });
+    
+    const logChannel = await foxTunesGuild.channels.fetch('1262881636442439841').catch(() => null) as TextChannel;
+    if (logChannel) {
+        embed.setTitle('A new issue has been reported')
+             .setDescription(channel.url)
+             .setAuthor({ name: interaction.member!.user.username, iconURL: (interaction.member!.user as User).avatarURL()! })
+             .setFooter({ text: `${userID}` });
+        await logChannel.send({ embeds: [embed] });
+        await logChannel.send({ content: `<@${Keys.ownerID}>` });
+    }
 
     const member = await foxTunesGuild.members.fetch(userID).catch(() => null);
     embed = new EmbedBuilder()
     if (member) {
         embed
-            .setColor(Keys.mainColor)
+            .setColor(Colors.Green)
             .setTitle(`You can track the issue status here:\n${channel.url}`)
     } else {
         embed

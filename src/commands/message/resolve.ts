@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder, TextChannel, Colors } from "discord.js";
+import { Message, EmbedBuilder, TextChannel, Colors, User } from "discord.js";
 import Keys from "../../keys.js";
 import { CommandMessage } from "../../structures/command.js";
 import client from "../../clientLogin.js";
@@ -32,6 +32,15 @@ export const command: CommandMessage = {
             message.channel.send({ embeds: [embed] });
 
             if (member) textChannel.permissionOverwrites.edit(member.id, { SendMessages: false });
+
+            const logChannel = await foxTunesGuild.channels.fetch('1262881636442439841').catch(() => null) as TextChannel;
+            if (logChannel) {
+                embed.setTitle('An issue has been resolved.')
+                    .setDescription(textChannel.url)
+                    .setFooter({ text: textChannel.topic.split('-')[1] });
+                member ? embed.setAuthor({ name: textChannel.name.split('-')[0], iconURL: (member!.user as User).avatarURL()! }) : embed.setAuthor({ name: textChannel.name.split('-')[0] })
+                await logChannel.send({ embeds: [embed] });
+            }
         } else {
             embed.setTitle('The suggestion was approved. It will be implemented soon.');
             if (args[0]) embed.setDescription(message.content.split(' ').slice(1).join(' '));
@@ -41,6 +50,15 @@ export const command: CommandMessage = {
             message.channel.send({ embeds: [embed] });
 
             if (member) textChannel.permissionOverwrites.edit(textChannel.topic!.split('-')[1], { SendMessages: false });
+
+            const logChannel = await foxTunesGuild.channels.fetch('1262881636442439841').catch(() => null) as TextChannel;
+            if (logChannel) {
+                embed.setTitle('A suggestion has been approved.')
+                    .setDescription(textChannel.url)
+                    .setFooter({ text: textChannel.topic!.split('-')[1] });
+                member ? embed.setAuthor({ name: textChannel.name.split('-')[0], iconURL: (member!.user as User).avatarURL()! }) : embed.setAuthor({ name: textChannel.name.split('-')[0] })
+                await logChannel.send({ embeds: [embed] });
+            }
         }
     }
 }
