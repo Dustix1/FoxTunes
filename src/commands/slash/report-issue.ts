@@ -49,7 +49,7 @@ export const command: CommandSlash = {
     }
 }
 
-export async function reactToModal(interaction: ModalSubmitInteraction, userID: string) {
+export async function reactToIssueModal(interaction: ModalSubmitInteraction, userID: string) {
     let embed = new EmbedBuilder()
         .setColor(Keys.secondaryColor)
         .setTitle('Issue Reported')
@@ -62,7 +62,7 @@ export async function reactToModal(interaction: ModalSubmitInteraction, userID: 
     const channel = await category!.children.create({
         type: ChannelType.GuildText,
         name: `${interaction.member?.user.username}--${interaction.fields.getField('titleInput').value}`,
-        topic: userID,
+        topic: `issue-${userID}`,
         rateLimitPerUser: 5,
         permissionOverwrites: [{
             id: foxTunesGuild.roles.everyone.id,
@@ -100,15 +100,16 @@ export async function reactToModal(interaction: ModalSubmitInteraction, userID: 
 
     await channel.send({ embeds: [embed] });
 
+    const member = await foxTunesGuild.members.fetch(userID).catch(() => null);
     embed = new EmbedBuilder()
-    if (foxTunesGuild.members.resolve(userID)) {
+    if (member) {
         embed
             .setColor(Keys.mainColor)
             .setTitle(`You can track the issue status here:\n${channel.url}`)
     } else {
         embed
-            .setColor(Keys.mainColor)
-            .setTitle(`It appears you are not in the FoxTunes support server. You can join here: https://discord.gg/TJ9XjTuV5N`)
+            .setColor(Keys.secondaryColor)
+            .setDescription(`## It appears you are not in the FoxTunes support server. You can join [here](https://discord.gg/TJ9XjTuV5N)\nTo track the issue status, you will need to join the server.`);
     }
 
     await interaction.followUp({ embeds: [embed], ephemeral: true });

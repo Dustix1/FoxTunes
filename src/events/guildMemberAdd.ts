@@ -12,7 +12,7 @@ export const event = {
         category.children.cache.forEach(async channel => {
             if (channel.type === ChannelType.GuildText) {
                 const textChannel = channel as TextChannel;
-                if (textChannel.topic === member.id) {
+                if (textChannel.topic?.split('-')[1] === member.id) {
                     textChannel.permissionOverwrites.edit(member.id, { ViewChannel: true, SendMessages: true });
                     return;
                 }

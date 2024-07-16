@@ -5,7 +5,8 @@ import logMessage from '../utils/logMessage.js';
 import { Keys } from '../keys.js';
 import client from '../clientLogin.js';
 import { clientConnectionStatus } from '../clientLogin.js';
-import { reactToModal } from '../commands/slash/report-issue.js';
+import { reactToIssueModal } from '../commands/slash/report-issue.js';
+import { reactToSuggestionModal } from '../commands/slash/suggestion.js';
 
 export const event = {
     name: Events.InteractionCreate,
@@ -52,7 +53,9 @@ async function handleModals(interaction: Interaction) {
 
     switch (modal[1]) {
         case 'issueReport':
-            return reactToModal(interaction, modal[0]);
+            return reactToIssueModal(interaction, modal[0]);
+        case 'suggestFeature':
+            return reactToSuggestionModal(interaction, modal[0]);
         default:
             return;
     }

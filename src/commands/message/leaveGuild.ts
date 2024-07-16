@@ -6,7 +6,7 @@ import client from "../../clientLogin.js";
 export const command: CommandMessage = {
     slash: false,
     name: 'leaveguild',
-    usage: '\`\`!leaveguild\nNo available arguments.\`\`',
+    usage: '\`\`!leaveguild\nAvailable arguments: guild_id\`\`',
     description: 'Leave a guild.',
     group: 'general',
     hidden: true,
