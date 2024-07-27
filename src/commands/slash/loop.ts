@@ -7,6 +7,7 @@ import { editFromCommand } from "../../events/lavalink/trackStart.js";
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'musicPlayback',
     usage: '\`\`/loop\nAvailable arguments: queue\`\`',
     data: new SlashCommandBuilder()
         .setName('loop')
@@ -29,11 +30,11 @@ export const command: CommandSlash = {
             player!.setTrackRepeat(!player!.trackRepeat);
             editFromCommand('loop', interaction);
             embed.setDescription(`:repeat: Looping ${player!.trackRepeat ? 'enabled' : 'disabled'}!`);
-            interaction.reply({ embeds: [embed] });
+            return interaction.reply({ embeds: [embed] });
         } else {
             player!.setQueueRepeat(!player!.queueRepeat);
             embed.setDescription(`:repeat: Queue Looping ${player!.queueRepeat ? 'enabled' : 'disabled'}!`);
-            interaction.reply({ embeds: [embed] });
+            return interaction.reply({ embeds: [embed] });
         }
     }
 }

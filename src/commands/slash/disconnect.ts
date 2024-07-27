@@ -6,6 +6,7 @@ import { editFromCommand } from "../../events/lavalink/trackStart.js";
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'musicPlayback',
     usage: '\`\`/disconnect\nNo available Arguments.\`\`',
     data: new SlashCommandBuilder()
         .setName('disconnect')
@@ -29,6 +30,6 @@ export const command: CommandSlash = {
             
         editFromCommand('disconnect', interaction);
         embed.setDescription('Disconnected from the voice channel.');
-        interaction.reply({ embeds: [embed] });
+        return interaction.reply({ embeds: [embed] });
     }
 }

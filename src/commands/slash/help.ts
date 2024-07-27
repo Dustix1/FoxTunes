@@ -3,6 +3,7 @@ import { commandsMessage, commandsSlash } from "../../utils/commands.js";
 import { Keys } from "../../keys.js";
 import client from "../../clientLogin.js";
 import { CommandSlash } from "../../structures/command.js";
+import logMessage from "../../utils/logMessage.js";
 
 function capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -10,6 +11,7 @@ function capitalizeFirstLetter(string: string) {
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'general',
     usage: '\`\`/help\nAvailable Arguments: command_name\`\`',
     data: new SlashCommandBuilder()
         .setName('help')
@@ -19,27 +21,53 @@ export const command: CommandSlash = {
                 .setDescription('command name')
         ),
     async execute(interaction: ChatInputCommandInteraction) {
+        let allCommands = commandsSlash;
+        commandsMessage.forEach((command, key) => {
+            if (!command.hidden && !allCommands.has(key)) {
+                allCommands.set(key, command);
+            }
+        });
+
         if (!interaction.options.getString('command')) {
             let commandsM = 'You can use !help <command_name> to get info about a specific command.\n\n';
             let generalCommands = '**General Commands:**\n';
             let musicPlaybackCommands = '**Music Playback Commands:**\n';
             let queueMgmtCommands = '**Queue Management Commands:**\n';
-            commandsMessage.forEach(command => {
-                if (!command.hidden) {
-                    switch (command.group) {
-                        case 'general':
+            let supportCommands = '**Support Commands:**\n';
+
+            allCommands.forEach(command => {
+                switch (command.group) {
+                    case 'general':
+                        if (!command.slash) {
                             generalCommands += `\`${command.name}\` - ${command.description}\n`;
-                            break;
-                        case 'musicPlayback':
+                        } else {
+                            generalCommands += `\`${(command.data as SlashCommandBuilder).name}\` - ${(command.data as SlashCommandBuilder).description}\n`;
+                        }
+
+                        break;
+                    case 'musicPlayback':
+                        if (!command.slash) {
                             musicPlaybackCommands += `\`${command.name}\` - ${command.description}\n`;
-                            break;
-                        case 'queueMgmt':
+                        } else {
+                            musicPlaybackCommands += `\`${(command.data as SlashCommandBuilder).name}\` - ${(command.data as SlashCommandBuilder).description}\n`;
+                        }
+                        break;
+                    case 'queueMgmt':
+                        if (!command.slash) {
                             queueMgmtCommands += `\`${command.name}\` - ${command.description}\n`;
-                            break;
-                    }
+                        } else {
+                            queueMgmtCommands += `\`${(command.data as SlashCommandBuilder).name}\` - ${(command.data as SlashCommandBuilder).description}\n`;
+                        }
+                        break;
+                    case 'support':
+                        if (!command.slash) {
+                            supportCommands += `\`${command.name}\` - ${command.description}\n`;
+                        } else {
+                            supportCommands += `\`${(command.data as SlashCommandBuilder).name}\` - ${(command.data as SlashCommandBuilder).description}\n`;
+                        }
                 }
-            });
-            commandsM += generalCommands + '\n' + musicPlaybackCommands + '\n' + queueMgmtCommands;
+            })
+            commandsM += generalCommands + '\n' + supportCommands + '\n' + musicPlaybackCommands + '\n' + queueMgmtCommands;
 
             let helpEmbed = new EmbedBuilder()
                 .setColor(Keys.mainColor)
@@ -52,7 +80,7 @@ export const command: CommandSlash = {
 
 
         let command = interaction.options.getString('command')?.toLowerCase();
-        if (!commandsMessage.has(command)) {
+        if (!allCommands.has(command)) {
             let hasAlias = false;
             commandsMessage.forEach((actualCommand, key) => {
                 if (!hasAlias && actualCommand.aliases) {
@@ -73,7 +101,7 @@ export const command: CommandSlash = {
         }
 
         let helpEmbed;
-        if (commandsMessage.get(command).name == 'playlist') {
+        if (command == 'playlist') {
             helpEmbed = new EmbedBuilder()
                 .setColor(Keys.mainColor)
                 .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
@@ -94,54 +122,17 @@ export const command: CommandSlash = {
                 \`!playlist <the name of the playlist> clear\` - removes all songs from the playlist
                 \n**Aliases:**\n \`${commandsMessage.get(command).aliases.join(', ')}\``)
             return interaction.reply({ embeds: [helpEmbed] });
-        }
-
-        if (commandsMessage.get(command).aliases) {
-            if (!commandsSlash.get(command)) {
-                helpEmbed = new EmbedBuilder()
-                    .setColor(Keys.mainColor)
-                    .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
-                    .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
-                    .setDescription(commandsMessage.get(command).description)
-                    .addFields(
-                        { name: 'Command Usage:', value: '*PREFIX COMMAND ONLY*\n' + commandsMessage.get(command).usage + `\n\n**Aliases:**\n \`${commandsMessage.get(command).aliases.join(', ')}\``, inline: true }
-                    )
-            } else {
-                helpEmbed = new EmbedBuilder()
-                    .setColor(Keys.mainColor)
-                    .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
-                    .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
-                    .setDescription(commandsMessage.get(command).description)
-                    .addFields(
-                        { name: 'Command Usage:', value: commandsMessage.get(command).usage + `\n\n**Aliases:**\n \`${commandsMessage.get(command).aliases.join(', ')}\``, inline: true },
-                        { name: 'Slash Command Usage:', value: commandsSlash.get(command).usage, inline: true }
-                    )
-            }
+        } else {
+            helpEmbed = new EmbedBuilder()
+                .setColor(Keys.mainColor)
+                .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
+                .setTitle(capitalizeFirstLetter(allCommands.get(command).data.name))
+                .setDescription(allCommands.get(command).data.description)
+                .addFields(
+                    { name: 'Command Usage:', value: allCommands.get(command).usage, inline: true },
+                )
 
             return interaction.reply({ embeds: [helpEmbed] });
-        } else {
-            if (!commandsSlash.get(command)) {
-                helpEmbed = new EmbedBuilder()
-                    .setColor(Keys.mainColor)
-                    .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
-                    .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
-                    .setDescription(commandsMessage.get(command).description)
-                    .addFields(
-                        { name: 'Command Usage:', value: '*PREFIX COMMAND ONLY*\n' + commandsMessage.get(command).usage, inline: true }
-                    )
-            } else {
-                helpEmbed = new EmbedBuilder()
-                    .setColor(Keys.mainColor)
-                    .setAuthor({ name: 'FoxTunes', iconURL: client.user?.displayAvatarURL() })
-                    .setTitle(capitalizeFirstLetter(commandsMessage.get(command).name))
-                    .setDescription(commandsMessage.get(command).description)
-                    .addFields(
-                        { name: 'Command Usage:', value: commandsMessage.get(command).usage, inline: true },
-                        { name: 'Slash Command Usage:', value: commandsSlash.get(command).usage, inline: true }
-                    )
-            }
-
-            interaction.reply({ embeds: [helpEmbed] });
         }
     }
 }

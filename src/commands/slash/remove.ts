@@ -6,6 +6,7 @@ import { canUserUseSlashCommand } from "../../utils/checkIfUserCanUseCommand.js"
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'queueMgmt',
     usage: '\`\`/remove\nAvailable arguments: song_position\`\`',
     data: new SlashCommandBuilder()
         .setName('remove')
@@ -29,6 +30,6 @@ export const command: CommandSlash = {
         player!.queue.remove(songPosition - 1);
         embed.setDescription(`Removed \`${song.title}\` from the queue.`);
         embed.setColor(Keys.mainColor);
-        interaction.reply({ embeds: [embed] });
+        return interaction.reply({ embeds: [embed] });
     }
 }

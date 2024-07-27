@@ -6,6 +6,7 @@ import { canUserUseSlashCommand } from "../../utils/checkIfUserCanUseCommand.js"
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'queueMgmt',
     usage: '\`\`/shuffle\nNo available Arguments.\`\`',
     data: new SlashCommandBuilder()
         .setName('shuffle')
@@ -19,6 +20,6 @@ export const command: CommandSlash = {
 
         player!.queue.shuffle();
         embed.setDescription(`:twisted_rightwards_arrows: Queue shuffled!`);
-        interaction.reply({ embeds: [embed] });
+        return interaction.reply({ embeds: [embed] });
     }
 }

@@ -11,7 +11,7 @@ export default async function playSong(res: any, player: Player, embed: EmbedBui
             embed.setDescription(`Nothing found when searching for \`${query}\``);
             if (interaction) await interaction.editReply({ embeds: [embed] });
             if (message) await message.reply({ embeds: [embed] });
-            break;
+            return;
 
         case "error":
             if (!player!.queue.current) player!.destroy();
@@ -20,7 +20,7 @@ export default async function playSong(res: any, player: Player, embed: EmbedBui
             embed.setDescription(`Load failed when searching for \`${query}\``);
             if (interaction) await interaction.editReply({ embeds: [embed] });
             if (message) await message.reply({ embeds: [embed] });
-            break;
+            return;
 
         case "track":
             player!.queue.add(res.tracks[0]);
@@ -32,9 +32,9 @@ export default async function playSong(res: any, player: Player, embed: EmbedBui
             if (message) message.reply({ embeds: [embed] });
 
             if (!player!.playing && !player!.paused && !player!.queue.length) {
-                await player!.play();
+                return await player!.play();
             }
-            break;
+            return;
 
         case "playlist":
             if (!res.playlist?.tracks) return;
@@ -48,9 +48,9 @@ export default async function playSong(res: any, player: Player, embed: EmbedBui
             if (message) message.reply({ embeds: [embed] });
 
             if (!player!.playing && !player!.paused && player!.queue.size === res.playlist.tracks.length) {
-                await player!.play();
+                return await player!.play();
             }
-            break;
+            return;
 
         case "search":
             if (player!.state !== 'CONNECTED') await player!.connect();
@@ -62,8 +62,8 @@ export default async function playSong(res: any, player: Player, embed: EmbedBui
             if (message) message.reply({ embeds: [embed] });
 
             if (!player!.playing && !player!.paused && !player!.queue.length) {
-                await player!.play();
+                return await player!.play();
             }
-            break;
+            return;
     }
 }

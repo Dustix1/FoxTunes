@@ -14,5 +14,6 @@ export type CommandSlash = {
     usage: string,
     data: any,
     hidden?: boolean,
-    execute: Function
+    execute: Function,
+    group: string
 }

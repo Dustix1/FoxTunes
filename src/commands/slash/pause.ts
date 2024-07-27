@@ -7,6 +7,7 @@ import { editFromCommand } from "../../events/lavalink/trackStart.js";
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'musicPlayback',
     usage: '\`\`/pause\nNo available Arguments.\`\`',
     data: new SlashCommandBuilder()
         .setName('pause')
@@ -27,6 +28,6 @@ export const command: CommandSlash = {
         player!.pause(true);
         editFromCommand('pause', interaction);
         embed.setDescription(`:pause_button: Music paused!\nUse \`!resume\` or \`/resume\` to resume the song`);
-        interaction.reply({ embeds: [embed] });
+        return interaction.reply({ embeds: [embed] });
     }
 }

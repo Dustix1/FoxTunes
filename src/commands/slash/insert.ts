@@ -10,6 +10,7 @@ import playSong from "../../utils/playSong.js";
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'queueMgmt',
     usage: '\`\`/insert\nAvailable arguments: insert_position song_name_or_url_or_playlist isplaylist\`\`',
     data: new SlashCommandBuilder()
         .setName('insert')

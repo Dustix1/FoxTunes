@@ -10,6 +10,7 @@ import playSong from "../../utils/playSong.js";
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'musicPlayback',
     usage: '`\`!play\nAvailable Arguments: song_name/song_url/liked/playlist <custom playlist name>\`\`',
     data: new SlashCommandBuilder()
         .setName('play')

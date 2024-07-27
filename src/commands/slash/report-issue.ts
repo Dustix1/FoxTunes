@@ -6,6 +6,7 @@ import logMessage from "../../utils/logMessage.js";
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'support',
     usage: '\`\`/report-issue\nNo available Arguments.\`\`',
     data: new SlashCommandBuilder()
         .setName('report-issue')
@@ -46,7 +47,7 @@ export const command: CommandSlash = {
 
         modal.addComponents(firstActionRow, secondActionRow, thirdActionRow);
 
-        await interaction.showModal(modal);
+        return await interaction.showModal(modal);
     }
 }
 

@@ -7,6 +7,7 @@ import Genius from "genius-lyrics";
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'musicPlayback',
     usage: '\`\`/lyrics\nNo available Arguments.\`\`',
     data: new SlashCommandBuilder()
         .setName('lyrics')
@@ -41,7 +42,7 @@ export const command: CommandSlash = {
             .setTitle('Lyrics for ' + player!.queue.current!.title)
             .setThumbnail(player!.queue.current!.thumbnail!)
             .setFooter({ text: 'Lyrics from: https://genius.com/' });
-            interaction.editReply({ embeds: [embed] });
+            return interaction.editReply({ embeds: [embed] });
         });
     }
 }

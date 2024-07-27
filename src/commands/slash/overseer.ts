@@ -4,6 +4,7 @@ import client from "../../clientLogin.js"
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'general',
     usage: '\`\`/overseer\nNo available Arguments.\`\`',
     data: new SlashCommandBuilder()
         .setName('overseer')
@@ -15,6 +16,6 @@ export const command: CommandSlash = {
             .setDescription('Since FoxTunes doesn\'t support discord server management, FoxTunes administration is recommending you The Overseer. You can get him [here](https://discord.com/api/oauth2/authorize?client_id=1075792191135424572&permissions=8&scope=bot%20applications.commands).')
             .setThumbnail((await (await client.guilds.fetch('1021024367066493038')).members.fetch('1075792191135424572')).displayAvatarURL())
 
-        interaction.reply({ embeds: [overseerEmbed] })
+        return interaction.reply({ embeds: [overseerEmbed] })
     }
 }

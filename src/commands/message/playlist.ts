@@ -15,7 +15,7 @@ export const command: CommandMessage = {
     name: 'playlist',
     aliases: ['pl', 'playlists', 'customplaylist', 'custom-playlist'],
     usage: '\`Please refer to !help playlist since this is a complex command\`',
-    description: 'Manage your custom playlists',
+    description: 'Manage your custom playlists (Prefix command only)',
     group: 'general',
     async execute(message: Message, args: any) {
         let embed = new EmbedBuilder()

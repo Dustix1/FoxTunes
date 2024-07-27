@@ -74,6 +74,7 @@ async function waitForButton(myMessage: Message, player: Player, queueEmbed: Emb
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'queueMgmt',
     usage: '\`\`/queue\nNo available Arguments.\`\`',
     data: new SlashCommandBuilder()
         .setName('queue')
@@ -113,9 +114,9 @@ export const command: CommandSlash = {
         addEmbendFields(player!, queueEmbed, page, previousButton, nextButton, firstButton, lastButton);
         let myMessage;
         if (Math.ceil(player!.queue.size == 0 ? 1 : player!.queue.size / songsPerPage) == 1) {
-            interaction.reply({ embeds: [queueEmbed] })
+            return interaction.reply({ embeds: [queueEmbed] })
         } else {
-            interaction.reply({ embeds: [queueEmbed], components: [{ type: 1, components: [firstButton, previousButton, nextButton, lastButton] }] }).then((msg) => {
+            return interaction.reply({ embeds: [queueEmbed], components: [{ type: 1, components: [firstButton, previousButton, nextButton, lastButton] }] }).then((msg) => {
                 msg.fetch().then((myMessage) => {
                     waitForButton(myMessage, player!, queueEmbed, previousButton, nextButton, firstButton, lastButton);
                 });

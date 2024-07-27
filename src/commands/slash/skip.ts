@@ -6,6 +6,7 @@ import Keys from "../../keys.js";
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'musicPlayback',
     usage: '\`\`/skip\nAvailable arguments: number_of_songs_to_skip/all\`\`',
     data: new SlashCommandBuilder()
         .setName('skip')
@@ -24,7 +25,7 @@ export const command: CommandSlash = {
         if (!interaction.options.getString('skipnumber')) {
             player!.stop();
             embed.setDescription(':fast_forward: Song skipped!');
-            interaction.reply({ embeds: [embed] });
+            return interaction.reply({ embeds: [embed] });
         } else {
             let skipNumber;
             interaction.options.getString('skipnumber')?.toLocaleLowerCase() === 'all' ? skipNumber = player!.queue.length + 1 : skipNumber = parseInt(interaction.options.getString('skipnumber')!);
@@ -42,7 +43,7 @@ export const command: CommandSlash = {
                 player!.stop(skipNumber);
             }
             embed.setDescription(`:fast_forward: Skipped \`${skipNumber}\` songs!`);
-            interaction.reply({ embeds: [embed] });
+            return interaction.reply({ embeds: [embed] });
         }
     }
 }

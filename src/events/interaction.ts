@@ -1,4 +1,4 @@
-import { Colors, EmbedBuilder, Events, Interaction } from 'discord.js';
+import { ChatInputCommandInteraction, Colors, EmbedBuilder, Events, Interaction } from 'discord.js';
 import { commandsSlash } from '../utils/commands.js';
 import chalk from 'chalk';
 import logMessage from '../utils/logMessage.js';
@@ -7,6 +7,7 @@ import client from '../clientLogin.js';
 import { clientConnectionStatus } from '../clientLogin.js';
 import { reactToIssueModal } from '../commands/slash/report-issue.js';
 import { reactToSuggestionModal } from '../commands/slash/suggestion.js';
+import { checkIfAlertsRead, countUnreadAlerts } from '../utils/alertHandler.js';
 
 export const event = {
     name: Events.InteractionCreate,
@@ -39,12 +40,25 @@ export const event = {
             }
 
             await commandsSlash.get(command).execute(interaction, interaction.options);
+            if (!await checkIfAlertsRead(interaction.user.id)) unreadAlerts(interaction as ChatInputCommandInteraction);
+            
         } catch (error) {
                 embed.setDescription('There was an error trying to execute that command!');
-            interaction.deferred ? await interaction.editReply({ embeds: [embed] }) : await interaction.reply({ embeds: [embed] });
+                await interaction.channel.send({ embeds: [embed] });
             console.error(error);
         }
     }
+}
+
+async function unreadAlerts(interaction: ChatInputCommandInteraction) {
+    const alertCount = await countUnreadAlerts(interaction.user.id);
+    if (alertCount === 0 || interaction.commandName == 'alerts') return;
+    let embed = new EmbedBuilder()
+        .setColor(Colors.Yellow)
+        .setDescription(`# You have \`${alertCount}\` unread alerts!\n You can view them by using the \`/alerts\` command.`);
+    setTimeout(() => {
+        return interaction.followUp({ embeds: [embed], ephemeral: true });
+    }, 1000);
 }
 
 async function handleModals(interaction: Interaction) {

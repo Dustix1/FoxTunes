@@ -9,6 +9,7 @@ import playSong from "../../utils/playSong.js";
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'musicPlayback',
     usage: '\`\`/replay\nNo available Arguments.\`\`',
     data: new SlashCommandBuilder()
         .setName('replay')

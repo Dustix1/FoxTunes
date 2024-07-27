@@ -5,6 +5,7 @@ import Keys from "../../keys.js";
 
 export const command: CommandSlash = {
     slash: true,
+    group: 'support',
     usage: '\`\`/suggestion\nNo available Arguments.\`\`',
     data: new SlashCommandBuilder()
         .setName('suggestion')
@@ -35,7 +36,7 @@ export const command: CommandSlash = {
 
         modal.addComponents(firstActionRow, secondActionRow);
 
-        await interaction.showModal(modal);
+        return await interaction.showModal(modal);
     }
 }
 
