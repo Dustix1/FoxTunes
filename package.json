@@ -21,7 +21,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=16.0.0 <=18.16.0"
+    "node": ">=16.0.0 <=18.17.0"
   },
   "dependencies": {
     "chalk": "^5.3.0",
