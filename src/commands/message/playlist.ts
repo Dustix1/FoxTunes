@@ -18,6 +18,7 @@ export const command: CommandMessage = {
     description: 'Manage your custom playlists (Prefix command only)',
     group: 'general',
     async execute(message: Message, args: any) {
+        if (!message.inGuild()) return;
         let embed = new EmbedBuilder()
             .setColor(Keys.mainColor);
         let player = client.manager.players.get('0000000000000000000');
@@ -386,6 +387,7 @@ const songsPerPage = 10;
 let page: number;
 
 function listPlaylist(customPlaylistModel: any, args: any, message: Message) {
+    if (!message.inGuild()) return;
     let embed = new EmbedBuilder()
         .setColor(Keys.mainColor)
 

@@ -80,6 +80,7 @@ export const command: CommandMessage = {
     description: 'Lists the queue.',
     group: 'queueMgmt',
     async execute(message: Message, args: any) {
+        if (!message.inGuild()) return;
         let player = client.manager.players.get(message.guild!.id);
         let embed = new EmbedBuilder()
             .setColor(Keys.mainColor)

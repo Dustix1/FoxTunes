@@ -12,6 +12,7 @@ export const command: CommandMessage = {
     description: 'Disconnects the bot from the voice channel.',
     group: 'musicPlayback',
     async execute(message: Message, args: any) {
+        if (!message.inGuild()) return;
         let player = client.manager.players.get(message.guild!.id);
         let embed = new EmbedBuilder()
             .setColor(Keys.mainColor)

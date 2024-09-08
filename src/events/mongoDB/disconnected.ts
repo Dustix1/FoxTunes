@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { spinnerMongodbLogin } from "../../utils/spinners.js";
-import { ActivityType, Colors, EmbedBuilder, PresenceUpdateStatus, TextBasedChannel } from "discord.js";
+import { ActivityType, Colors, EmbedBuilder, PresenceUpdateStatus, TextBasedChannel, TextChannel } from "discord.js";
 import client from "../../clientLogin.js";
 import { clientConnectionStatus } from "../../clientLogin.js";
 
@@ -21,7 +21,7 @@ export const event = {
                         .setDescription(`:warning: The bot is experiencing technical difficulties and will be offline for a while. Please be patient.`)
                     
                     guild.channels.fetch(player.textChannel!).then(channel => {
-                        (channel as TextBasedChannel).send({ embeds: [embed] });
+                        (channel as TextChannel).send({ embeds: [embed] });
                     });
                     player?.disconnect();
                     player?.destroy();

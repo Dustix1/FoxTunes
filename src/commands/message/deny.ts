@@ -14,6 +14,7 @@ export const command: CommandMessage = {
         let embed = new EmbedBuilder()
             .setColor(Colors.Red);
 
+        if (!message.inGuild()) return;
         if (message.guild?.id !== Keys.foxtunesGuildID) return;
         if (message.author.id !== Keys.ownerID) return;
 

@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { spinnerLavalinkLogin } from "../../utils/spinners.js";
-import { ActivityType, Colors, EmbedBuilder, PresenceUpdateStatus, TextBasedChannel } from "discord.js";
+import { ActivityType, Colors, EmbedBuilder, PresenceUpdateStatus, TextBasedChannel, TextChannel } from "discord.js";
 import client from "../../clientLogin.js";
 import { clientConnectionStatus } from "../../clientLogin.js";
 import Keys from "../../keys.js";
@@ -23,7 +23,7 @@ export const event = {
                         .setDescription(`:warning: The bot is currently experiencing technical difficulties or undergoing an update and will be offline for a while. Thank you for your patience.`)
                     
                     guild.channels.fetch(player.textChannel!).then(channel => {
-                        (channel as TextBasedChannel).send({ embeds: [embed] });
+                        (channel as TextChannel).send({ embeds: [embed] });
                     });
                     player?.disconnect();
                     player?.destroy();

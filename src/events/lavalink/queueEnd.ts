@@ -1,6 +1,6 @@
 import { Player, Track } from "magmastream";
 import logMessage from "../../utils/logMessage.js";
-import { ActionRowBuilder, EmbedBuilder } from "discord.js";
+import { ActionRowBuilder, EmbedBuilder, TextChannel } from "discord.js";
 import Keys from "../../keys.js";
 import client from "../../clientLogin.js";
 import { TextBasedChannel } from "discord.js";
@@ -24,7 +24,7 @@ export const event = {
         setTimeout(async () => {
             try {
                 const nowPlayingMessage = guildNowPlayingMessageCache.get(player.guild);
-                const channel = await(await client.guilds.fetch(player.guild)).channels.fetch(player.textChannel!) as TextBasedChannel
+                const channel = await(await client.guilds.fetch(player.guild)).channels.fetch(player.textChannel!) as TextChannel
                 shuffleButton.setDisabled(true);
                 pauseButton.setDisabled(true);
                 resumeButton.setDisabled(true);

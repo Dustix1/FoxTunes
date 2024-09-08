@@ -1,4 +1,4 @@
-import { Colors, EmbedBuilder, Events } from 'discord.js';
+import { Colors, EmbedBuilder, Events, Message } from 'discord.js';
 import { commandsMessage } from '../utils/commands.js';
 import chalk from 'chalk';
 import logMessage from '../utils/logMessage.js';
@@ -8,12 +8,13 @@ import { clientConnectionStatus } from '../clientLogin.js';
 
 export const event = {
     name: Events.MessageCreate,
-    async execute(message: any) {
+    async execute(message: Message) {
         if (message.author.bot) return;
         if (!message.content.startsWith(Keys.prefix)) return;
+        if (!message.inGuild()) return;
 
         const args = message.content.slice(1).trim().split(/ +/);
-        let wantedCommand = args.shift().toLowerCase();
+        let wantedCommand = args.shift()?.toLowerCase();
 
         if (!commandsMessage.has(wantedCommand)) {
             let hasAlias = false;

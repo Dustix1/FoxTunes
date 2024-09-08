@@ -11,6 +11,7 @@ export const command: CommandMessage = {
     group: 'general',
     hidden: true,
     async execute(message: Message, args: any) {
+        if (!message.inGuild()) return;
         if (message.author.id !== Keys.ownerID) return;
         const guild = client.guilds.cache.get(args[0]);
         if (!guild) return message.channel.send('Guild not found.');

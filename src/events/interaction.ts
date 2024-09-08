@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Colors, EmbedBuilder, Events, Interaction } from 'discord.js';
+import { ChatInputCommandInteraction, Colors, EmbedBuilder, Events, Interaction, TextChannel } from 'discord.js';
 import { commandsSlash } from '../utils/commands.js';
 import chalk from 'chalk';
 import logMessage from '../utils/logMessage.js';
@@ -44,7 +44,7 @@ export const event = {
             
         } catch (error) {
                 embed.setDescription('There was an error trying to execute that command!');
-                await interaction.channel.send({ embeds: [embed] });
+                await (interaction.channel as TextChannel).send({ embeds: [embed] });
             console.error(error);
         }
     }

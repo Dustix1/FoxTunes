@@ -9,6 +9,7 @@ export const command: CommandMessage = {
     description: 'Overseer advertisement.',
     group: 'general',
     async execute(message: Message, args: any) {
+        if (!message.inGuild()) return;
         const overseerEmbed = new EmbedBuilder()
             .setColor('#ff0000')
             .setTitle('The Overseer')

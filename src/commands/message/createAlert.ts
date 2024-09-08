@@ -12,6 +12,7 @@ export const command: CommandMessage = {
     group: 'general',
     hidden: true,
     async execute(message: Message, args: any) {
+        if (!message.inGuild()) return;
         if (message.author.id !== Keys.ownerID) return;
 
         const desc = message.content.split(' ').slice(1).join(' ');
