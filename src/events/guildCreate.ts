@@ -11,7 +11,6 @@ export const event = {
 
             logMessage(`Joined ${chalk.hex(Keys.secondaryColor).bold(guild.name)} (${guild.id}) with admin perms.`);
             guild.members.fetchMe().then(me => me.setNickname(Keys.nick));
-            registerCommands();
 
         } else {
             logMessage(`${chalk.red.bold(`Joined ${chalk.hex(Keys.secondaryColor).bold(guild.name)} (${guild.id}) without admin perms.`)}`);

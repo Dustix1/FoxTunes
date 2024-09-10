@@ -29,7 +29,7 @@ export const command: CommandSlash = {
         });
 
         if (!interaction.options.getString('command')) {
-            let commandsM = 'You can use !help <command_name> to get info about a specific command.\n\n';
+            let commandsM = 'You can use /help <command_name> to get info about a specific command.\n\n';
             let generalCommands = '**General Commands:**\n';
             let musicPlaybackCommands = '**Music Playback Commands:**\n';
             let queueMgmtCommands = '**Queue Management Commands:**\n';
