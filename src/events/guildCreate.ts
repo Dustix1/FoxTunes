@@ -2,7 +2,6 @@ import { Events, Guild, PermissionsBitField } from "discord.js";
 import logMessage from "../utils/logMessage.js";
 import chalk from "chalk";
 import { Keys } from "../keys.js";
-import registerCommands from "../utils/registerSlashCommands.js";
 
 export const event = {
     name: Events.GuildCreate,

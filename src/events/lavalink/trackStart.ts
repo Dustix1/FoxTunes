@@ -161,8 +161,8 @@ async function startCollector() {
     const collector = guildCollectorCache.get(player.guild)!;
     collector.on('collect', async interaction => {
         const player = client.manager.players.get(interaction.guildId!);
-        if (!player) {
-            embedReply.setDescription(`There is no player in this guild!`);
+        if (!player?.queue.current) {
+            embedReply.setDescription(`There is nothing playing in this guild!`);
             interaction.reply({ embeds: [embedReply] });
             return collector.stop();
         };
@@ -172,7 +172,7 @@ async function startCollector() {
         embed = new EmbedBuilder()
             .setColor(Keys.mainColor)
             .setTitle('Now Playing')
-            .setFooter({ text: `by ${player.queue.current!.author}` })
+            .setFooter({ text: `by ${player.queue.current!.author}` }) //err
             .setThumbnail(player.queue.current!.thumbnail!)
             .setDescription(`[**${player.queue.current!.title.replace(/[\p{Emoji}]/gu, '')}**](${player.queue.current!.uri}) - \`${prettyMilliseconds(player.queue.current!.duration!, { colonNotation: true, secondsDecimalDigits: 0 })}\``)
 
