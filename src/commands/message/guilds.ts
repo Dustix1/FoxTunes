@@ -14,13 +14,15 @@ export const command: CommandMessage = {
         if (!message.inGuild()) return;
         if (message.author.id !== Keys.ownerID) return;
         let guilds = '';
+        let guildCount = 0;
         client.guilds.cache.forEach(guild => {
             guilds += `${guild.name} - ${guild.id}\n`;
+            guildCount++;
         });
 
         let guildsEmbed = new EmbedBuilder()
             .setColor(Keys.mainColor)
-            .setTitle('Guilds')
+            .setTitle(`Guilds (${guildCount})`)
             .setDescription(guilds);
 
         message.channel.send({ embeds: [guildsEmbed] });
